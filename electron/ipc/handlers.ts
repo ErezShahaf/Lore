@@ -1,6 +1,7 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import { resizeChatWindow, hideChatWindow } from '../windows/chatWindow'
 import { getSettings, updateSettings } from '../services/settingsService'
+import { setAutoStart } from '../services/autoStartService'
 import {
   checkConnection,
   listModels,
@@ -13,10 +14,20 @@ import { getDocumentsByType } from '../services/lanceService'
 import { processUserInput, clearConversation } from '../services/agentService'
 import type { RetrievalOptions } from '../../shared/types'
 
+function isString(v: unknown): v is string {
+  return typeof v === 'string'
+}
+
+function isNumber(v: unknown): v is number {
+  return typeof v === 'number' && Number.isFinite(v)
+}
+
 export function registerIpcHandlers(): void {
   ipcMain.handle('ping', () => 'pong')
 
-  ipcMain.on('chat:resize', (_event, { height }: { height: number }) => {
+  ipcMain.on('chat:resize', (_event, args: unknown) => {
+    const { height } = (args ?? {}) as { height?: unknown }
+    if (!isNumber(height)) return
     resizeChatWindow(height)
   })
 
@@ -31,11 +42,10 @@ export function registerIpcHandlers(): void {
     'chat:send',
     async (
       event,
-      { message }: {
-        message: string
-        history?: Array<{ role: 'user' | 'assistant'; content: string }>
-      },
+      args: unknown,
     ) => {
+      const { message } = (args ?? {}) as { message?: unknown }
+      if (!isString(message) || message.trim().length === 0) return null
       const sender = event.sender
 
       const status = await checkConnection()
@@ -93,7 +103,11 @@ export function registerIpcHandlers(): void {
     }
   })
 
-  ipcMain.handle('ollama:pull-model', async (event, { name }: { name: string }) => {
+  ipcMain.handle('ollama:pull-model', async (event, args: unknown) => {
+    const { name } = (args ?? {}) as { name?: unknown }
+    if (!isString(name) || name.trim().length === 0) {
+      return { success: false, error: 'Invalid model name' }
+    }
     const sender = event.sender
     try {
       await pullModel(name, (progress) => {
@@ -108,7 +122,11 @@ export function registerIpcHandlers(): void {
     }
   })
 
-  ipcMain.handle('ollama:delete-model', async (_event, { name }: { name: string }) => {
+  ipcMain.handle('ollama:delete-model', async (_event, args: unknown) => {
+    const { name } = (args ?? {}) as { name?: unknown }
+    if (!isString(name) || name.trim().length === 0) {
+      return { success: false, error: 'Invalid model name' }
+    }
     try {
       await deleteModel(name)
       return { success: true }
@@ -126,8 +144,15 @@ export function registerIpcHandlers(): void {
     return getSettings()
   })
 
-  ipcMain.handle('settings:update', (_event, partial) => {
-    const updated = updateSettings(partial)
+  ipcMain.handle('settings:update', (_event, partial: unknown) => {
+    if (!partial || typeof partial !== 'object') return getSettings()
+
+    const updated = updateSettings(partial as Partial<import('../../shared/types').AppSettings>)
+
+    if ('startOnLogin' in (partial as Record<string, unknown>)) {
+      setAutoStart(updated.startOnLogin)
+    }
+
     for (const win of BrowserWindow.getAllWindows()) {
       win.webContents.send('settings:changed', updated)
     }
@@ -151,7 +176,9 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(
     'db:search',
-    async (_event, { query, options }: { query: string; options?: RetrievalOptions }) => {
+    async (_event, args: unknown) => {
+      const { query, options } = (args ?? {}) as { query?: unknown; options?: RetrievalOptions }
+      if (!isString(query)) return { error: 'Invalid query' }
       try {
         const docs = await retrieveRelevantDocuments(query, options)
         return docs.map((d) => ({ ...d, vector: undefined }))
@@ -161,7 +188,9 @@ export function registerIpcHandlers(): void {
     },
   )
 
-  ipcMain.handle('db:get-by-type', async (_event, { type }: { type: string }) => {
+  ipcMain.handle('db:get-by-type', async (_event, args: unknown) => {
+    const { type } = (args ?? {}) as { type?: unknown }
+    if (!isString(type)) return { error: 'Invalid type' }
     try {
       const docs = await getDocumentsByType(type)
       return docs.map((d) => ({ ...d, vector: undefined }))

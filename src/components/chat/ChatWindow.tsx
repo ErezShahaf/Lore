@@ -11,7 +11,7 @@ export function ChatWindow() {
   useWindowResize(containerRef)
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden rounded-xl border border-border/30 bg-[#0e0e0e]/95 backdrop-blur-xl">
+    <div className="animate-scale-in flex h-screen flex-col overflow-hidden rounded-xl border border-border/30 bg-[#0e0e0e]/95 backdrop-blur-xl">
       <div ref={containerRef} className="flex min-h-0 flex-1 flex-col">
         <MessageList messages={messages} isLoading={isLoading} statusMessage={statusMessage} />
       </div>

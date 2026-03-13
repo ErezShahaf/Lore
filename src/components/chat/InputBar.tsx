@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Send } from 'lucide-react'
+import { Send, X } from 'lucide-react'
 
 interface InputBarProps {
   onSend: (message: string) => void
@@ -8,10 +8,18 @@ interface InputBarProps {
 
 export function InputBar({ onSend, disabled }: InputBarProps) {
   const [value, setValue] = useState('')
+  const [flashing, setFlashing] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     textareaRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    const cleanup = window.loreAPI.onChatReset(() => {
+      requestAnimationFrame(() => textareaRef.current?.focus())
+    })
+    return cleanup
   }, [])
 
   const adjustHeight = useCallback(() => {
@@ -24,6 +32,10 @@ export function InputBar({ onSend, disabled }: InputBarProps) {
   const handleSubmit = useCallback(() => {
     const trimmed = value.trim()
     if (!trimmed || disabled) return
+
+    setFlashing(true)
+    setTimeout(() => setFlashing(false), 300)
+
     onSend(trimmed)
     setValue('')
     requestAnimationFrame(() => {
@@ -32,6 +44,16 @@ export function InputBar({ onSend, disabled }: InputBarProps) {
       }
     })
   }, [value, disabled, onSend])
+
+  const handleClear = useCallback(() => {
+    setValue('')
+    requestAnimationFrame(() => {
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto'
+        textareaRef.current.focus()
+      }
+    })
+  }, [])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -49,7 +71,9 @@ export function InputBar({ onSend, disabled }: InputBarProps) {
   )
 
   return (
-    <div className="flex items-end gap-2 border-t border-border/40 bg-[#0d0d0d] px-4 py-3">
+    <div
+      className={`flex items-end gap-2 border-t border-border/40 bg-[#0d0d0d] px-4 py-3 transition-opacity ${flashing ? 'animate-send-flash' : ''}`}
+    >
       <textarea
         ref={textareaRef}
         value={value}
@@ -64,6 +88,14 @@ export function InputBar({ onSend, disabled }: InputBarProps) {
         className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50"
         style={{ maxHeight: 120 }}
       />
+      {value.length > 0 && !disabled && (
+        <button
+          onClick={handleClear}
+          className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+        >
+          <X className="size-3.5" />
+        </button>
+      )}
       <button
         onClick={handleSubmit}
         disabled={disabled || !value.trim()}

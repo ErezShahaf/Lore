@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron'
 import { join } from 'path'
+import { appendFileSync } from 'fs'
 import { createChatWindow, showChatWindow, getChatWindow, hideChatWindow } from './windows/chatWindow'
 import { createTray, destroyTray } from './tray/trayManager'
 import { registerShortcuts, unregisterShortcuts } from './shortcuts'
@@ -7,6 +8,28 @@ import { registerIpcHandlers } from './ipc/handlers'
 import { getSettings } from './services/settingsService'
 import { startHealthCheck, stopHealthCheck } from './services/ollamaService'
 import { initialize as initLanceDB, cleanupOldDeleted, compactTable } from './services/lanceService'
+import { applyAutoStart } from './services/autoStartService'
+
+function logErrorToFile(label: string, err: unknown): void {
+  try {
+    const logPath = join(app.getPath('userData'), 'error.log')
+    const timestamp = new Date().toISOString()
+    const message = err instanceof Error ? err.stack ?? err.message : String(err)
+    appendFileSync(logPath, `[${timestamp}] ${label}: ${message}\n`, 'utf-8')
+  } catch {
+    // Avoid infinite loops if logging itself fails
+  }
+}
+
+process.on('uncaughtException', (err) => {
+  console.error('[Lore] Uncaught exception:', err)
+  logErrorToFile('uncaughtException', err)
+})
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[Lore] Unhandled rejection:', reason)
+  logErrorToFile('unhandledRejection', reason)
+})
 
 process.env.DIST_ELECTRON = join(__dirname)
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist')
@@ -50,6 +73,7 @@ if (!gotLock) {
 
     createTray()
     registerShortcuts()
+    applyAutoStart()
 
     startHealthCheck((status) => {
       for (const win of BrowserWindow.getAllWindows()) {

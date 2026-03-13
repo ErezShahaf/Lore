@@ -3,27 +3,44 @@
   "appId": "com.lore.app",
   "productName": "Lore",
   "directories": {
-    "output": "release"
+    "output": "release/${version}"
   },
   "files": [
     "dist-electron/**/*",
     "dist/**/*"
   ],
   "win": {
-    "target": "nsis",
-    "icon": "resources/icon.ico"
+    "target": ["nsis"],
+    "icon": "resources/icon.ico",
+    "artifactName": "${productName}-${version}-Setup.${ext}"
   },
   "nsis": {
-    "oneClick": false,
-    "allowToChangeInstallationDirectory": true
+    "oneClick": true,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": false,
+    "deleteAppDataOnUninstall": false,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true
   },
   "mac": {
-    "target": "dmg",
+    "target": ["dmg"],
     "icon": "resources/icon.icns",
-    "hardenedRuntime": true
+    "category": "public.app-category.productivity",
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false,
+    "entitlements": "build/entitlements.mac.plist",
+    "entitlementsInherit": "build/entitlements.mac.plist",
+    "artifactName": "${productName}-${version}.${ext}"
+  },
+  "dmg": {
+    "contents": [
+      { "x": 130, "y": 220 },
+      { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+    ]
   },
   "linux": {
-    "target": "AppImage",
-    "icon": "resources/icon.png"
+    "target": ["AppImage"],
+    "icon": "resources/icon.png",
+    "category": "Utility"
   }
 }

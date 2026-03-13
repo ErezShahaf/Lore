@@ -14,7 +14,7 @@ export function createChatWindow(): BrowserWindow {
   const x = Math.round(workArea.x + (workArea.width - CHAT_WIDTH) / 2)
   const y = Math.round(workArea.y + workArea.height * 0.35 - CHAT_DEFAULT_HEIGHT / 2)
 
-  chatWindow = new BrowserWindow({
+  const windowOptions: Electron.BrowserWindowConstructorOptions = {
     width: CHAT_WIDTH,
     height: CHAT_DEFAULT_HEIGHT,
     x,
@@ -29,8 +29,25 @@ export function createChatWindow(): BrowserWindow {
       preload: join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
     },
-  })
+  }
+
+  if (process.platform === 'darwin') {
+    windowOptions.vibrancy = 'under-window'
+    windowOptions.visualEffectState = 'active'
+  }
+
+  chatWindow = new BrowserWindow(windowOptions)
+
+  if (process.platform === 'win32') {
+    try {
+      (chatWindow as BrowserWindow & { setBackgroundMaterial?: (m: string) => void })
+        .setBackgroundMaterial?.('acrylic')
+    } catch {
+      // Acrylic not available on older Windows versions
+    }
+  }
 
   if (process.env.VITE_DEV_SERVER_URL) {
     chatWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
@@ -68,6 +85,7 @@ export function hideChatWindow(): void {
   if (!win) return
 
   win.hide()
+  win.setSize(CHAT_WIDTH, CHAT_DEFAULT_HEIGHT)
   win.webContents.send('chat:reset')
 }
 
@@ -82,11 +100,17 @@ export function toggleChatWindow(): void {
   }
 }
 
+let resizeTimer: ReturnType<typeof setTimeout> | null = null
+
 export function resizeChatWindow(height: number): void {
   const win = getChatWindow()
   if (!win) return
 
-  const clamped = Math.max(CHAT_DEFAULT_HEIGHT, Math.min(height, 600))
-  const [width] = win.getSize()
-  win.setSize(width, clamped)
+  if (resizeTimer) clearTimeout(resizeTimer)
+  resizeTimer = setTimeout(() => {
+    if (!win || win.isDestroyed()) return
+    const clamped = Math.max(CHAT_DEFAULT_HEIGHT, Math.min(height, 600))
+    const [width] = win.getSize()
+    win.setSize(width, clamped)
+  }, 16)
 }

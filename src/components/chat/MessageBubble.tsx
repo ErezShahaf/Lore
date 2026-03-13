@@ -11,7 +11,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user'
 
   return (
-    <div className={cn('flex w-full', isUser ? 'justify-end' : 'justify-start')}>
+    <div className={cn('animate-slide-up flex w-full', isUser ? 'justify-end' : 'justify-start')}>
       <div
         className={cn(
           'max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed',
@@ -69,11 +69,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
 export function TypingIndicator() {
   return (
-    <div className="flex justify-start">
+    <div className="animate-fade-in flex justify-start">
       <div className="flex items-center gap-1.5 rounded-xl bg-secondary/60 px-4 py-3">
-        <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:0ms]" />
-        <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:150ms]" />
-        <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:300ms]" />
+        <span className="size-1.5 rounded-full bg-muted-foreground animate-typing-dot" />
+        <span className="size-1.5 rounded-full bg-muted-foreground animate-typing-dot [animation-delay:0.2s]" />
+        <span className="size-1.5 rounded-full bg-muted-foreground animate-typing-dot [animation-delay:0.4s]" />
       </div>
     </div>
   )
