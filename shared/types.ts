@@ -17,6 +17,9 @@ export interface ChatMessage {
 
 export interface LoreAPIType {
   ping: () => Promise<string>
+  resizeChatWindow: (height: number) => void
+  hideChatWindow: () => void
+  onChatReset: (callback: () => void) => () => void
 }
 
 export type InputClassification =
