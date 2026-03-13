@@ -1,4 +1,4 @@
-import type { AppSettings, OllamaModel, OllamaStatus, PullProgress } from '../../shared/types'
+import type { AppSettings, OllamaModel, OllamaStatus, PullProgress, DatabaseStats, RetrievalOptions } from '../../shared/types'
 
 declare global {
   interface Window {
@@ -26,6 +26,10 @@ declare global {
       getSettings: () => Promise<AppSettings>
       updateSettings: (settings: Partial<AppSettings>) => Promise<AppSettings>
       onSettingsChanged: (callback: (settings: AppSettings) => void) => () => void
+
+      getDbStats: () => Promise<DatabaseStats>
+      searchDocuments: (query: string, options?: RetrievalOptions) => Promise<unknown[]>
+      getDocumentsByType: (type: string) => Promise<unknown[]>
     }
   }
 }

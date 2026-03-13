@@ -8,7 +8,10 @@ import {
   deleteModel,
   chat,
 } from '../services/ollamaService'
-import type { ChatRequest } from '../../shared/types'
+import { getStats } from '../services/lanceService'
+import { retrieveRelevantDocuments } from '../services/documentPipeline'
+import { getDocumentsByType } from '../services/lanceService'
+import type { ChatRequest, RetrievalOptions } from '../../shared/types'
 
 const SYSTEM_PROMPT =
   'You are Lore, a personal knowledge assistant. You help the user capture thoughts and answer questions about their stored knowledge. Be concise and helpful.'
@@ -133,5 +136,41 @@ export function registerIpcHandlers(): void {
       win.webContents.send('settings:changed', updated)
     }
     return updated
+  })
+
+  // ── Database ──────────────────────────────────────────────────
+
+  ipcMain.handle('db:stats', async () => {
+    try {
+      return await getStats()
+    } catch (err) {
+      return {
+        totalDocuments: 0,
+        deletedDocuments: 0,
+        documentsByType: {},
+        error: err instanceof Error ? err.message : 'Failed to get stats',
+      }
+    }
+  })
+
+  ipcMain.handle(
+    'db:search',
+    async (_event, { query, options }: { query: string; options?: RetrievalOptions }) => {
+      try {
+        const docs = await retrieveRelevantDocuments(query, options)
+        return docs.map((d) => ({ ...d, vector: undefined }))
+      } catch (err) {
+        return { error: err instanceof Error ? err.message : 'Search failed' }
+      }
+    },
+  )
+
+  ipcMain.handle('db:get-by-type', async (_event, { type }: { type: string }) => {
+    try {
+      const docs = await getDocumentsByType(type)
+      return docs.map((d) => ({ ...d, vector: undefined }))
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : 'Query failed' }
+    }
   })
 }

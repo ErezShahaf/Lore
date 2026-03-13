@@ -8,6 +8,46 @@ export interface ThoughtDocument {
   metadata?: Record<string, unknown>
 }
 
+// ── Vector database types ─────────────────────────────────────
+
+export type DocumentType = 'thought' | 'todo' | 'instruction' | 'meeting' | 'note'
+
+export interface LoreDocument {
+  id: string
+  content: string
+  vector: Float32Array
+  type: DocumentType
+  createdAt: string
+  updatedAt: string
+  date: string
+  tags: string
+  source: string
+  metadata: string
+  isDeleted: boolean
+}
+
+export interface StoreThoughtInput {
+  content: string
+  originalInput: string
+  type: DocumentType
+  date: string
+  tags: string[]
+}
+
+export interface RetrievalOptions {
+  type?: DocumentType
+  dateFrom?: string
+  dateTo?: string
+  maxResults?: number
+  similarityThreshold?: number
+}
+
+export interface DatabaseStats {
+  totalDocuments: number
+  deletedDocuments: number
+  documentsByType: Record<string, number>
+}
+
 export interface ChatMessage {
   id: string
   role: 'user' | 'assistant'

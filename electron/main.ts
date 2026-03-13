@@ -6,6 +6,7 @@ import { registerShortcuts, unregisterShortcuts } from './shortcuts'
 import { registerIpcHandlers } from './ipc/handlers'
 import { getSettings } from './services/settingsService'
 import { startHealthCheck, stopHealthCheck } from './services/ollamaService'
+import { initialize as initLanceDB, cleanupOldDeleted, compactTable } from './services/lanceService'
 
 process.env.DIST_ELECTRON = join(__dirname)
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist')
@@ -22,8 +23,21 @@ if (!gotLock) {
     showChatWindow()
   })
 
-  app.whenReady().then(() => {
+  app.whenReady().then(async () => {
     registerIpcHandlers()
+
+    try {
+      await initLanceDB()
+      console.log('[Lore] LanceDB initialized')
+
+      cleanupOldDeleted(30).then((count) => {
+        if (count > 0) console.log(`[Lore] Cleaned up ${count} old deleted documents`)
+      }).catch(() => {})
+
+      compactTable().catch(() => {})
+    } catch (err) {
+      console.error('[Lore] Failed to initialize LanceDB:', err)
+    }
 
     const settings = getSettings()
     const chatWindow = createChatWindow()

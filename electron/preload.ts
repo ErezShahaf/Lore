@@ -1,5 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { AppSettings, OllamaModel, OllamaStatus, PullProgress } from '../shared/types'
+import type {
+  AppSettings,
+  OllamaModel,
+  OllamaStatus,
+  PullProgress,
+  DatabaseStats,
+  RetrievalOptions,
+} from '../shared/types'
 
 const loreAPI = {
   ping: () => ipcRenderer.invoke('ping'),
@@ -82,6 +89,20 @@ const loreAPI = {
     ipcRenderer.on('settings:changed', handler)
     return () => ipcRenderer.removeListener('settings:changed', handler)
   },
+
+  // ── Database ──────────────────────────────────────────────
+
+  getDbStats: (): Promise<DatabaseStats> =>
+    ipcRenderer.invoke('db:stats'),
+
+  searchDocuments: (
+    query: string,
+    options?: RetrievalOptions,
+  ): Promise<unknown[]> =>
+    ipcRenderer.invoke('db:search', { query, options }),
+
+  getDocumentsByType: (type: string): Promise<unknown[]> =>
+    ipcRenderer.invoke('db:get-by-type', { type }),
 }
 
 contextBridge.exposeInMainWorld('loreAPI', loreAPI)
