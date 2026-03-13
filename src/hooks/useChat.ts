@@ -87,10 +87,17 @@ export function useChat() {
     }
   }, [clearMessages])
 
+  const messagesRef = useRef<ChatMessage[]>([])
+  messagesRef.current = messages
+
   const sendMessage = useCallback(
-    async (text: string) => {
+    (text: string) => {
       const trimmed = text.trim()
       if (!trimmed || isLoading) return
+
+      const history = messagesRef.current
+        .filter(m => !m.isStreaming)
+        .map(m => ({ role: m.role, content: m.content }))
 
       const userMsg: ChatMessage = {
         id: createId(),
@@ -109,18 +116,14 @@ export function useChat() {
       }
 
       streamingIdRef.current = assistantId
-
-      setMessages(prev => {
-        const history = prev
-          .filter(m => !m.isStreaming)
-          .map(m => ({ role: m.role, content: m.content }))
-
-        window.loreAPI.sendMessage(trimmed, history)
-
-        return [...prev, userMsg, assistantMsg]
-      })
-
       setIsLoading(true)
+      setMessages(prev => [...prev, userMsg, assistantMsg])
+
+      window.loreAPI.sendMessage(trimmed, history).catch(() => {
+        streamingIdRef.current = null
+        setIsLoading(false)
+        setStatusMessage(null)
+      })
     },
     [isLoading],
   )

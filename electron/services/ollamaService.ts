@@ -150,6 +150,7 @@ export async function* chat(request: ChatRequest): AsyncGenerator<string> {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(request),
+    signal: AbortSignal.timeout(120_000),
   })
 
   if (!res.ok) {

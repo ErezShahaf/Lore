@@ -33,6 +33,8 @@ export async function* handleThought(
   const settings = getSettings()
   const docType = mapSubtypeToDocType(classification.subtype)
 
+  yield { type: 'status', message: 'Restructuring your note...' }
+
   let restructured = ''
   try {
     const stream = chat({
@@ -49,6 +51,8 @@ export async function* handleThought(
   } catch {
     restructured = userInput
   }
+
+  yield { type: 'status', message: 'Saving...' }
 
   const today = new Date().toISOString().split('T')[0]
 

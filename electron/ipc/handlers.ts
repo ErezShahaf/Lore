@@ -90,6 +90,7 @@ export function registerIpcHandlers(): void {
         const errorMessage =
           err instanceof Error ? err.message : 'An unexpected error occurred'
         sender.send('chat:response-error', { error: errorMessage })
+        sender.send('chat:response-end')
       }
 
       return null
