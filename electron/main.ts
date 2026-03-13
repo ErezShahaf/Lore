@@ -1,9 +1,10 @@
-import { app, BrowserWindow } from 'electron'
+import { app } from 'electron'
 import { join } from 'path'
-import { createChatWindow, showChatWindow, getChatWindow } from './windows/chatWindow'
+import { createChatWindow, showChatWindow, getChatWindow, hideChatWindow } from './windows/chatWindow'
 import { createTray, destroyTray } from './tray/trayManager'
 import { registerShortcuts, unregisterShortcuts } from './shortcuts'
 import { registerIpcHandlers } from './ipc/handlers'
+import { getSettings } from './services/settingsService'
 
 process.env.DIST_ELECTRON = join(__dirname)
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist')
@@ -23,18 +24,21 @@ if (!gotLock) {
   app.whenReady().then(() => {
     registerIpcHandlers()
 
+    const settings = getSettings()
     const chatWindow = createChatWindow()
 
-    chatWindow.on('blur', () => {
-      chatWindow.hide()
-    })
+    if (settings.hideOnBlur) {
+      chatWindow.on('blur', () => {
+        hideChatWindow()
+      })
+    }
 
     createTray()
     registerShortcuts()
   })
 
   app.on('window-all-closed', () => {
-    // Keep running in tray — don't quit
+    // Keep running in tray
   })
 
   app.on('activate', () => {

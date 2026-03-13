@@ -15,11 +15,13 @@ export interface ChatMessage {
   timestamp: string
 }
 
-export interface LoreAPIType {
-  ping: () => Promise<string>
-  resizeChatWindow: (height: number) => void
-  hideChatWindow: () => void
-  onChatReset: (callback: () => void) => () => void
+export interface AppSettings {
+  shortcut: string
+  startOnLogin: boolean
+  hideOnBlur: boolean
+  selectedModel: string
+  embeddingModel: string
+  ollamaHost: string
 }
 
 export type InputClassification =

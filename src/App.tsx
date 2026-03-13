@@ -1,14 +1,19 @@
+import { ChatWindow } from '@/components/chat/ChatWindow'
+import { SettingsWindow } from '@/components/settings/SettingsWindow'
+
+function getWindowType(): 'chat' | 'settings' {
+  const params = new URLSearchParams(window.location.search)
+  return params.get('window') === 'settings' ? 'settings' : 'chat'
+}
+
 function App() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-950">
-      <div className="text-center">
-        <h1 className="text-5xl font-bold tracking-tight text-white">Lore</h1>
-        <p className="mt-3 text-lg text-neutral-400">
-          AI-powered thought capture &amp; recall
-        </p>
-      </div>
-    </div>
-  )
+  const windowType = getWindowType()
+
+  if (windowType === 'settings') {
+    return <SettingsWindow />
+  }
+
+  return <ChatWindow />
 }
 
 export default App

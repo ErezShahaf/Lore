@@ -1,6 +1,7 @@
 import { Tray, Menu, nativeImage, app } from 'electron'
 import { join } from 'path'
 import { showChatWindow } from '../windows/chatWindow'
+import { createSettingsWindow } from '../windows/settingsWindow'
 
 let tray: Tray | null = null
 
@@ -35,9 +36,7 @@ export function createTray(): Tray {
     },
     {
       label: 'Settings',
-      click: () => {
-        // Placeholder — settings window comes in Phase 3
-      },
+      click: () => createSettingsWindow(),
     },
     { type: 'separator' },
     {
