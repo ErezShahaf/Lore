@@ -1,4 +1,4 @@
-<p align="center">
+ר<p align="center">
   <img src="https://github.com/ErezShahaf/lore/blob/main/icon.png?raw=true" width="80" height="80" />
 </p>
 
@@ -86,6 +86,15 @@ Right-click the tray icon and select **Settings**, or access settings to:
 - Select chat and embedding models
 - Pull or delete Ollama models
 - Enable/disable start on login
+## Star History
+
+<a href="https://www.star-history.com/?repos=ErezShahaf%2FLore&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=ErezShahaf/Lore&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=ErezShahaf/Lore&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=ErezShahaf/Lore&type=date&legend=top-left" />
+ </picture>
+</a>
 
 ## Development
 
