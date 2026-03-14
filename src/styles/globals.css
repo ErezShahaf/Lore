@@ -76,6 +76,37 @@
   scroll-behavior: smooth;
 }
 
+select option {
+  background: var(--color-secondary);
+  color: var(--color-foreground);
+}
+
+select option:checked {
+  background: var(--color-muted);
+}
+
+.chat-input-textarea {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.chat-input-textarea::-webkit-scrollbar {
+  width: 0.625rem;
+}
+
+.chat-input-textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-input-textarea::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 9999px;
+}
+
+.chat-input-textarea::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-border) 85%, white);
+}
+
 html[data-window="chat"],
 html[data-window="chat"] body,
 html[data-window="chat"] #root {

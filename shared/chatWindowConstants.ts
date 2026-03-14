@@ -1,0 +1,5 @@
+export const CHAT_WINDOW_WIDTH = 416
+export const CHAT_WINDOW_DEFAULT_HEIGHT = 224
+export const CHAT_WINDOW_MIN_HEIGHT = 300
+export const CHAT_WINDOW_MAX_HEIGHT = 400
+export const SCREEN_MARGIN = 20

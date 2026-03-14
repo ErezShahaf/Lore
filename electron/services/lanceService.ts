@@ -1,4 +1,5 @@
 import { app } from 'electron'
+import { logger } from '../logger'
 import { join } from 'path'
 import { existsSync, mkdirSync } from 'fs'
 import * as lancedb from '@lancedb/lancedb'
@@ -87,7 +88,7 @@ export async function initialize(): Promise<void> {
 
     const existingDim = await getTableVectorDimension()
     if (existingDim !== null && existingDim !== dimension) {
-      console.log(`[LanceDB] Vector dimension mismatch (table=${existingDim}, model=${dimension}), recreating table`)
+      logger.info({ existingDim, dimension }, '[LanceDB] Vector dimension mismatch, recreating table')
       await resetTable()
       return
     }
@@ -96,7 +97,7 @@ export async function initialize(): Promise<void> {
     documentsTable = await db.createEmptyTable('documents', schema)
   }
 
-  console.log('[LanceDB] Initialized at', dbPath)
+  logger.info({ dbPath }, '[LanceDB] Initialized')
 }
 
 async function getTableVectorDimension(): Promise<number | null> {
@@ -119,13 +120,13 @@ export async function resetTable(): Promise<void> {
   const tableNames = await db.tableNames()
   if (tableNames.includes('documents')) {
     await db.dropTable('documents')
-    console.log('[LanceDB] Dropped existing documents table')
+    logger.info('[LanceDB] Dropped existing documents table')
   }
 
   const dimension = getEmbeddingDimension()
   const schema = buildSchema(dimension)
   documentsTable = await db.createEmptyTable('documents', schema)
-  console.log(`[LanceDB] Created new documents table (dimension=${dimension})`)
+  logger.info({ dimension }, '[LanceDB] Created new documents table')
 }
 
 function getTable(): lancedb.Table {

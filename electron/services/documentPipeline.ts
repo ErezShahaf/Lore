@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
+import { logger } from '../logger'
 import { embedText } from './embeddingService'
 import {
   insertDocument,
@@ -69,7 +70,7 @@ export async function storeThought(input: StoreThoughtInput): Promise<LoreDocume
   }
 
   await insertDocument(document)
-  console.log(`[store] saved ${document.type} (id=${document.id.slice(0, 8)}) tags=[${input.tags}] content="${input.content.slice(0, 80)}"`)
+  logger.debug({ type: document.type, id: document.id.slice(0, 8), tags: input.tags, contentPreview: input.content.slice(0, 80) }, '[store] saved document')
   return document
 }
 
@@ -95,7 +96,7 @@ export async function storeThoughtWithMetadata(
   }
 
   await insertDocument(document)
-  console.log(`[store] saved ${document.type} (id=${document.id.slice(0, 8)}) tags=[${input.tags}] content="${input.content.slice(0, 80)}"`)
+  logger.debug({ type: document.type, id: document.id.slice(0, 8), tags: input.tags, contentPreview: input.content.slice(0, 80) }, '[store] saved document')
   return document
 }
 
@@ -159,15 +160,17 @@ export async function retrieveWithAdaptiveThreshold(
     .sort((a, b) => b.score - a.score)
 
   if (boosted.length > 0) {
-    console.log(
-      `[retrieval] top scores: ${boosted.map((d) => `${d.score.toFixed(3)}${d.tags ? ` [${d.tags}]` : ''}`).join(', ')}`,
+    logger.debug(
+      { scores: boosted.map((d) => `${d.score.toFixed(3)}${d.tags ? ` [${d.tags}]` : ''}`) },
+      '[retrieval] top scores',
     )
   }
 
   const relevant = applyRelevanceCliff(boosted)
 
-  console.log(
-    `[retrieval] ${boosted.length} candidates → ${relevant.length} after cliff+floor (min=${MINIMUM_RELEVANCE_SCORE})`,
+  logger.debug(
+    { candidates: boosted.length, afterCliff: relevant.length, minScore: MINIMUM_RELEVANCE_SCORE },
+    '[retrieval] candidates after cliff+floor',
   )
 
   return {
@@ -233,16 +236,17 @@ export async function multiQueryRetrieve(
   const scored = [...bestById.values()].sort((a, b) => b.score - a.score)
 
   if (scored.length > 0) {
-    console.log(
-      `[multi-query] ${queries.length} queries → ${scored.length} unique docs, ` +
-      `scores: ${scored.map((d) => d.score.toFixed(3)).join(', ')}`,
+    logger.debug(
+      { queryCount: queries.length, uniqueDocs: scored.length, scores: scored.map((d) => d.score.toFixed(3)) },
+      '[multi-query] unique docs',
     )
   }
 
   const relevant = applyRelevanceCliff(scored)
 
-  console.log(
-    `[multi-query] ${scored.length} candidates → ${relevant.length} after cliff+floor (min=${MINIMUM_RELEVANCE_SCORE})`,
+  logger.debug(
+    { candidates: scored.length, afterCliff: relevant.length, minScore: MINIMUM_RELEVANCE_SCORE },
+    '[multi-query] candidates after cliff+floor',
   )
 
   return {

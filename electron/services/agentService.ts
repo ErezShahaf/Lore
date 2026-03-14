@@ -1,4 +1,5 @@
 import { classifyInput } from './classifierService'
+import { logger } from '../logger'
 import { handleThought } from './handlers/thoughtHandler'
 import { handleQuestion } from './handlers/questionHandler'
 import { handleCommand } from './handlers/commandHandler'
@@ -54,7 +55,7 @@ export async function* processUserInput(userInput: string): AsyncGenerator<Agent
   try {
     classification = await classifyInput(userInput)
   } catch (err) {
-    console.error('[Agent] Classification failed:', err)
+    logger.error({ err }, '[Agent] Classification failed')
     yield {
       type: 'chunk',
       content: "Sorry, I had trouble understanding that. Could you try rephrasing?",
@@ -63,14 +64,13 @@ export async function* processUserInput(userInput: string): AsyncGenerator<Agent
     return
   }
 
-  console.log(
-    `[Agent] Classified as ${classification.intent}/${classification.subtype} (confidence: ${classification.confidence})`,
+  logger.debug(
+    { intent: classification.intent, subtype: classification.subtype, confidence: classification.confidence },
+    '[Agent] Classified',
   )
 
   if (classification.confidence < CLASSIFICATION_CONFIDENCE_THRESHOLD) {
-    console.warn(
-      `[Agent] Classification confidence too low (${classification.confidence}), refusing to act`,
-    )
+    logger.warn({ confidence: classification.confidence }, '[Agent] Classification confidence too low, refusing to act')
     yield {
       type: 'chunk',
       content: "I'm not sure what you'd like me to do. Could you provide more detail or rephrase?",

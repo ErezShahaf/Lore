@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from 'electron'
+import { logger } from './logger'
 import { join } from 'path'
 import { appendFileSync } from 'fs'
 import { createChatWindow, showChatWindow, getChatWindow } from './windows/chatWindow'
@@ -24,12 +25,12 @@ function logErrorToFile(label: string, err: unknown): void {
 }
 
 process.on('uncaughtException', (err) => {
-  console.error('[Lore] Uncaught exception:', err)
+  logger.error({ err }, '[Lore] Uncaught exception')
   logErrorToFile('uncaughtException', err)
 })
 
 process.on('unhandledRejection', (reason) => {
-  console.error('[Lore] Unhandled rejection:', reason)
+  logger.error({ reason }, '[Lore] Unhandled rejection')
   logErrorToFile('unhandledRejection', reason)
 })
 
@@ -53,15 +54,15 @@ if (!gotLock) {
 
     try {
       await initLanceDB()
-      console.log('[Lore] LanceDB initialized')
+      logger.info('[Lore] LanceDB initialized')
 
       cleanupOldDeleted(30).then((count) => {
-        if (count > 0) console.log(`[Lore] Cleaned up ${count} old deleted documents`)
+        if (count > 0) logger.info({ count }, '[Lore] Cleaned up old deleted documents')
       }).catch(() => {})
 
       compactTable().catch(() => {})
     } catch (err) {
-      console.error('[Lore] Failed to initialize LanceDB:', err)
+      logger.error({ err }, '[Lore] Failed to initialize LanceDB')
     }
 
     const settings = getSettings()
@@ -90,7 +91,7 @@ if (!gotLock) {
       bootstrapOllama()
         .then(() => preloadModels())
         .catch((err) => {
-          console.error('[Lore] Ollama bootstrap error:', err)
+          logger.error({ err }, '[Lore] Ollama bootstrap error')
         })
     }
   })

@@ -20,6 +20,8 @@ jobs:
 
       - name: Build Mac DMG
         run: npm run build:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload DMG artifact
         uses: actions/upload-artifact@v4

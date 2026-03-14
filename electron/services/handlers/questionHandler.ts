@@ -1,4 +1,5 @@
 import { chat } from '../ollamaService'
+import { logger } from '../../logger'
 import {
   retrieveWithAdaptiveThreshold,
   retrieveRelevantDocuments,
@@ -38,7 +39,7 @@ export async function* handleQuestion(
     retrievalOpts.tags = classification.extractedTags
   }
 
-  console.log(`[question] searching "${userInput}" with tags=${JSON.stringify(classification.extractedTags)}`)
+  logger.debug({ userInput, tags: classification.extractedTags }, '[question] searching')
 
   const result = await retrieveWithAdaptiveThreshold(userInput, retrievalOpts)
   let documents = result.documents

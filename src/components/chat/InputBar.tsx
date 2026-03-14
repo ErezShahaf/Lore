@@ -31,13 +31,6 @@ export function InputBar({ onSend, onRequestClose, disabled, disabledReason }: I
     return cleanup
   }, [])
 
-  const adjustHeight = useCallback(() => {
-    const el = textareaRef.current
-    if (!el) return
-    el.style.height = 'auto'
-    el.style.height = `${Math.min(el.scrollHeight, 120)}px`
-  }, [])
-
   const handleSubmit = useCallback(() => {
     const trimmed = value.trim()
     if (!trimmed || disabled) return
@@ -47,22 +40,12 @@ export function InputBar({ onSend, onRequestClose, disabled, disabledReason }: I
 
     onSend(trimmed)
     setValue('')
-    requestAnimationFrame(() => {
-      if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto'
-      }
-    })
     setTimeout(() => textareaRef.current?.focus(), 50)
   }, [value, disabled, onSend])
 
   const handleClear = useCallback(() => {
     setValue('')
-    requestAnimationFrame(() => {
-      if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto'
-        textareaRef.current.focus()
-      }
-    })
+    textareaRef.current?.focus()
   }, [])
 
   const handleKeyDown = useCallback(
@@ -82,21 +65,17 @@ export function InputBar({ onSend, onRequestClose, disabled, disabledReason }: I
 
   return (
     <div
-      className={`flex items-end gap-2 border-t border-border/40 bg-[#0d0d0d] px-4 py-3 transition-opacity ${flashing ? 'animate-send-flash' : ''}`}
+      className={`flex shrink-0 items-end gap-2 border-t border-border/40 bg-[#0d0d0d] px-4 py-3 transition-opacity ${flashing ? 'animate-send-flash' : ''}`}
     >
       <textarea
         ref={textareaRef}
         value={value}
-        onChange={e => {
-          setValue(e.target.value)
-          adjustHeight()
-        }}
+        onChange={e => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={disabledReason || "Type a thought or ask a question..."}
         disabled={disabled}
         rows={1}
-        className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50"
-        style={{ maxHeight: 120 }}
+        className="chat-input-textarea h-[38px] min-h-0 flex-1 resize-none overflow-y-auto bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50"
       />
       {value.length > 0 && !disabled && (
         <button

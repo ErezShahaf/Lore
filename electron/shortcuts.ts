@@ -1,4 +1,5 @@
 import { globalShortcut } from 'electron'
+import { logger } from './logger'
 import { toggleChatWindow } from './windows/chatWindow'
 
 const DEFAULT_SHORTCUT = 'CommandOrControl+Shift+Space'
@@ -9,7 +10,7 @@ export function registerShortcuts(): void {
   })
 
   if (!success) {
-    console.warn(`Failed to register global shortcut: ${DEFAULT_SHORTCUT}`)
+    logger.warn({ shortcut: DEFAULT_SHORTCUT }, 'Failed to register global shortcut')
   }
 }
 

@@ -3,6 +3,14 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { MessageBubble, TypingIndicator } from './MessageBubble'
 import type { ChatMessage } from '../../../shared/types'
 
+const SCROLL_THRESHOLD_PX = 80
+const USER_SCROLL_THRESHOLD_PX = 20
+
+function isScrolledToBottom(viewport: HTMLDivElement, threshold = SCROLL_THRESHOLD_PX): boolean {
+  const { scrollTop, scrollHeight, clientHeight } = viewport
+  return scrollHeight - scrollTop - clientHeight <= threshold
+}
+
 interface MessageListProps {
   messages: ChatMessage[]
   isLoading: boolean
@@ -11,7 +19,7 @@ interface MessageListProps {
 
 function EmptyState() {
   return (
-    <div className="animate-fade-in flex flex-1 flex-col items-center justify-center px-6 py-8 text-center">
+    <div className="animate-fade-in flex min-h-0 flex-1 flex-col items-center justify-center px-6 py-8 text-center">
       <p className="text-sm text-muted-foreground">
         Store a thought, ask a question, or manage your todos.
       </p>
@@ -24,15 +32,44 @@ function EmptyState() {
 
 export function MessageList({ messages, isLoading, statusMessage }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
+  const viewportRef = useRef<HTMLDivElement | null>(null)
+  const userHasScrolledUpRef = useRef(false)
+  const userMessageCountRef = useRef(0)
 
   useEffect(() => {
+    const viewport = viewportRef.current
+    if (!viewport) return
+
+    const handleScroll = (): void => {
+      if (isScrolledToBottom(viewport, USER_SCROLL_THRESHOLD_PX)) {
+        userHasScrolledUpRef.current = false
+      } else {
+        userHasScrolledUpRef.current = true
+      }
+    }
+    viewport.addEventListener('scroll', handleScroll, { passive: true })
+    return () => viewport.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    const viewport = viewportRef.current
+    if (!viewport) return
+
+    const userMessageCount = messages.filter(m => m.role === 'user').length
+    if (userMessageCount > userMessageCountRef.current) {
+      userMessageCountRef.current = userMessageCount
+      userHasScrolledUpRef.current = false
+    }
+
+    if (userHasScrolledUpRef.current) return
+    if (!isScrolledToBottom(viewport)) return
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isLoading, statusMessage])
 
   if (messages.length === 0 && !isLoading) return <EmptyState />
 
   return (
-    <ScrollArea className="flex-1 overflow-hidden">
+    <ScrollArea className="flex min-h-0 flex-[0_0_70%] overflow-hidden" viewportRef={viewportRef}>
       <div className="flex flex-col gap-3 p-4">
         {messages.map(msg => (
           <MessageBubble key={msg.id} message={msg} />

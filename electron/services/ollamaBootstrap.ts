@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from 'electron'
+import { logger } from '../logger'
 import { join } from 'path'
 import { ElectronOllama } from 'electron-ollama'
 import { getSettings } from './settingsService'
@@ -47,7 +48,7 @@ export async function bootstrapOllama(customBasePath?: string): Promise<void> {
 
   try {
     if (await eo.isRunning()) {
-      console.warn(
+      logger.warn(
         '[Lore] Ollama already running — OLLAMA_MAX_LOADED_MODELS and other env vars will not apply to the external instance. ' +
         'If models keep reloading, restart Ollama so it picks up the app\'s environment.',
       )
@@ -68,15 +69,15 @@ export async function bootstrapOllama(customBasePath?: string): Promise<void> {
         broadcast({ phase: 'downloading', percent, message })
       },
       serverLog: (message) => {
-        console.log('[Ollama]', message)
+        logger.debug({ message }, '[Ollama]')
       },
     })
 
-    console.log('[Lore] Ollama started via electron-ollama')
+    logger.info('[Lore] Ollama started via electron-ollama')
     broadcast({ phase: 'ready', percent: 100, message: 'AI engine is ready' })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to start AI engine'
-    console.error('[Lore] Ollama bootstrap failed:', message)
+    logger.error({ message }, '[Lore] Ollama bootstrap failed')
     broadcast({ phase: 'error', percent: 0, message })
   }
 }
@@ -84,14 +85,14 @@ export async function bootstrapOllama(customBasePath?: string): Promise<void> {
 export async function stopOllama(): Promise<void> {
   try {
     await eo?.getServer()?.stop()
-    console.log('[Lore] Ollama server stopped')
+    logger.info('[Lore] Ollama server stopped')
   } catch {
     // Ignore shutdown errors
   }
 }
 
 export async function restartOllamaWithNewModelsPath(): Promise<void> {
-  console.log('[Lore] Restarting Ollama with updated models path...')
+  logger.info('[Lore] Restarting Ollama with updated models path...')
   await stopOllama()
   await new Promise(resolve => setTimeout(resolve, 500))
   await bootstrapOllama()

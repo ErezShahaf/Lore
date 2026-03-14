@@ -1,4 +1,5 @@
 import { ipcMain, BrowserWindow, dialog, app, shell } from 'electron'
+import { logger } from '../logger'
 import { resizeChatWindow, hideChatWindow, createChatWindow, showChatWindow } from '../windows/chatWindow'
 import { createSettingsWindow } from '../windows/settingsWindow'
 import { closeSetupWindow } from '../windows/setupWindow'
@@ -237,7 +238,7 @@ export function registerIpcHandlers(): void {
     if ('ollamaModelsPath' in (partial as Record<string, unknown>) &&
         updated.ollamaModelsPath !== prev.ollamaModelsPath) {
       restartOllamaWithNewModelsPath().catch(err => {
-        console.error('[Lore] Failed to restart Ollama after models path change:', err)
+        logger.error({ err }, '[Lore] Failed to restart Ollama after models path change')
       })
     }
 
@@ -245,7 +246,7 @@ export function registerIpcHandlers(): void {
         updated.embeddingModel !== prev.embeddingModel &&
         prev.embeddingModel !== '') {
       resetTable().catch(err => {
-        console.error('[Lore] Failed to reset database after embedding model change:', err)
+        logger.error({ err }, '[Lore] Failed to reset database after embedding model change')
       })
     }
 
@@ -334,7 +335,7 @@ export function registerIpcHandlers(): void {
     updateSettings(settingsUpdate)
 
     bootstrapOllama(resolvedPath).catch((err) => {
-      console.error('[Lore] Setup bootstrap failed:', err)
+      logger.error({ err }, '[Lore] Setup bootstrap failed')
     })
 
     return { success: true }

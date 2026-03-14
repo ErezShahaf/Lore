@@ -1,4 +1,5 @@
 import { chat } from './ollamaService'
+import { logger } from '../logger'
 import { getSettings } from './settingsService'
 import { CLASSIFICATION_PROMPT } from '../../prompts'
 import type { ClassificationResult } from '../../shared/types'
@@ -65,11 +66,11 @@ export async function classifyInput(userInput: string): Promise<ClassificationRe
       }
     } catch (err) {
       lastError = err
-      console.warn(`[Classifier] Attempt ${attempt + 1}/${MAX_RETRIES} failed:`, err)
+      logger.warn({ err, attempt: attempt + 1, maxRetries: MAX_RETRIES }, '[Classifier] Attempt failed')
     }
   }
 
-  console.error('[Classifier] All attempts failed, throwing error')
+  logger.error('[Classifier] All attempts failed, throwing error')
   throw new Error(
     `Classification failed after ${MAX_RETRIES} attempts: ${lastError instanceof Error ? lastError.message : String(lastError)}`,
   )

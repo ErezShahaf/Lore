@@ -1,11 +1,15 @@
 import { BrowserWindow, screen } from 'electron'
 import { join } from 'path'
 
-let chatWindow: BrowserWindow | null = null
+import {
+  CHAT_WINDOW_WIDTH,
+  CHAT_WINDOW_DEFAULT_HEIGHT,
+  CHAT_WINDOW_MIN_HEIGHT,
+  CHAT_WINDOW_MAX_HEIGHT,
+  SCREEN_MARGIN,
+} from '../../shared/chatWindowConstants'
 
-const CHAT_WIDTH = 416
-const CHAT_DEFAULT_HEIGHT = 80
-const SCREEN_MARGIN = 20
+let chatWindow: BrowserWindow | null = null
 
 export function createChatWindow(): BrowserWindow {
   if (chatWindow && !chatWindow.isDestroyed()) return chatWindow
@@ -13,11 +17,11 @@ export function createChatWindow(): BrowserWindow {
   const { workArea } = screen.getPrimaryDisplay()
 
   const x = workArea.x + SCREEN_MARGIN
-  const y = workArea.y + workArea.height - CHAT_DEFAULT_HEIGHT - SCREEN_MARGIN
+  const y = workArea.y + workArea.height - CHAT_WINDOW_DEFAULT_HEIGHT - SCREEN_MARGIN
 
   const windowOptions: Electron.BrowserWindowConstructorOptions = {
-    width: CHAT_WIDTH,
-    height: CHAT_DEFAULT_HEIGHT,
+    width: CHAT_WINDOW_WIDTH,
+    height: CHAT_WINDOW_DEFAULT_HEIGHT,
     x,
     y,
     frame: false,
@@ -80,7 +84,7 @@ export function hideChatWindow(): void {
   if (!win) return
 
   win.hide()
-  win.setSize(CHAT_WIDTH, CHAT_DEFAULT_HEIGHT)
+  win.setSize(CHAT_WINDOW_WIDTH, CHAT_WINDOW_DEFAULT_HEIGHT)
   win.webContents.send('chat:reset')
 }
 
@@ -117,7 +121,7 @@ export function resizeChatWindow(height: number): void {
   if (resizeTimer) clearTimeout(resizeTimer)
   resizeTimer = setTimeout(() => {
     if (!win || win.isDestroyed()) return
-    const clamped = Math.max(CHAT_DEFAULT_HEIGHT, Math.min(height, 480))
+    const clamped = Math.max(CHAT_WINDOW_MIN_HEIGHT, Math.min(height, CHAT_WINDOW_MAX_HEIGHT))
     const [width, oldHeight] = win.getSize()
     const [xPos] = win.getPosition()
     const [, yPos] = win.getPosition()

@@ -1,4 +1,5 @@
 import { getSettings } from './settingsService'
+import { logger } from '../logger'
 import type { OllamaModel, ChatRequest, PullProgress, OllamaStatus } from '../../shared/types'
 
 export const CHAT_NUM_CTX = 8192
@@ -88,10 +89,10 @@ export async function preloadModels(): Promise<void> {
         signal: AbortSignal.timeout(120_000),
       })
         .then((res) => {
-          if (res.ok) console.log(`[Lore] Preloaded chat model: ${chatModel}`)
-          else console.warn(`[Lore] Failed to preload chat model ${chatModel}: ${res.statusText}`)
+          if (res.ok) logger.info({ chatModel }, '[Lore] Preloaded chat model')
+          else logger.warn({ chatModel, status: res.statusText }, '[Lore] Failed to preload chat model')
         })
-        .catch((err) => console.warn(`[Lore] Failed to preload chat model ${chatModel}:`, err)),
+        .catch((err) => logger.warn({ err, chatModel }, '[Lore] Failed to preload chat model')),
     )
   }
 
@@ -108,10 +109,10 @@ export async function preloadModels(): Promise<void> {
         signal: AbortSignal.timeout(120_000),
       })
         .then((res) => {
-          if (res.ok) console.log(`[Lore] Preloaded embedding model: ${embedModel}`)
-          else console.warn(`[Lore] Failed to preload embedding model ${embedModel}: ${res.statusText}`)
+          if (res.ok) logger.info({ embedModel }, '[Lore] Preloaded embedding model')
+          else logger.warn({ embedModel, status: res.statusText }, '[Lore] Failed to preload embedding model')
         })
-        .catch((err) => console.warn(`[Lore] Failed to preload embedding model ${embedModel}:`, err)),
+        .catch((err) => logger.warn({ err, embedModel }, '[Lore] Failed to preload embedding model')),
     )
   }
 

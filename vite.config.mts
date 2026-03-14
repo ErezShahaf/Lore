@@ -13,6 +13,9 @@ export default defineConfig({
       {
         entry: 'electron/main.ts',
         vite: {
+          define: {
+            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
+          },
           build: {
             outDir: 'dist-electron',
             sourcemap: true,
