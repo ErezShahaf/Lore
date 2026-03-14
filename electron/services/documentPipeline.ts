@@ -76,7 +76,7 @@ export async function storeThought(input: StoreThoughtInput): Promise<LoreDocume
 
 export async function storeThoughtWithMetadata(
   input: StoreThoughtInput,
-  metadata: Record<string, unknown>,
+  metadata: object,
 ): Promise<LoreDocument> {
   const vector = await embedText(input.content)
   const now = new Date().toISOString()
@@ -115,7 +115,7 @@ export async function checkForDuplicate(content: string): Promise<LoreDocument |
   const similarity = 1 - distance
 
   if (similarity >= DUPLICATE_THRESHOLD) {
-    return rowToLoreDoc(top)
+    return rowToLoreDoc(top as unknown as Record<string, unknown>)
   }
   return null
 }

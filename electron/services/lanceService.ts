@@ -85,7 +85,7 @@ export async function initialize(): Promise<void> {
   if (tableNames.includes('documents')) {
     documentsTable = await db.openTable('documents')
 
-    const existingDim = getTableVectorDimension()
+    const existingDim = await getTableVectorDimension()
     if (existingDim !== null && existingDim !== dimension) {
       console.log(`[LanceDB] Vector dimension mismatch (table=${existingDim}, model=${dimension}), recreating table`)
       await resetTable()
@@ -99,11 +99,11 @@ export async function initialize(): Promise<void> {
   console.log('[LanceDB] Initialized at', dbPath)
 }
 
-function getTableVectorDimension(): number | null {
+async function getTableVectorDimension(): Promise<number | null> {
   if (!documentsTable) return null
   try {
-    const schema = documentsTable.schema
-    const vectorField = schema.fields.find(f => f.name === 'vector')
+    const schema = await documentsTable.schema()
+    const vectorField = schema.fields.find((f: { name: string }) => f.name === 'vector')
     if (vectorField && vectorField.type instanceof FixedSizeList) {
       return vectorField.type.listSize
     }
@@ -191,10 +191,11 @@ export async function searchSimilar(
   query = query.where(fullFilter)
 
   const results = await query.toArray()
-  return results.map((r: Record<string, unknown>) => {
-    const doc = rowToDoc(r)
-    if ('_distance' in r) {
-      ;(doc as Record<string, unknown>)._distance = r._distance
+  return results.map((r) => {
+    const row = r as unknown as Record<string, unknown>
+    const doc = rowToDoc(row)
+    if ('_distance' in row) {
+      ;(doc as unknown as Record<string, unknown>)._distance = row._distance
     }
     return doc
   })
