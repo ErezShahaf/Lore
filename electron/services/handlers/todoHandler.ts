@@ -102,7 +102,6 @@ export async function* handleTodoList(
 
   const instructions = await retrieveRelevantDocuments(userInput, {
     type: 'instruction',
-    maxResults: 5,
   })
 
   const sorted = sortTodos(todos, instructions)

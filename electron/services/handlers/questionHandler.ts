@@ -7,6 +7,7 @@ import { getSettings } from '../settingsService'
 import {
   RAG_SYSTEM_PROMPT,
   EMPTY_RESULT_RESPONSE,
+  buildRagPrompt,
 } from '../../../prompts'
 import type {
   ClassificationResult,
@@ -39,7 +40,7 @@ export async function* handleQuestion(
 
   const [result, instructions] = await Promise.all([
     retrieveWithAdaptiveThreshold(userInput, retrievalOpts),
-    retrieveRelevantDocuments(userInput, { type: 'instruction', maxResults: 5 }),
+    retrieveRelevantDocuments(userInput, { type: 'instruction' }),
   ])
 
   const documents = result.documents
@@ -167,20 +168,3 @@ function formatInstructions(docs: LoreDocument[]): string {
   return docs.map((d) => d.content).join('\n- ')
 }
 
-// ── Prompt building ───────────────────────────────────────────
-
-function buildRagPrompt(
-  context: string,
-  instructions: string,
-  userInput: string,
-): string {
-  let prompt = `The user asks: "${userInput}"\n\n`
-  prompt += `=== RETRIEVED NOTES FROM DATABASE (this is the ONLY source of truth) ===\n${context}\n=== END OF RETRIEVED NOTES ===\n\n`
-  if (instructions !== '(none)') {
-    prompt += `User preferences/instructions:\n- ${instructions}\n\n`
-  }
-  prompt += `Answer using ONLY the retrieved notes above. Use "you/your" (NEVER "I/my") when stating facts about the user. Do not ask follow-up questions — just answer and stop.
-  Think logically if the context that we receieved really answers the question or if it is unrelated, you don't need to mention everything you receieved there may be mistakes in the vectordb.
-  `
-  return prompt
-}

@@ -10,7 +10,6 @@ export async function* handleInstruction(
 
   const existing = await retrieveRelevantDocuments(userInput, {
     type: 'instruction',
-    maxResults: 3,
     similarityThreshold: 0.8,
   })
 

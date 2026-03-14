@@ -14,11 +14,9 @@ import type {
   TodoMetadata,
 } from '../../shared/types'
 
-const DEFAULT_MAX_RESULTS = 20
+const DEFAULT_MAX_RESULTS = 1000
 const DUPLICATE_THRESHOLD = 0.92
 const RELEVANCE_CLIFF_RATIO = 0.3
-const ADAPTIVE_FETCH_LIMIT = 30
-const ADAPTIVE_MAX_RETURN = 10
 const MINIMUM_RELEVANCE_SCORE = 0.1
 
 const TAG_BOOST_FACTOR = 0.15
@@ -149,7 +147,7 @@ export async function retrieveWithAdaptiveThreshold(
   const queryVector = await embedText(query)
   const filter = buildFilter(options)
 
-  const rawResults = await searchSimilar(queryVector, ADAPTIVE_FETCH_LIMIT, filter)
+  const rawResults = await searchSimilar(queryVector, 1000, filter)
 
   const scored: ScoredDocument[] = rawResults.map((doc) => {
     const distance = '_distance' in doc
@@ -187,7 +185,7 @@ function applyRelevanceCliff(results: ScoredDocument[]): ScoredDocument[] {
 
   const kept: ScoredDocument[] = [results[0]]
 
-  for (let i = 1; i < results.length && kept.length < ADAPTIVE_MAX_RETURN; i++) {
+  for (let i = 1; i < results.length; i++) {
     if (results[i].score < MINIMUM_RELEVANCE_SCORE) break
 
     const gap = results[i - 1].score - results[i].score
@@ -214,7 +212,7 @@ export async function multiQueryRetrieve(
   const queryVectors = await Promise.all(queries.map((q) => embedText(q)))
 
   const allResults = await Promise.all(
-    queryVectors.map((vec) => searchSimilar(vec, ADAPTIVE_FETCH_LIMIT, filter)),
+    queryVectors.map((vec) => searchSimilar(vec, 1000, filter)),
   )
 
   const bestById = new Map<string, ScoredDocument>()

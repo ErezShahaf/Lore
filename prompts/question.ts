@@ -26,3 +26,21 @@ FORMATTING:
 
 export const EMPTY_RESULT_RESPONSE =
   "I don't have any notes about that topic. Would you like to tell me about it so I can save it?"
+
+export function buildRagPrompt(
+  context: string,
+  instructions: string,
+  userInput: string,
+): string {
+  let prompt = `
+  You are Lore, an AI personal knowledge assistant where the user can store information and then ask you about it.
+  The user currently has a question for you about their stored data : === USER INPUT === ${userInput} === END OF USER INPUT ===`
+  prompt += `we looked for relevant notes in the vector database and found these: === RETRIEVED NOTES FROM DATABASE === ${context} === END OF RETRIEVED NOTES ===`
+  if (instructions !== '(none)') {
+    prompt += `User preferences/instructions:\n- ${instructions}\n\n`
+  }
+  prompt += `The information you have from the vector database is the ONLY source of truth, even if you know something because you were trained on it you cannot say it because your job is to gather information from the data you got and summarize it.Answer using ONLY the retrieved notes above. Use "you/your" (NEVER "I/my") when stating facts about the user. Do not ask follow-up questions — just answer and stop.
+  Also, think for a moment what was the user asking and if that information we receieved really answers the question, sometimes you will get unrelated things but will need to summarize what IS relevant and ignore the rest.
+  `
+  return prompt
+}

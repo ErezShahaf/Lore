@@ -35,7 +35,7 @@ export async function* handleCommand(
   yield { type: 'status', message: 'Finding relevant documents...' }
 
   const settings = getSettings()
-  const documents = await retrieveRelevantDocuments(userInput, { maxResults: 10 })
+  const documents = await retrieveRelevantDocuments(userInput)
 
   if (documents.length === 0) {
     yield {
