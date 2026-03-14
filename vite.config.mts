@@ -15,6 +15,7 @@ export default defineConfig({
         vite: {
           build: {
             outDir: 'dist-electron',
+            sourcemap: true,
             rollupOptions: {
               external: ['electron', '@lancedb/lancedb', 'apache-arrow'],
             },
@@ -29,6 +30,7 @@ export default defineConfig({
         vite: {
           build: {
             outDir: 'dist-electron',
+            sourcemap: true,
             rollupOptions: {
               external: ['electron'],
             },

@@ -3,30 +3,13 @@ import { retrieveRelevantDocuments } from '../documentPipeline'
 import { softDeleteDocument, updateDocument } from '../lanceService'
 import { getSettings } from '../settingsService'
 import { embedText } from '../embeddingService'
+import { TARGET_IDENTIFICATION_PROMPT } from '../../../prompts'
 import type {
   ClassificationResult,
   AgentEvent,
   LoreDocument,
   CommandTarget,
 } from '../../../shared/types'
-
-const TARGET_IDENTIFICATION_PROMPT = `The user wants to {action} something in their personal knowledge base.
-Based on their input and the following matching documents, identify which document(s) they're referring to.
-
-User input: {userInput}
-
-Matching documents:
-{documents}
-
-Return JSON with this exact structure:
-{
-  "targetDocumentIds": ["id1"],
-  "action": "delete" | "update" | "complete",
-  "updatedContent": "<new content if action is update, null otherwise>",
-  "confidence": 0.0-1.0
-}
-
-IMPORTANT: Return ONLY valid JSON, no other text.`
 
 export async function* handleCommand(
   userInput: string,
@@ -64,6 +47,7 @@ export async function* handleCommand(
       messages: [{ role: 'user', content: prompt }],
       stream: false,
       format: 'json',
+      think: false,
     })
 
     let response = ''

@@ -28,6 +28,7 @@ export async function embedText(text: string): Promise<Float32Array> {
     body: JSON.stringify({
       model: getModel(),
       input: text,
+      keep_alive: -1,
     }),
     signal: AbortSignal.timeout(30_000),
   })
@@ -53,6 +54,7 @@ export async function embedTexts(texts: string[]): Promise<Float32Array[]> {
     body: JSON.stringify({
       model: getModel(),
       input: texts,
+      keep_alive: -1,
     }),
     signal: AbortSignal.timeout(60_000),
   })

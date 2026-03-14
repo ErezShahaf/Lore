@@ -16,9 +16,10 @@ export function getDefaultOllamaModelsPath(): string {
   return join(app.getPath('home'), '.ollama', 'models')
 }
 
-function applyModelsPath(): void {
+function applyOllamaEnv(): void {
   const settings = getSettings()
   process.env.OLLAMA_MODELS = settings.ollamaModelsPath || getDefaultOllamaModelsPath()
+  process.env.OLLAMA_MAX_LOADED_MODELS = '2'
 }
 
 export async function isOllamaSetupNeeded(): Promise<boolean> {
@@ -42,11 +43,14 @@ export async function bootstrapOllama(customBasePath?: string): Promise<void> {
     basePath,
   })
 
-  applyModelsPath()
+  applyOllamaEnv()
 
   try {
     if (await eo.isRunning()) {
-      console.log('[Lore] Ollama already running, skipping bootstrap')
+      console.warn(
+        '[Lore] Ollama already running — OLLAMA_MAX_LOADED_MODELS and other env vars will not apply to the external instance. ' +
+        'If models keep reloading, restart Ollama so it picks up the app\'s environment.',
+      )
       broadcast({ phase: 'ready', percent: 100, message: 'Ollama is ready' })
       return
     }

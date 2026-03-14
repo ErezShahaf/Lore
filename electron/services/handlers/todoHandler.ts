@@ -6,17 +6,13 @@ import {
 } from '../documentPipeline'
 import { updateDocument } from '../lanceService'
 import { getSettings } from '../settingsService'
+import { RESTRUCTURE_TODO_PROMPT, buildTodoCompletePrompt, buildTodoListPrompt } from '../../../prompts'
 import type {
   ClassificationResult,
   AgentEvent,
   LoreDocument,
   TodoMetadata,
 } from '../../../shared/types'
-
-const RESTRUCTURE_TODO_PROMPT = `Extract a clear, concise todo item from the user's input.
-Return only the task description — no numbering, no prefixes, no extra commentary.
-
-Raw input: {userInput}`
 
 export async function* handleTodoAdd(
   userInput: string,
@@ -34,6 +30,7 @@ export async function* handleTodoAdd(
         { role: 'user', content: RESTRUCTURE_TODO_PROMPT.replace('{userInput}', userInput) },
       ],
       stream: false,
+      think: false,
     })
 
     for await (const chunk of stream) {
@@ -111,13 +108,14 @@ export async function* handleTodoList(
       })
       .join('\n')
 
-    const prompt = `Format this todo list for the user. Apply these user preferences:\n${instructionBlock}\n\nTodos:\n${todoBlock}\n\nReturn a nicely formatted list. Keep it concise.`
+    const prompt = buildTodoListPrompt(instructionBlock, todoBlock)
 
     try {
       const stream = chat({
         model: settings.selectedModel,
         messages: [{ role: 'user', content: prompt }],
         stream: true,
+        think: false,
       })
 
       for await (const chunk of stream) {
@@ -155,15 +153,7 @@ export async function* handleTodoComplete(
     .map((d) => `ID: ${d.id}\nContent: ${d.content}`)
     .join('\n---\n')
 
-  const prompt = `The user wants to mark a todo as complete. Based on their input, identify which todo they're referring to.
-
-User input: ${userInput}
-
-Active todos:
-${docsForPrompt}
-
-Return JSON: { "targetId": "<id of the matching todo>", "confidence": 0.0-1.0 }
-Return ONLY valid JSON.`
+  const prompt = buildTodoCompletePrompt(userInput, docsForPrompt)
 
   let targetId: string | null = null
   try {
@@ -172,6 +162,7 @@ Return ONLY valid JSON.`
       messages: [{ role: 'user', content: prompt }],
       stream: false,
       format: 'json',
+      think: false,
     })
 
     let response = ''

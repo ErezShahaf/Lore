@@ -4,6 +4,7 @@ import {
   retrieveRelevantDocuments,
 } from '../documentPipeline'
 import { getSettings } from '../settingsService'
+import { RAG_SYSTEM_PROMPT, EMPTY_RESULT_RESPONSE } from '../../../prompts'
 import type {
   ClassificationResult,
   AgentEvent,
@@ -11,15 +12,6 @@ import type {
   RetrievalOptions,
   ScoredDocument,
 } from '../../../shared/types'
-
-const RAG_SYSTEM_PROMPT = `You are Lore, a personal knowledge assistant. Answer the user's question using ONLY the following context from their stored notes.
-If the context doesn't contain enough information to answer, say so honestly.
-Be concise and helpful.
-When showing multiple documents, group them by date or type as appropriate.
-Use clear formatting with headers and bullet points when listing multiple items.`
-
-const EMPTY_RESULT_RESPONSE =
-  "I don't have any notes about that yet. Would you like to tell me about it?"
 
 export async function* handleQuestion(
   userInput: string,
@@ -74,6 +66,7 @@ export async function* handleQuestion(
       model: settings.selectedModel,
       messages,
       stream: true,
+      think: false,
     })
 
     for await (const chunk of stream) {
@@ -173,10 +166,10 @@ function buildRagPrompt(
   instructions: string,
   userInput: string,
 ): string {
-  let prompt = `Context from stored notes:\n---\n${context}\n---\n\n`
+  let prompt = `Context from stored notes (this is the ONLY information you may use):\n---\n${context}\n---\n\n`
   if (instructions !== '(none)') {
     prompt += `User preferences/instructions (apply these when formatting your response):\n- ${instructions}\n\n`
   }
-  prompt += `Question: ${userInput}`
+  prompt += `Question: ${userInput}\n\nReminder: Answer using ONLY the documents above. If they don't cover the question, say you don't have notes about it.`
   return prompt
 }

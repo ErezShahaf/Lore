@@ -7,7 +7,7 @@ import { createTray, destroyTray } from './tray/trayManager'
 import { registerShortcuts, unregisterShortcuts } from './shortcuts'
 import { registerIpcHandlers } from './ipc/handlers'
 import { getSettings, updateSettings } from './services/settingsService'
-import { startHealthCheck, stopHealthCheck } from './services/ollamaService'
+import { startHealthCheck, stopHealthCheck, preloadModels } from './services/ollamaService'
 import { bootstrapOllama, stopOllama, isOllamaSetupNeeded } from './services/ollamaBootstrap'
 import { initialize as initLanceDB, cleanupOldDeleted, compactTable } from './services/lanceService'
 import { applyAutoStart } from './services/autoStartService'
@@ -93,9 +93,11 @@ if (!gotLock) {
         })
       }
 
-      bootstrapOllama().catch((err) => {
-        console.error('[Lore] Ollama bootstrap error:', err)
-      })
+      bootstrapOllama()
+        .then(() => preloadModels())
+        .catch((err) => {
+          console.error('[Lore] Ollama bootstrap error:', err)
+        })
     }
   })
 

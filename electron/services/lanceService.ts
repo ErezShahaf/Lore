@@ -79,16 +79,53 @@ export async function initialize(): Promise<void> {
   const dbPath = getDbPath()
   db = await lancedb.connect(dbPath)
 
+  const dimension = getEmbeddingDimension()
   const tableNames = await db.tableNames()
+
   if (tableNames.includes('documents')) {
     documentsTable = await db.openTable('documents')
+
+    const existingDim = getTableVectorDimension()
+    if (existingDim !== null && existingDim !== dimension) {
+      console.log(`[LanceDB] Vector dimension mismatch (table=${existingDim}, model=${dimension}), recreating table`)
+      await resetTable()
+      return
+    }
   } else {
-    const dimension = getEmbeddingDimension()
     const schema = buildSchema(dimension)
     documentsTable = await db.createEmptyTable('documents', schema)
   }
 
   console.log('[LanceDB] Initialized at', dbPath)
+}
+
+function getTableVectorDimension(): number | null {
+  if (!documentsTable) return null
+  try {
+    const schema = documentsTable.schema
+    const vectorField = schema.fields.find(f => f.name === 'vector')
+    if (vectorField && vectorField.type instanceof FixedSizeList) {
+      return vectorField.type.listSize
+    }
+  } catch {
+    // schema introspection not available, skip check
+  }
+  return null
+}
+
+export async function resetTable(): Promise<void> {
+  if (!db) throw new Error('LanceDB not initialized')
+
+  const tableNames = await db.tableNames()
+  if (tableNames.includes('documents')) {
+    await db.dropTable('documents')
+    console.log('[LanceDB] Dropped existing documents table')
+  }
+
+  const dimension = getEmbeddingDimension()
+  const schema = buildSchema(dimension)
+  documentsTable = await db.createEmptyTable('documents', schema)
+  console.log(`[LanceDB] Created new documents table (dimension=${dimension})`)
 }
 
 function getTable(): lancedb.Table {

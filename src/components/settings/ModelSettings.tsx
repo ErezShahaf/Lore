@@ -1,7 +1,15 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Download, Trash2, Check, CircleCheck, Star, X } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Download, Trash2, Check, CircleCheck, Star, X, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   RECOMMENDED_MODELS,
@@ -44,6 +52,8 @@ export function ModelSettings({ settings, onUpdate }: ModelSettingsProps) {
   const [localEmbeddingModel, setLocalEmbeddingModel] = useState(settings.embeddingModel)
   const [chatSaved, setChatSaved] = useState(false)
   const [embeddingSaved, setEmbeddingSaved] = useState(false)
+  const [showEmbeddingWarning, setShowEmbeddingWarning] = useState(false)
+  const [docCount, setDocCount] = useState<number | null>(null)
 
   useEffect(() => { setLocalChatModel(settings.selectedModel) }, [settings.selectedModel])
   useEffect(() => { setLocalEmbeddingModel(settings.embeddingModel) }, [settings.embeddingModel])
@@ -145,7 +155,22 @@ export function ModelSettings({ settings, onUpdate }: ModelSettingsProps) {
     setTimeout(() => setChatSaved(false), 1500)
   }
 
-  const saveEmbeddingModel = () => {
+  const saveEmbeddingModel = async () => {
+    if (settings.embeddingModel && localEmbeddingModel !== settings.embeddingModel) {
+      try {
+        const stats = await window.loreAPI.getDbStats()
+        setDocCount(stats.totalDocuments)
+      } catch {
+        setDocCount(null)
+      }
+      setShowEmbeddingWarning(true)
+      return
+    }
+    commitEmbeddingModel()
+  }
+
+  const commitEmbeddingModel = () => {
+    setShowEmbeddingWarning(false)
     onUpdate({ embeddingModel: localEmbeddingModel })
     setEmbeddingSaved(true)
     setTimeout(() => setEmbeddingSaved(false), 1500)
@@ -398,6 +423,35 @@ export function ModelSettings({ settings, onUpdate }: ModelSettingsProps) {
           The URL where the local AI engine is running (default: http://127.0.0.1:11434).
         </p>
       </div>
+
+      {/* Embedding model change warning */}
+      <Dialog open={showEmbeddingWarning} onOpenChange={setShowEmbeddingWarning}>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="size-5 text-amber-500" />
+              Change Embedding Model?
+            </DialogTitle>
+            <DialogDescription>
+              Switching the embedding model requires clearing all stored data
+              because different models produce incompatible vector dimensions.
+              {docCount !== null && docCount > 0 && (
+                <span className="mt-2 block font-medium text-foreground">
+                  This will permanently delete {docCount} document{docCount !== 1 ? 's' : ''}.
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEmbeddingWarning(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={commitEmbeddingModel}>
+              Delete Data & Switch Model
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

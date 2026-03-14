@@ -2,64 +2,53 @@ import type { RecommendedModel, ModelVariant } from './types'
 
 export const RECOMMENDED_MODELS: RecommendedModel[] = [
   // ── Chat models ───────────────────────────────────────────
+  // Optimized for decision-making speed: all knowledge comes from
+  // the retrieval layer, so we only need fast instruction-following.
   {
-    displayName: 'Llama 3.2',
-    parametersBillions: 3,
+    displayName: 'Qwen 3.5 0.8B',
+    parametersBillions: 0.8,
     tier: 'small',
     category: 'chat',
-    description: 'Fast & lightweight — runs on almost anything',
+    description: 'Ultra-fast — ideal for classification and structured decisions',
     gpuRecommended: false,
     variants: [
-      { tag: 'llama3.2:3b', quantization: 'Q4_K_M', sizeOnDisk: '~2 GB', minRAMGB: 4 },
-      { tag: 'llama3.2:3b-q8_0', quantization: 'Q8', sizeOnDisk: '~3.4 GB', minRAMGB: 6 },
+      { tag: 'qwen3.5:0.8b', quantization: 'Q8', sizeOnDisk: '~1 GB', minRAMGB: 4 },
     ],
   },
   {
-    displayName: 'Phi-4 Mini',
-    parametersBillions: 3.8,
+    displayName: 'Qwen 3.5 2B',
+    parametersBillions: 2,
     tier: 'small',
     category: 'chat',
-    description: 'Best reasoning at small size — recommended default',
+    description: 'Fast and capable — great default for most systems',
     gpuRecommended: false,
     variants: [
-      { tag: 'phi4-mini', quantization: 'Q4_K_M', sizeOnDisk: '~2.5 GB', minRAMGB: 6 },
-      { tag: 'phi4-mini:q8_0', quantization: 'Q8', sizeOnDisk: '~4.5 GB', minRAMGB: 8 },
+      { tag: 'qwen3.5:2b-q4_K_M', quantization: 'Q4_K_M', sizeOnDisk: '~1.9 GB', minRAMGB: 4 },
+      { tag: 'qwen3.5:2b', quantization: 'Q8', sizeOnDisk: '~2.7 GB', minRAMGB: 6 },
     ],
   },
   {
-    displayName: 'Gemma 3',
+    displayName: 'Qwen 3.5 4B',
     parametersBillions: 4,
-    tier: 'small',
-    category: 'chat',
-    description: 'Excellent instruction following, power-efficient',
-    gpuRecommended: false,
-    variants: [
-      { tag: 'gemma3:4b', quantization: 'Q4_K_M', sizeOnDisk: '~3 GB', minRAMGB: 6 },
-      { tag: 'gemma3:4b-q8_0', quantization: 'Q8', sizeOnDisk: '~5 GB', minRAMGB: 8 },
-    ],
-  },
-  {
-    displayName: 'Mistral 7B',
-    parametersBillions: 7,
     tier: 'medium',
     category: 'chat',
-    description: 'Higher quality — needs more RAM and benefits from GPU',
-    gpuRecommended: true,
+    description: 'Best speed-to-quality ratio — recommended default',
+    gpuRecommended: false,
     variants: [
-      { tag: 'mistral:7b', quantization: 'Q4_K_M', sizeOnDisk: '~4.5 GB', minRAMGB: 8 },
-      { tag: 'mistral:7b-q8_0', quantization: 'Q8', sizeOnDisk: '~8 GB', minRAMGB: 12 },
+      { tag: 'qwen3.5:4b', quantization: 'Q4_K_M', sizeOnDisk: '~3.4 GB', minRAMGB: 6 },
+      { tag: 'qwen3.5:4b-q8_0', quantization: 'Q8', sizeOnDisk: '~5.3 GB', minRAMGB: 8 },
     ],
   },
   {
-    displayName: 'Phi-4',
-    parametersBillions: 14,
-    tier: 'large',
+    displayName: 'Qwen 3.5 9B',
+    parametersBillions: 9,
+    tier: 'medium',
     category: 'chat',
-    description: 'Near cloud-quality reasoning — needs 16GB+ RAM',
+    description: 'Richer answers for RAG — pick this if you have a GPU',
     gpuRecommended: true,
     variants: [
-      { tag: 'phi4:14b', quantization: 'Q4_K_M', sizeOnDisk: '~10 GB', minRAMGB: 16 },
-      { tag: 'phi4:14b-q8_0', quantization: 'Q8', sizeOnDisk: '~16 GB', minRAMGB: 24 },
+      { tag: 'qwen3.5:9b', quantization: 'Q4_K_M', sizeOnDisk: '~6.6 GB', minRAMGB: 8 },
+      { tag: 'qwen3.5:9b-q8_0', quantization: 'Q8', sizeOnDisk: '~11 GB', minRAMGB: 16 },
     ],
   },
   // ── Embedding models ──────────────────────────────────────
@@ -88,8 +77,10 @@ export const RECOMMENDED_MODELS: RecommendedModel[] = [
 ]
 
 /**
- * Pick the highest-quality variant of a model that fits within the system's RAM.
- * Falls back to the smallest variant if nothing fits.
+ * Pick the fastest variant of a model that fits within the system's RAM.
+ * Prefers Q4 (smaller/faster) over Q8 — quality gains from heavier
+ * quantization don't matter when the LLM is only making decisions
+ * over user-provided context.
  */
 export function pickBestVariant(
   model: RecommendedModel,
@@ -97,9 +88,9 @@ export function pickBestVariant(
 ): ModelVariant {
   if (totalMemoryGB === null) return model.variants[0]
 
-  for (let i = model.variants.length - 1; i >= 0; i--) {
-    if (model.variants[i].minRAMGB <= totalMemoryGB) {
-      return model.variants[i]
+  for (const variant of model.variants) {
+    if (variant.minRAMGB <= totalMemoryGB) {
+      return variant
     }
   }
 
@@ -107,8 +98,9 @@ export function pickBestVariant(
 }
 
 /**
- * Sort models so the best for the user's system appears first.
- * Compatible models sorted largest-first, then incompatible ones after.
+ * Sort models so the fastest compatible model appears first.
+ * Compatible models sorted smallest-first (fastest), then
+ * incompatible ones after (smallest-first so near-misses show first).
  */
 export function sortModelsForSystem(
   models: RecommendedModel[],
@@ -122,7 +114,6 @@ export function sortModelsForSystem(
 
     if (aFits && !bFits) return -1
     if (!aFits && bFits) return 1
-    if (aFits && bFits) return b.parametersBillions - a.parametersBillions
     return a.parametersBillions - b.parametersBillions
   })
 }

@@ -12,7 +12,7 @@ import {
   deleteModel,
 } from '../services/ollamaService'
 import { bootstrapOllama, restartOllamaWithNewModelsPath } from '../services/ollamaBootstrap'
-import { getStats } from '../services/lanceService'
+import { getStats, resetTable } from '../services/lanceService'
 import { retrieveRelevantDocuments } from '../services/documentPipeline'
 import { getDocumentsByType } from '../services/lanceService'
 import { processUserInput, clearConversation } from '../services/agentService'
@@ -238,6 +238,14 @@ export function registerIpcHandlers(): void {
         updated.ollamaModelsPath !== prev.ollamaModelsPath) {
       restartOllamaWithNewModelsPath().catch(err => {
         console.error('[Lore] Failed to restart Ollama after models path change:', err)
+      })
+    }
+
+    if ('embeddingModel' in (partial as Record<string, unknown>) &&
+        updated.embeddingModel !== prev.embeddingModel &&
+        prev.embeddingModel !== '') {
+      resetTable().catch(err => {
+        console.error('[Lore] Failed to reset database after embedding model change:', err)
       })
     }
 

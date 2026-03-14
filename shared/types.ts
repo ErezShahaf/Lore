@@ -94,11 +94,18 @@ export interface OllamaModel {
   digest: string
 }
 
+export interface ChatRequestOptions {
+  num_ctx?: number
+}
+
 export interface ChatRequest {
   model: string
   messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>
   stream: boolean
   format?: 'json'
+  think?: boolean
+  options?: ChatRequestOptions
+  keep_alive?: number | string
 }
 
 export interface PullProgress {

@@ -1,6 +1,8 @@
 import { getSettings } from './settingsService'
 import type { OllamaModel, ChatRequest, PullProgress, OllamaStatus } from '../../shared/types'
 
+export const CHAT_NUM_CTX = 8192
+
 let connectionStatus: OllamaStatus = { connected: false }
 let healthCheckTimer: ReturnType<typeof setInterval> | null = null
 
@@ -60,6 +62,59 @@ export async function listModels(): Promise<OllamaModel[]> {
     size: m.size as number,
     digest: m.digest as string,
   }))
+}
+
+export async function preloadModels(): Promise<void> {
+  const settings = getSettings()
+  const host = getHost()
+
+  const chatModel = settings.selectedModel
+  const embedModel = settings.embeddingModel || 'nomic-embed-text'
+
+  const jobs: Promise<void>[] = []
+
+  if (chatModel) {
+    jobs.push(
+      fetch(`${host}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: chatModel,
+          messages: [],
+          keep_alive: -1,
+          options: { num_ctx: CHAT_NUM_CTX },
+        }),
+        signal: AbortSignal.timeout(120_000),
+      })
+        .then((res) => {
+          if (res.ok) console.log(`[Lore] Preloaded chat model: ${chatModel}`)
+          else console.warn(`[Lore] Failed to preload chat model ${chatModel}: ${res.statusText}`)
+        })
+        .catch((err) => console.warn(`[Lore] Failed to preload chat model ${chatModel}:`, err)),
+    )
+  }
+
+  if (embedModel) {
+    jobs.push(
+      fetch(`${host}/api/embed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: embedModel,
+          input: '',
+          keep_alive: -1,
+        }),
+        signal: AbortSignal.timeout(120_000),
+      })
+        .then((res) => {
+          if (res.ok) console.log(`[Lore] Preloaded embedding model: ${embedModel}`)
+          else console.warn(`[Lore] Failed to preload embedding model ${embedModel}: ${res.statusText}`)
+        })
+        .catch((err) => console.warn(`[Lore] Failed to preload embedding model ${embedModel}:`, err)),
+    )
+  }
+
+  await Promise.allSettled(jobs)
 }
 
 const activeAbortControllers = new Map<string, AbortController>()
@@ -146,10 +201,15 @@ export async function getModelInfo(modelName: string): Promise<Record<string, un
 }
 
 export async function* chat(request: ChatRequest): AsyncGenerator<string> {
+  const payload = {
+    keep_alive: -1,
+    ...request,
+    options: { num_ctx: CHAT_NUM_CTX, ...request.options },
+  }
   const res = await fetch(`${getHost()}/api/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(request),
+    body: JSON.stringify(payload),
     signal: AbortSignal.timeout(120_000),
   })
 
@@ -196,6 +256,7 @@ export async function generateStructuredResponse(
   model: string,
   prompt: string,
   schema: object,
+  requestOptions?: { think?: boolean; options?: { num_ctx?: number } },
 ): Promise<object> {
   const res = await fetch(`${getHost()}/api/chat`, {
     method: 'POST',
@@ -205,6 +266,9 @@ export async function generateStructuredResponse(
       messages: [{ role: 'user', content: prompt }],
       stream: false,
       format: schema,
+      keep_alive: -1,
+      ...requestOptions,
+      options: { num_ctx: CHAT_NUM_CTX, ...requestOptions?.options },
     }),
   })
 
