@@ -6,11 +6,10 @@
 
 <p align="center">
   AI-powered thought capture and recall — runs entirely on your machine.
+
+  <img src="readme-query-demo.gif" width="500"/>
 </p>
 
----
-<img src="https://i.imgur.com/cfC2pId.gif" width="700"/>
----
 
 ## What is Lore?
 
