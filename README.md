@@ -9,7 +9,7 @@
 </p>
 
 ---
-![Demo](https://i.imgur.com/cfC2pId.gif)
+<img src="https://i.imgur.com/cfC2pId.gif" width="700"/>
 ---
 
 ## What is Lore?
