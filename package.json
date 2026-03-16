@@ -29,7 +29,7 @@
       "target": [
         "dmg"
       ],
-      "icon": "resources/icon.icns",
+      "icon": "resources/icons/icon.icns",
       "category": "public.app-category.productivity",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
