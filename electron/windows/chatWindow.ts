@@ -39,6 +39,10 @@ export function createChatWindow(): BrowserWindow {
     },
   }
 
+  if (process.platform === 'darwin') {
+    windowOptions.hasShadow = false
+  }
+
   chatWindow = new BrowserWindow(windowOptions)
 
   if (process.env.VITE_DEV_SERVER_URL) {
