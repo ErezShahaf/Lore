@@ -45,17 +45,6 @@ Download the latest release from the [Releases](https://github.com/ErezShahaf/lo
 - **macOS** — `Lore-x.x.x.dmg`
 - **Linux** — `Lore-x.x.x.AppImage`
 
-### Build from source
-
-```bash
-git clone https://github.com/ErezShahaf/lore.git
-cd lore
-npm install
-npm run build
-```
-
-Installers will appear in `release/<version>/`.
-
 ## Usage
 
 ### Global shortcut
@@ -67,9 +56,9 @@ Press **Ctrl+Shift+Space** (or **Cmd+Shift+Space** on macOS) to toggle the Lore 
 Just type naturally:
 
 - *"Daily note - sarah needs help with feature implementation"*
-- *"todo remember to buy milk on the way home"*
 - *"The stripe webhook event that caused our refund bug {schawarma: true}"*
 - *"add to my todo "talk to Daniel about the integration tomorrow"*
+- *"todos:  buy milk on the way home, and jump 12 times"*
 
 Lore classifies and stores your input automatically.
 
@@ -84,14 +73,18 @@ Lore searches your stored thoughts and generates an answer with relevant context
 
 ### Managing existing data
 
-- *"remove from todo the note about speaking to daniel"*
-- *"I purchased the milk you can remove that note"*
+- *"My task about jumping 12 times is complete"*
+- *"I purchased the milk you can remove it from the todos"*
 - *"turns out daniel is on holiday, so change the todo we will meet him in the 4th"*
 
  ### Setting regular instructions
- - *"When I ask for my to do list, show the items in bullets."
+ - *"From now on, when I ask for my to do list, show the items in bullets, and add an emoji for each one."
  - *"Always end a response by listing the original content & dates of the rows in the database which helped you give me this information."
- - *"when you give me a list of todos include an emoji for each item."
+ - *"Start each conversation by calling me ."
+
+  ### Getting help
+ - *What can you do?"
+ - *"Wassup my brotha Lore, tell me what u can do or I uninstall"
 
 ### Settings
 
