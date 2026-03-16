@@ -34,17 +34,6 @@ Download the latest release from the [Releases](https://github.com/ErezShahaf/lo
 - **macOS** — `Lore-x.x.x.dmg`
 - **Linux** — `Lore-x.x.x.AppImage`
 
-### Build from source
-
-```bash
-git clone https://github.com/ErezShahaf/lore.git
-cd lore
-npm install
-npm run build
-```
-
-Installers will appear in `release/<version>/`.
-
 ## Usage
 
 ### Global shortcut
