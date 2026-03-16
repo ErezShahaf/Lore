@@ -56,9 +56,9 @@ Press **Ctrl+Shift+Space** (or **Cmd+Shift+Space** on macOS) to toggle the Lore 
 Just type naturally:
 
 - *"Daily note - sarah needs help with feature implementation"*
-- *"todo remember to buy milk on the way home"*
 - *"The stripe webhook event that caused our refund bug {schawarma: true}"*
 - *"add to my todo "talk to Daniel about the integration tomorrow"*
+- - *"add to my todos:  buy milk on the way home, and jump 12 times"*
 
 Lore classifies and stores your input automatically.
 
@@ -73,8 +73,8 @@ Lore searches your stored thoughts and generates an answer with relevant context
 
 ### Managing existing data
 
-- *"remove from todo the note about speaking to daniel"*
-- *"I purchased the milk you can remove that note"*
+- *"My task about jumping 12 times is complete"*
+- *"I purchased the milk you can remove it from the todos"*
 - *"turns out daniel is on holiday, so change the todo we will meet him in the 4th"*
 
  ### Setting regular instructions
