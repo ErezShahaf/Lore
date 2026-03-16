@@ -2,14 +2,21 @@ import { chat } from './ollamaService'
 import { getSettings } from './settingsService'
 import { loadSkill } from './skillLoader'
 import { logger } from '../logger'
-import type { SaveDecompositionResult, ConversationEntry } from '../../shared/types'
+import type { DecomposedItem, SaveDecompositionResult, ConversationEntry } from '../../shared/types'
 
 const DECOMPOSITION_SCHEMA = {
   type: 'object',
   properties: {
     items: {
       type: 'array',
-      items: { type: 'string' },
+      items: {
+        type: 'object',
+        properties: {
+          content: { type: 'string' },
+          tags: { type: 'array', items: { type: 'string' } },
+        },
+        required: ['content', 'tags'],
+      },
     },
   },
   required: ['items'],
@@ -73,20 +80,28 @@ export async function decomposeForStorage(
     { lastError },
     '[SaveDecomposition] All attempts failed, falling back to single item',
   )
-  return { items: [userInput] }
+  return { items: [{ content: userInput, tags: [] }] }
 }
 
-function validateItems(rawItems: unknown, originalInput: string): string[] {
+function validateItems(rawItems: unknown, originalInput: string): DecomposedItem[] {
   if (!Array.isArray(rawItems) || rawItems.length === 0) {
-    return [originalInput]
+    return [{ content: originalInput, tags: [] }]
   }
 
-  const items = rawItems
-    .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
-    .map((item) => item.trim())
+  const items: DecomposedItem[] = rawItems
+    .filter((item): item is Record<string, unknown> =>
+      typeof item === 'object' && item !== null && typeof (item as Record<string, unknown>).content === 'string',
+    )
+    .map((item) => ({
+      content: (item.content as string).trim(),
+      tags: Array.isArray(item.tags)
+        ? (item.tags as unknown[]).filter((t): t is string => typeof t === 'string')
+        : [],
+    }))
+    .filter((item) => item.content.length > 0)
 
   if (items.length === 0) {
-    return [originalInput]
+    return [{ content: originalInput, tags: [] }]
   }
 
   return items

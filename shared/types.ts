@@ -31,7 +31,7 @@ export interface StoreThoughtInput {
   originalInput: string
   type: DocumentType
   date: string
-  tags: string[]
+  tags: readonly string[]
 }
 
 export interface ScoredDocument extends LoreDocument {
@@ -136,8 +136,13 @@ export type InputClassification =
 
 // ── Save decomposition ───────────────────────────────────────
 
+export interface DecomposedItem {
+  readonly content: string
+  readonly tags: readonly string[]
+}
+
 export interface SaveDecompositionResult {
-  items: string[]
+  readonly items: readonly DecomposedItem[]
 }
 
 // ── Agent classification & routing ───────────────────────────

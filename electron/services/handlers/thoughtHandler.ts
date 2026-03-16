@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import { storeThought, storeThoughtWithMetadata, checkForDuplicate } from '../documentPipeline'
 import { decomposeForStorage } from '../saveDecompositionService'
-import type { ClassificationResult, AgentEvent, DocumentType, ConversationEntry } from '../../../shared/types'
+import type { ClassificationResult, AgentEvent, DecomposedItem, DocumentType, ConversationEntry } from '../../../shared/types'
 
 export async function* handleThought(
   userInput: string,
@@ -11,15 +11,16 @@ export async function* handleThought(
   yield { type: 'status', message: 'Saving your thought...' }
 
   const { items } = await decomposeForStorage(userInput, conversationHistory)
-  const docType = inferDocumentType(classification.extractedTags)
   const today = new Date().toISOString().split('T')[0]
   const date = classification.extractedDate ?? today
-  const tags = classification.extractedTags
 
   if (items.length <= 1) {
-    yield* storeSingleItem(items[0] ?? userInput, userInput, docType, date, tags)
+    const item = items[0] ?? { content: userInput, tags: [] }
+    const tags = item.tags.length > 0 ? item.tags : classification.extractedTags
+    const docType = inferDocumentType(tags)
+    yield* storeSingleItem(item.content, userInput, docType, date, tags)
   } else {
-    yield* storeMultipleItems(items, userInput, docType, date, tags)
+    yield* storeMultipleItems(items, userInput, date)
   }
 
   yield { type: 'done' }
@@ -30,7 +31,7 @@ async function* storeSingleItem(
   originalInput: string,
   docType: DocumentType,
   date: string,
-  tags: string[],
+  tags: readonly string[],
 ): AsyncGenerator<AgentEvent> {
   const duplicate = await checkForDuplicate(content)
   if (duplicate) {
@@ -62,28 +63,30 @@ async function* storeSingleItem(
 }
 
 async function* storeMultipleItems(
-  items: string[],
+  items: readonly DecomposedItem[],
   originalInput: string,
-  docType: DocumentType,
   date: string,
-  tags: string[],
 ): AsyncGenerator<AgentEvent> {
   const groupId = uuidv4()
   let duplicateCount = 0
+  let hasTodos = false
 
   for (const item of items) {
-    const duplicate = await checkForDuplicate(item)
+    const duplicate = await checkForDuplicate(item.content)
     if (duplicate) duplicateCount++
 
+    const itemDocType = inferDocumentType(item.tags)
+    if (itemDocType === 'todo') hasTodos = true
+
     const doc = await storeThoughtWithMetadata(
-      { content: item, originalInput, type: docType, date, tags },
+      { content: item.content, originalInput, type: itemDocType, date, tags: [...item.tags] },
       { groupId },
     )
 
     yield { type: 'stored', documentId: doc.id }
   }
 
-  const typeLabel = docType === 'todo' ? 'todos' : 'notes'
+  const typeLabel = hasTodos ? 'todos' : 'notes'
   let message = `Got it! I've saved ${items.length} ${typeLabel}.`
   if (duplicateCount > 0) {
     message += ` (${duplicateCount} seemed similar to notes you already have.)`
@@ -91,7 +94,7 @@ async function* storeMultipleItems(
   yield { type: 'chunk', content: message }
 }
 
-function inferDocumentType(tags: string[]): DocumentType {
+function inferDocumentType(tags: readonly string[]): DocumentType {
   const lowerTags = tags.map((t) => t.toLowerCase())
   if (lowerTags.includes('todo')) return 'todo'
   return 'thought'
