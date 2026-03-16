@@ -47,7 +47,7 @@ Just type naturally:
 - *"Daily note - sarah needs help with feature implementation"*
 - *"The stripe webhook event that caused our refund bug {schawarma: true}"*
 - *"add to my todo "talk to Daniel about the integration tomorrow"*
-- *"add to my todos:  buy milk on the way home, and jump 12 times"*
+- *"todos:  buy milk on the way home, and jump 12 times"*
 
 Lore classifies and stores your input automatically.
 
