@@ -1,0 +1,32 @@
+name: Build Mac Unsigned
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build unsigned macOS DMG
+        run: npm run build:mac -- --publish never -c.mac.identity=null
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+      - name: Upload unsigned macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lore-macOS-unsigned
+          path: release/**/*.dmg
+          if-no-files-found: error
