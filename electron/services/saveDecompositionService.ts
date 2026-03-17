@@ -14,7 +14,7 @@ import type {
 } from '../../shared/types'
 
 const DECOMPOSED_DOCUMENT_TYPES = ['thought', 'todo', 'meeting', 'note'] as const
-const EXPLICIT_TYPED_LIST_PATTERN = /^\s*(todos?|tasks?|notes?|ideas?|reminders?|meetings?)\s*:\s*(.+)$/is
+const EXPLICIT_TYPED_LIST_PATTERN = /^\s*(?:add\s+to\s+(?:my\s+)?(todos?|todo\s+list|tasks?|notes?|ideas?|reminders?|meetings?)|(todos?|tasks?|notes?|ideas?|reminders?|meetings?))\s*:\s*(.+)$/is
 
 const DECOMPOSITION_SCHEMA = {
   type: 'object',
@@ -199,8 +199,9 @@ function tryParseExplicitTypedList(userInput: string): SaveDecompositionResult |
     return null
   }
 
-  const type = inferDocumentTypeFromPrefix(match[1])
-  const rawListContent = match[2].trim()
+  const prefix = match[1] || match[2]
+  const rawListContent = match[3].trim()
+  const type = inferDocumentTypeFromPrefix(prefix)
   const items = splitExplicitListContent(rawListContent)
     .map((content) => ({
       content,

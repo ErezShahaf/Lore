@@ -41,6 +41,8 @@ Critical routing rules:
 - Questions about how Lore works or how to use Lore are ALWAYS "conversational".
 - If the user confirms a previously discussed creation task, classify as "thought", not "conversational".
 - If the user references something from prior conversation and asks to add, create, save, store, or remember it, classify as "thought", not "command".
+- Requests like "add to my todos: buy milk", "add to my todo list: call mom", or "todos: buy milk, call mom" are ALWAYS "thought" because they create new stored items.
+- Requests like "remove the todo about milk", "mark the jumping task done", or "change my todo about mom" are "command" because they modify existing stored items.
 - "command" is ONLY for modifying already stored data.
 - Short reaction-like phrases such as "thanks", "cool", "sure", "cry a river", or similar idiomatic/emotional replies are "conversational" unless the user also clearly asks to save/store/add them.
 - Descriptive factual content can still be "thought" even without the verbs "save" or "store" when the message is clearly providing information to capture for later.

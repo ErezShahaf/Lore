@@ -7,6 +7,7 @@ import { handleInstruction } from './handlers/instructionHandler'
 import { handleConversational } from './handlers/conversationalHandler'
 import {
   looksLikeExplicitStorageRequest,
+  looksLikeExplicitModificationRequest,
   looksLikeInstructionManagementRequest,
   looksLikeReferentialCommandRequest,
   looksLikeShortReaction,
@@ -59,6 +60,7 @@ export function applyDeterministicRoutingHints(
   userInput: string,
   classification: {
     intent: 'thought' | 'question' | 'command' | 'instruction' | 'conversational'
+    subtype: string
     confidence: number
     reasoning: string
   },
@@ -73,6 +75,17 @@ export function applyDeterministicRoutingHints(
     classification.intent = 'command'
     classification.confidence = Math.max(classification.confidence, CLASSIFICATION_CONFIDENCE_THRESHOLD)
     classification.reasoning = 'Heuristic override: instruction management request should use the command pipeline.'
+  }
+
+  if (
+    classification.intent === 'command'
+    && looksLikeExplicitStorageRequest(userInput)
+    && !looksLikeExplicitModificationRequest(userInput)
+  ) {
+    classification.intent = 'thought'
+    classification.subtype = 'general'
+    classification.confidence = Math.max(classification.confidence, CLASSIFICATION_CONFIDENCE_THRESHOLD)
+    classification.reasoning = 'Heuristic override: explicit storage request should create new stored items.'
   }
 
   if (
@@ -137,6 +150,7 @@ export async function* processUserInput(userInput: string): AsyncGenerator<Agent
           break
         }
         case 'question': {
+          session.lastDocumentIds = []
           const isTodoQuery = looksLikeTodoQuery(userInput)
             || classification.extractedTags.some((tag) => tag.toLowerCase() === 'todo')
           const todoOverrides: RetrievalOptions | undefined = isTodoQuery
@@ -144,6 +158,7 @@ export async function* processUserInput(userInput: string): AsyncGenerator<Agent
             : undefined
           for await (const event of handleQuestion(userInput, classification, priorHistory, todoOverrides)) {
             if (event.type === 'chunk') assistantResponse += event.content
+            if (event.type === 'retrieved') session.lastDocumentIds = [...event.documentIds]
             yield event
           }
           break
@@ -192,6 +207,13 @@ export async function* processUserInput(userInput: string): AsyncGenerator<Agent
 function getCommandRetrievalOverrides(userInput: string): RetrievalOptions | undefined {
   if (looksLikeInstructionManagementRequest(userInput)) {
     return { type: 'instruction' }
+  }
+
+  if (session.lastIntent === 'question' && looksLikeReferentialCommandRequest(userInput) && session.lastDocumentIds.length > 0) {
+    return {
+      ids: [...session.lastDocumentIds],
+      maxResults: session.lastDocumentIds.length,
+    }
   }
 
   if (session.lastIntent === 'instruction' && looksLikeReferentialCommandRequest(userInput)) {

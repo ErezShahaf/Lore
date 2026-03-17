@@ -53,6 +53,8 @@ export async function* handleQuestion(
     return
   }
 
+  yield { type: 'retrieved', documentIds: documents.map((document) => document.id) }
+
   const instructions = await retrieveRelevantDocuments(userInput, { type: 'instruction' })
 
   yield { type: 'status', message: `Found ${documents.length} relevant notes. Generating answer...` }

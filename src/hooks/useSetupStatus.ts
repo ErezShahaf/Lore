@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { OllamaSetupProgress, OllamaStatus, AppSettings } from '../../shared/types'
 
+const MODEL_REFRESH_RETRY_DELAYS_MS = [200, 500, 1000] as const
+
 export type SetupState =
   | { status: 'setting-up'; phase: OllamaSetupProgress['phase']; percent: number; message: string }
   | { status: 'needs-models'; missingChat: boolean; missingEmbedding: boolean }
@@ -12,12 +14,30 @@ export function useSetupStatus(): SetupState {
   const [settings, setSettings] = useState<AppSettings | null>(null)
   const [installedModelNames, setInstalledModelNames] = useState<string[]>([])
 
-  const refreshModels = useCallback(async () => {
-    try {
-      const models = await window.loreAPI.listModels()
-      setInstalledModelNames(models.map(m => m.name))
-    } catch {
-      setInstalledModelNames([])
+  const refreshModels = useCallback(async (requiredModelNames: readonly string[] = []) => {
+    const normalizedRequiredModelNames = requiredModelNames.filter((name) => name.length > 0)
+
+    for (let attemptIndex = 0; attemptIndex <= MODEL_REFRESH_RETRY_DELAYS_MS.length; attemptIndex += 1) {
+      try {
+        const models = await window.loreAPI.listModels()
+        const installedNames = models.map((model) => model.name)
+        setInstalledModelNames(installedNames)
+
+        const hasAllRequiredModels = normalizedRequiredModelNames.every((requiredModelName) =>
+          installedNames.some((installedName) =>
+            installedName === requiredModelName || installedName.startsWith(requiredModelName + ':')))
+
+        if (hasAllRequiredModels || attemptIndex === MODEL_REFRESH_RETRY_DELAYS_MS.length) {
+          return
+        }
+      } catch {
+        if (attemptIndex === MODEL_REFRESH_RETRY_DELAYS_MS.length) {
+          setInstalledModelNames([])
+          return
+        }
+      }
+
+      await waitFor(MODEL_REFRESH_RETRY_DELAYS_MS[attemptIndex])
     }
   }, [])
 
@@ -41,13 +61,20 @@ export function useSetupStatus(): SetupState {
 
     const cleanupSettings = window.loreAPI.onSettingsChanged((updated: AppSettings) => {
       setSettings(updated)
-      refreshModels()
+      refreshModels([updated.selectedModel, updated.embeddingModel])
+    })
+
+    const cleanupPullComplete = window.loreAPI.onPullComplete((result) => {
+      if (result.success) {
+        refreshModels([result.model])
+      }
     })
 
     return () => {
       cleanupSetup()
       cleanupStatus()
       cleanupSettings()
+      cleanupPullComplete()
     }
   }, [refreshModels])
 
@@ -88,4 +115,10 @@ export function useSetupStatus(): SetupState {
   }
 
   return { status: 'ready' }
+}
+
+function waitFor(delayMs: number): Promise<void> {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, delayMs)
+  })
 }

@@ -52,6 +52,9 @@ Guardrails:
 - Never target documents the user did not clearly mean.
 - Compare meaning, not just keyword overlap.
 - When in doubt, clarify.
+- If the user says something like "the one about jumping" and multiple candidate todos mention jumping, you MUST clarify instead of picking one.
+- For destructive requests, only choose a single document when it is clearly the best match among the candidates. If a few candidates could fit and you cannot determine for sure which one the user means, respond with "clarify".
+- Do not delete multiple documents unless the user clearly asked for a bulk action like "all", "both", or "all of them".
 
 Example valid execute response:
 {"status":"execute","operations":[{"targetDocumentIds":["abc123"],"action":"delete","updatedContent":null,"confidence":0.96,"description":"Delete the todo about buying milk"}],"clarificationMessage":null}

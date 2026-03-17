@@ -42,22 +42,42 @@ export async function* handleConversational(
   messages.push({ role: 'user', content: userInput })
 
   try {
-    let response = await collectChatResponse(messages, settings.selectedModel)
+    let streamedResponse = yield* streamConversationalResponse(messages, settings.selectedModel)
 
-    if (looksLikeStructuredAgentOutput(response)) {
-      logger.warn({ userInput, response }, '[Conversational] Structured output detected, retrying')
-      response = await collectChatResponse(
-        [{ role: 'system', content: CONVERSATIONAL_REPAIR_SYSTEM_PROMPT }, ...messages],
-        settings.selectedModel,
-      )
+    if (looksLikeStructuredAgentOutput(streamedResponse.response)) {
+      logger.warn({ userInput, response: streamedResponse.response }, '[Conversational] Structured output detected')
+      if (!streamedResponse.didEmitVisibleContent) {
+        streamedResponse = {
+          response: await collectChatResponse(
+            [{ role: 'system', content: CONVERSATIONAL_REPAIR_SYSTEM_PROMPT }, ...messages],
+            settings.selectedModel,
+          ),
+          didEmitVisibleContent: false,
+        }
+      }
     }
 
-    if (looksLikeStructuredAgentOutput(response)) {
-      logger.warn({ userInput, response }, '[Conversational] Structured output persisted after retry')
-      response = ''
+    if (looksLikeStructuredAgentOutput(streamedResponse.response)) {
+      logger.warn({ userInput, response: streamedResponse.response }, '[Conversational] Structured output persisted after retry')
+      if (!streamedResponse.didEmitVisibleContent) {
+        streamedResponse = {
+          response: '',
+          didEmitVisibleContent: false,
+        }
+      }
     }
 
-    yield { type: 'chunk', content: normalizeConversationalResponse(userInput, response) }
+    if (!streamedResponse.didEmitVisibleContent) {
+      yield {
+        type: 'chunk',
+        content: normalizeConversationalResponse(userInput, streamedResponse.response),
+      }
+    } else {
+      const fallbackHint = buildPotentialMisrouteHint(userInput)
+      if (fallbackHint) {
+        yield { type: 'chunk', content: `\n\n${fallbackHint}` }
+      }
+    }
   } catch (err) {
     yield {
       type: 'error',
@@ -85,6 +105,47 @@ async function collectChatResponse(
   }
 
   return response
+}
+
+interface StreamedConversationalResponse {
+  readonly response: string
+  readonly didEmitVisibleContent: boolean
+}
+
+async function* streamConversationalResponse(
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+  model: string,
+): AsyncGenerator<AgentEvent, StreamedConversationalResponse> {
+  const stream = chat({
+    model,
+    messages,
+    stream: true,
+    think: false,
+  })
+
+  let response = ''
+  let pendingResponse = ''
+  let didEmitVisibleContent = false
+
+  for await (const chunk of stream) {
+    response += chunk
+
+    if (didEmitVisibleContent) {
+      yield { type: 'chunk', content: chunk }
+      continue
+    }
+
+    pendingResponse += chunk
+    if (looksLikeStructuredResponsePrefix(pendingResponse)) {
+      continue
+    }
+
+    didEmitVisibleContent = true
+    yield { type: 'chunk', content: pendingResponse }
+    pendingResponse = ''
+  }
+
+  return { response, didEmitVisibleContent }
 }
 
 function normalizeConversationalResponse(userInput: string, response: string): string {
@@ -136,6 +197,25 @@ function looksLikeJsonEnvelope(value: string): boolean {
   } catch {
     return false
   }
+}
+
+function looksLikeStructuredResponsePrefix(response: string): boolean {
+  const trimmedResponse = response.trimStart()
+  if (trimmedResponse.length === 0) {
+    return false
+  }
+
+  if (trimmedResponse.startsWith('{')) {
+    return true
+  }
+
+  const lowerResponse = trimmedResponse.toLowerCase()
+  return (
+    lowerResponse.startsWith('"intent"')
+    || lowerResponse.startsWith('"items"')
+    || lowerResponse.startsWith('"status"')
+    || lowerResponse.startsWith('"operations"')
+  )
 }
 
 function buildPotentialMisrouteHint(userInput: string): string | null {

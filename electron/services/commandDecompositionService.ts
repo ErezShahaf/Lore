@@ -2,6 +2,11 @@ import { generateStructuredResponse } from './ollamaService'
 import { getSettings } from './settingsService'
 import { loadSkill } from './skillLoader'
 import { logger } from '../logger'
+import {
+  looksLikeAmbiguousDocumentReference,
+  looksLikeExplicitMultiTargetRequest,
+  looksLikeOrdinalReference,
+} from './userIntentHeuristics'
 import type {
   CommandResolution,
   CommandOperation,
@@ -49,6 +54,8 @@ const COMMAND_RESOLUTION_SCHEMA = {
 
 const MAX_RETRIES = 2
 const MIN_OPERATION_CONFIDENCE = 0.5
+const MIN_CLEAR_MATCH_SCORE = 0.6
+const MIN_CLEAR_MATCH_GAP = 0.2
 
 export async function resolveCommandTargets(
   userInput: string,
@@ -82,7 +89,7 @@ export async function resolveCommandTargets(
       messages,
       schema: COMMAND_RESOLUTION_SCHEMA,
       maxAttempts: MAX_RETRIES,
-      validate: (parsed) => validateResolution(parsed, documents),
+      validate: (parsed) => validateResolution(userInput, parsed, documents),
     })
 
     logger.debug(
@@ -106,6 +113,7 @@ export async function resolveCommandTargets(
 }
 
 function validateResolution(
+  userInput: string,
   parsed: Record<string, unknown>,
   documents: readonly LoreDocument[],
 ): CommandResolution {
@@ -165,6 +173,15 @@ function validateResolution(
     }
   }
 
+  const safetyClarification = buildSafetyClarification(userInput, operations, documents)
+  if (safetyClarification) {
+    return {
+      status: 'clarify',
+      operations: [],
+      clarificationMessage: safetyClarification,
+    }
+  }
+
   return {
     status: 'execute',
     operations,
@@ -177,4 +194,189 @@ function validateAction(value: unknown): CommandOperation['action'] {
   return validActions.includes(value as CommandOperation['action'])
     ? (value as CommandOperation['action'])
     : 'delete'
+}
+
+function buildSafetyClarification(
+  userInput: string,
+  operations: readonly CommandOperation[],
+  documents: readonly LoreDocument[],
+): string | null {
+  const allowsMultiTargetAction = looksLikeExplicitMultiTargetRequest(userInput)
+  const hasOrdinalReference = looksLikeOrdinalReference(userInput)
+
+  for (const operation of operations) {
+    const referenceText = operation.description.length > 0 ? operation.description : userInput
+    const candidateMatches = rankCandidateMatches(referenceText, documents)
+
+    if (!allowsMultiTargetAction && operation.targetDocumentIds.length !== 1) {
+      return buildCandidateClarification(
+        candidateMatches,
+        documents,
+        "I found a few possible matches, but I'm not sure which one you mean.",
+      )
+    }
+
+    if (allowsMultiTargetAction || hasOrdinalReference) {
+      continue
+    }
+
+    const chosenDocumentId = operation.targetDocumentIds[0]
+    if (!chosenDocumentId) {
+      return buildCandidateClarification(
+        candidateMatches,
+        documents,
+        "I couldn't determine which document you mean.",
+      )
+    }
+
+    const chosenCandidate = candidateMatches.find((candidate) => candidate.document.id === chosenDocumentId)
+    const plausibleCandidates = candidateMatches.filter((candidate) => candidate.score >= MIN_CLEAR_MATCH_SCORE)
+    const runnerUp = candidateMatches[1]
+    const chosenIsClearlyBest = chosenCandidate !== undefined
+      && chosenCandidate.score >= MIN_CLEAR_MATCH_SCORE
+      && (!runnerUp || chosenCandidate.score - runnerUp.score >= MIN_CLEAR_MATCH_GAP)
+      && candidateMatches[0]?.document.id === chosenDocumentId
+
+    if (chosenIsClearlyBest && plausibleCandidates.length <= 1) {
+      continue
+    }
+
+    const needsClarification = looksLikeAmbiguousDocumentReference(userInput)
+      || candidateMatches.length > 1
+      || plausibleCandidates.length > 1
+
+    if (needsClarification) {
+      return buildCandidateClarification(
+        plausibleCandidates.length > 0 ? plausibleCandidates : candidateMatches,
+        documents,
+        "I found a few possible matches, but I can't tell for sure which one you mean.",
+      )
+    }
+  }
+
+  return null
+}
+
+interface CandidateMatch {
+  readonly document: LoreDocument
+  readonly score: number
+}
+
+function rankCandidateMatches(referenceText: string, documents: readonly LoreDocument[]): CandidateMatch[] {
+  const salientTerms = extractSalientTerms(referenceText)
+  if (salientTerms.length === 0) {
+    return documents.map((document) => ({ document, score: 0 }))
+  }
+
+  return documents.map((document) => ({
+    document,
+    score: scoreDocumentMatch(salientTerms, document.content),
+  })).filter((candidate) => candidate.score > 0)
+    .sort((left, right) => right.score - left.score)
+}
+
+function scoreDocumentMatch(salientTerms: readonly string[], content: string): number {
+  const documentTerms = extractSalientTerms(content)
+  if (documentTerms.length === 0) {
+    return 0
+  }
+
+  const matchedTerms = salientTerms.filter((salientTerm) => {
+    return documentTerms.some((documentTerm) =>
+      documentTerm === salientTerm
+      || documentTerm.startsWith(salientTerm)
+      || salientTerm.startsWith(documentTerm))
+  }).length
+
+  return matchedTerms / salientTerms.length
+}
+
+function buildCandidateClarification(
+  candidateMatches: readonly CandidateMatch[],
+  documents: readonly LoreDocument[],
+  prefix: string,
+): string {
+  const previewCandidates = candidateMatches.length > 0
+    ? candidateMatches
+    : documents.map((document) => ({ document, score: 0 }))
+
+  const previewList = previewCandidates
+    .slice(0, 3)
+    .map((candidate, index) => `${index + 1}. "${truncateContent(candidate.document.content, 60)}"`)
+    .join('\n')
+
+  if (previewList.length === 0) {
+    return `${prefix} Could you be more specific?`
+  }
+
+  return `${prefix}\n${previewList}\n\nWhich one did you mean?`
+}
+
+function extractSalientTerms(text: string): string[] {
+  const ignoredTerms = new Set([
+    'about',
+    'already',
+    'completed',
+    'complete',
+    'delete',
+    'done',
+    'finished',
+    'forgot',
+    'forget',
+    'from',
+    'have',
+    'item',
+    'just',
+    'like',
+    'mark',
+    'need',
+    'note',
+    'remove',
+    'task',
+    'that',
+    'the',
+    'them',
+    'this',
+    'todo',
+    'update',
+    'want',
+    'with',
+    'wrote',
+  ])
+
+  const normalizedTerms = text
+    .toLowerCase()
+    .match(/[a-z0-9]+/g)
+    ?.map((term) => normalizeTerm(term))
+    .filter((term) => term.length >= 4 && !ignoredTerms.has(term))
+
+  return normalizedTerms ? [...new Set(normalizedTerms)] : []
+}
+
+function normalizeTerm(term: string): string {
+  if (term.endsWith('ing') && term.length > 5) {
+    return term.slice(0, -3)
+  }
+
+  if (term.endsWith('ed') && term.length > 4) {
+    return term.slice(0, -2)
+  }
+
+  if (term.endsWith('es') && term.length > 4) {
+    return term.slice(0, -2)
+  }
+
+  if (term.endsWith('s') && term.length > 4) {
+    return term.slice(0, -1)
+  }
+
+  return term
+}
+
+function truncateContent(text: string, maxLength: number): string {
+  if (text.length <= maxLength) {
+    return text
+  }
+
+  return text.slice(0, maxLength) + '...'
 }

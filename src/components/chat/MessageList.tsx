@@ -36,6 +36,7 @@ export function MessageList({ messages, isLoading, statusMessage }: MessageListP
   const shouldAutoFollowRef = useRef(true)
   const userMessageCountRef = useRef(0)
   const previousMessageSignatureRef = useRef('')
+  const lastScrollTopRef = useRef(0)
 
   const scrollToBottom = (behavior: ScrollBehavior): void => {
     bottomRef.current?.scrollIntoView({ behavior })
@@ -44,9 +45,16 @@ export function MessageList({ messages, isLoading, statusMessage }: MessageListP
   useEffect(() => {
     const viewport = viewportRef.current
     if (!viewport) return
+    lastScrollTopRef.current = viewport.scrollTop
 
     const handleScroll = (): void => {
-      shouldAutoFollowRef.current = isScrolledToBottom(viewport, USER_SCROLL_THRESHOLD_PX)
+      const nextScrollTop = viewport.scrollTop
+      if (nextScrollTop < lastScrollTopRef.current) {
+        shouldAutoFollowRef.current = false
+      } else if (isScrolledToBottom(viewport, USER_SCROLL_THRESHOLD_PX)) {
+        shouldAutoFollowRef.current = true
+      }
+      lastScrollTopRef.current = nextScrollTop
     }
 
     viewport.addEventListener('scroll', handleScroll, { passive: true })
@@ -58,9 +66,17 @@ export function MessageList({ messages, isLoading, statusMessage }: MessageListP
     if (!viewport) return
 
     const userMessageCount = messages.filter(m => m.role === 'user').length
+
+    if (messages.length === 0) {
+      userMessageCountRef.current = 0
+      shouldAutoFollowRef.current = true
+      previousMessageSignatureRef.current = ''
+      return
+    }
+
     const isNewUserMessage = userMessageCount > userMessageCountRef.current
+    userMessageCountRef.current = userMessageCount
     if (isNewUserMessage) {
-      userMessageCountRef.current = userMessageCount
       shouldAutoFollowRef.current = true
       scrollToBottom('smooth')
       previousMessageSignatureRef.current = messages.map((message) => message.id).join('|')

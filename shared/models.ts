@@ -1,9 +1,7 @@
 import type { RecommendedModel, ModelVariant } from './types'
 
 export const RECOMMENDED_MODELS: RecommendedModel[] = [
-  // ── Chat models ───────────────────────────────────────────
-  // Optimized for decision-making speed: all knowledge comes from
-  // the retrieval layer, so we only need fast instruction-following.
+
   {
     displayName: 'Qwen 3.5 0.8B',
     parametersBillions: 0.8,

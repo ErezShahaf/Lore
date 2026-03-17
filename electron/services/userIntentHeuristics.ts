@@ -6,8 +6,13 @@ const DATE_REQUEST_PATTERN = /\b(date|day|time|when|today|yesterday|tomorrow|wee
 const TAG_REQUEST_PATTERN = /\b(tag|tags|label|labels|category|categories)\b/i
 const EXPLICIT_STORAGE_VERB_PATTERN = /\b(save|store|remember|note|track|log|capture|add)\b/i
 const REFERENTIAL_STORAGE_PATTERN = /\b(save|store|remember|note|track|log|capture|add)\s+(that|this|it|them|those|these|the last one|the first one|the second one|the previous one)\b/i
-const EXPLICIT_LIST_PREFIX_PATTERN = /^\s*(todos?|tasks?|notes?|ideas?|reminders?|meetings?)\s*:/i
+const EXPLICIT_LIST_PREFIX_PATTERN = /^\s*(?:add\s+to\s+(?:my\s+)?(todos?|todo\s+list|tasks?|notes?|ideas?|reminders?|meetings?)|(todos?|tasks?|notes?|ideas?|reminders?|meetings?))\s*:/i
 const SHORT_REACTION_PATTERN = /^(ok|okay|k|thanks|thank you|cool|nice|great|sure|fine|whatever|yikes|lol|lmao|haha|wow|damn|ugh|oops|my bad|sounds good|got it|cry a river)[.!?]*$/i
+const MODIFICATION_VERB_PATTERN = /\b(delete|remove|update|change|replace|clear|forget|edit|rename|move|reorder)\b/i
+const COMPLETION_VERB_PATTERN = /\b(finished|finish|done|completed|complete)\b/i
+const REFERENTIAL_TARGET_PATTERN = /\b(it|that|this|one|them|those|these)\b/i
+const EXPLICIT_MULTI_TARGET_PATTERN = /\b(all|both|these|those|all of them|every|everything)\b/i
+const ORDINAL_REFERENCE_PATTERN = /\b(first|second|third|last|previous)\b/i
 
 export function looksLikeTodoQuery(userInput: string): boolean {
   return TODO_PATTERN.test(userInput)
@@ -19,6 +24,10 @@ export function looksLikeExplicitStorageRequest(userInput: string): boolean {
 
 export function looksLikeExplicitTypedList(userInput: string): boolean {
   return EXPLICIT_LIST_PREFIX_PATTERN.test(userInput)
+}
+
+export function looksLikeExplicitModificationRequest(userInput: string): boolean {
+  return MODIFICATION_VERB_PATTERN.test(userInput)
 }
 
 export function looksLikeReferentialStorageRequest(userInput: string): boolean {
@@ -103,7 +112,23 @@ export function looksLikeInstructionManagementRequest(userInput: string): boolea
 }
 
 export function looksLikeReferentialCommandRequest(userInput: string): boolean {
-  const hasCommandVerb = /\b(delete|remove|update|change|replace|clear|forget)\b/i.test(userInput)
-  const hasReference = /\b(it|that|this|one|them)\b/i.test(userInput)
-  return hasCommandVerb && hasReference
+  const hasCommandVerb = MODIFICATION_VERB_PATTERN.test(userInput) || COMPLETION_VERB_PATTERN.test(userInput)
+  return hasCommandVerb && REFERENTIAL_TARGET_PATTERN.test(userInput)
+}
+
+export function looksLikeExplicitMultiTargetRequest(userInput: string): boolean {
+  return EXPLICIT_MULTI_TARGET_PATTERN.test(userInput)
+}
+
+export function looksLikeOrdinalReference(userInput: string): boolean {
+  return ORDINAL_REFERENCE_PATTERN.test(userInput)
+}
+
+export function looksLikeAmbiguousDocumentReference(userInput: string): boolean {
+  if (!REFERENTIAL_TARGET_PATTERN.test(userInput)) {
+    return false
+  }
+
+  const hasDisambiguatingLanguage = /\b(all|both|either|any|first|second|third|last|previous)\b/i.test(userInput)
+  return !hasDisambiguatingLanguage
 }

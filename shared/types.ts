@@ -46,6 +46,7 @@ export interface RetrievedDocumentSet {
 }
 
 export interface RetrievalOptions {
+  ids?: string[]
   type?: DocumentType
   dateFrom?: string
   dateTo?: string
@@ -197,6 +198,7 @@ export type CommandResolution =
 export type AgentEvent =
   | { type: 'status'; message: string }
   | { type: 'chunk'; content: string }
+  | { type: 'retrieved'; documentIds: string[] }
   | { type: 'stored'; documentId: string }
   | { type: 'deleted'; documentId: string }
   | { type: 'duplicate'; existingContent: string }

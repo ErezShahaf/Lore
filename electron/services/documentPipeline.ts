@@ -24,6 +24,10 @@ const TAG_BOOST_FACTOR = 0.2
 
 function buildFilter(options?: RetrievalOptions): string | undefined {
   const parts: string[] = []
+  if (options?.ids && options.ids.length > 0) {
+    const idConditions = options.ids.map((id) => `id = '${escapeFilterValue(id)}'`)
+    parts.push(`(${idConditions.join(' OR ')})`)
+  }
   if (options?.type) {
     parts.push(`type = '${escapeFilterValue(options.type)}'`)
   }
