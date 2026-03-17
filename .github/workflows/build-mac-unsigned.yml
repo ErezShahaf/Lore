@@ -20,7 +20,7 @@ jobs:
         run: npm ci
 
       - name: Build unsigned macOS DMG
-        run: npm run build:mac -- --publish never -c.mac.identity=null
+        run: npm run build:mac -- --config electron-builder.json5 --publish never -c.mac.identity=null
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
 

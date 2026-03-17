@@ -35,6 +35,10 @@ export function getConversationHistory(): ConversationEntry[] {
 
 const CLASSIFICATION_CONFIDENCE_THRESHOLD = 0.75
 
+function toErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'An unexpected error occurred'
+}
+
 // ── Main processing loop ─────────────────────────────────────
 
 export async function* processUserInput(userInput: string): AsyncGenerator<AgentEvent> {
@@ -48,10 +52,7 @@ export async function* processUserInput(userInput: string): AsyncGenerator<Agent
     classification = await classifyInput(userInput, priorHistory)
   } catch (err) {
     logger.error({ err }, '[Agent] Classification failed')
-    yield {
-      type: 'chunk',
-      content: "Sorry, I had trouble understanding that. Could you try rephrasing?",
-    }
+    yield { type: 'error', message: toErrorMessage(err) }
     yield { type: 'done' }
     return
   }
@@ -123,8 +124,7 @@ export async function* processUserInput(userInput: string): AsyncGenerator<Agent
         }
     }
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'An unexpected error occurred'
-    yield { type: 'error', message }
+    yield { type: 'error', message: toErrorMessage(err) }
     yield { type: 'done' }
     return
   }

@@ -13,21 +13,12 @@ function getIconPath(): string {
   return join(process.resourcesPath, 'icon.png')
 }
 
-function getIconTemplatePath(): string {
-  const base = getIconPath()
-  return base.replace(/icon\.png$/, 'iconTemplate.png')
-}
-
 export function createTray(): Tray {
   if (tray) return tray
 
-  const iconPath =
-    process.platform === 'darwin' ? getIconTemplatePath() : getIconPath()
+  const iconPath = getIconPath()
   let icon = nativeImage.createFromPath(iconPath)
 
-  if (icon.isEmpty() && process.platform === 'darwin') {
-    icon = nativeImage.createFromPath(getIconPath())
-  }
   if (icon.isEmpty()) {
     icon = nativeImage.createEmpty()
   }

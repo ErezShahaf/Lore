@@ -25,7 +25,7 @@ jobs:
           EOF
 
       - name: Build Mac DMG
-        run: npm run build:mac
+        run: npm run build:mac -- --config electron-builder.json5
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
