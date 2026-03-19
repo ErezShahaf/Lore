@@ -1,0 +1,134 @@
+{
+  "resultPath": "R:\\lore\\evals\\results\\promptfoo-full-2026-03-19T20-47-49-614Z.json",
+  "generatedAt": "2026-03-19T20:50:21.895Z",
+  "scenarios": [
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "seeded-ambiguous-retrieval-needs-clarification",
+      "scenarioTitle": "Seeded retrieval ambiguity asks for clarification",
+      "passCount": 0,
+      "totalCount": 1,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 1 @ No status emitted",
+          1
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 1: expected a clarification request in \"Seeded retrieval ambiguity asks for clarification\". Judge: Judge returned invalid JSON: Alex asked for two specific things:\n1.  **For the finance report**: Monthly cash flow summaries.\n2.  **For the design**: A darker sidebar and tighter spacing.",
+          1
+        ],
+        [
+          "Step 1: response judge failed: The response directly answers the question about what Alex asked for without acknowledging the existence of multiple possible 'Alex' entities or asking the user to clarify which one is being referred to, as required by the rubric.",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "requiresClarification",
+          1
+        ],
+        [
+          "responseJudge",
+          1
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 1: expected a clarification request in \"Seeded retrieval ambiguity asks for clarification\". Judge: Judge returned invalid JSON: Alex asked for two specific things:\n1.  **For the finance report**: Monthly cash flow summaries.\n2.  **For the design**: A darker sidebar and tighter spacing.",
+            "Step 1: response judge failed: The response directly answers the question about what Alex asked for without acknowledging the existence of multiple possible 'Alex' entities or asking the user to clarify which one is being referred to, as required by the rubric."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "requiresClarification",
+              "reason": "expected a clarification request in \"Seeded retrieval ambiguity asks for clarification\". Judge: Judge returned invalid JSON: Alex asked for two specific things:\n1.  **For the finance report**: Monthly cash flow summaries.\n2.  **For the design**: A darker sidebar and tighter spacing.",
+              "expected": "true",
+              "actual": "Alex asked for monthly cash flow summaries in the finance report and a darker sidebar with tighter spacing in the design."
+            },
+            {
+              "stepIndex": 0,
+              "checkType": "responseJudge",
+              "reason": "response judge failed: The response directly answers the question about what Alex asked for without acknowledging the existence of multiple possible 'Alex' entities or asking the user to clarify which one is being referred to, as required by the rubric.",
+              "expected": "The assistant should explain that there are at least two plausible Alex matches and ask the user to clarify which Alex they mean before answering.",
+              "actual": "{\n  \"userInput\": \"What did Alex ask for?\",\n  \"response\": \"Alex asked for monthly cash flow summaries in the finance report and a darker sidebar with tighter spacing in the design.\",\n  \"events\": [\n    {\n      \"type\": \"status\",\n      \"message\": \"Classifying your input...\"\n    },\n    {\n      \"type\": \"status\",\n      \"message\": \"Searching your notes...\"\n    },\n    {\n      \"type\": \"retrieved\",\n      ..."
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "What did Alex ask for?",
+              "response": "Alex asked for monthly cash flow summaries in the finance report and a darker sidebar with tighter spacing in the design."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "seeded-ambiguous-retrieval-clarification-resolves",
+      "scenarioTitle": "Seeded retrieval clarification leads to the right Alex",
+      "passCount": 0,
+      "totalCount": 1,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 1 @ No status emitted",
+          1
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 1: expected the interaction to include a clarification request in \"Seeded retrieval clarification leads to the right Alex\".",
+          1
+        ],
+        [
+          "Step 1: response judge failed: The response states that Alex asked for items but fails to specify that Alex is from the finance department, which is explicitly required by the rubric ('clearly say that Alex from finance asked for...').",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "clarificationRequestedDuringInteraction",
+          1
+        ],
+        [
+          "responseJudge",
+          1
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 1: expected the interaction to include a clarification request in \"Seeded retrieval clarification leads to the right Alex\".",
+            "Step 1: response judge failed: The response states that Alex asked for items but fails to specify that Alex is from the finance department, which is explicitly required by the rubric ('clearly say that Alex from finance asked for...')."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "clarificationRequestedDuringInteraction",
+              "reason": "expected the interaction to include a clarification request in \"Seeded retrieval clarification leads to the right Alex\".",
+              "expected": "true",
+              "actual": "[\n  {\n    \"userInput\": \"What did Alex ask for?\",\n    \"response\": \"Alex asked for monthly cash flow summaries in the report and a darker sidebar with tighter spacing.\",\n    \"pass\": false,\n    \"reason\": \"The assistant failed to disambiguate the user's request. Since there are multiple people named Alex, the assistant should have asked the user to specify which Alex they are referring to before an..."
+            },
+            {
+              "stepIndex": 0,
+              "checkType": "responseJudge",
+              "reason": "response judge failed: The response states that Alex asked for items but fails to specify that Alex is from the finance department, which is explicitly required by the rubric ('clearly say that Alex from finance asked for...').",
+              "expected": "After the clarification, the final answer should clearly say that Alex from finance asked for monthly cash flow summaries in the report.",
+              "actual": "{\n  \"userInput\": \"What did Alex ask for?\",\n  \"response\": \"Alex asked for monthly cash flow summaries in the report and a darker sidebar with tighter spacing.\",\n  \"events\": [\n    {\n      \"type\": \"status\",\n      \"message\": \"Classifying your input...\"\n    },\n    {\n      \"type\": \"status\",\n      \"message\": \"Searching your notes...\"\n    },\n    {\n      \"type\": \"retrieved\",\n      \"documentIds\": [\n     ..."
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "What did Alex ask for?",
+              "response": "Alex asked for monthly cash flow summaries in the report and a darker sidebar with tighter spacing."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

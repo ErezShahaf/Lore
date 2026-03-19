@@ -1,0 +1,138 @@
+{
+  "resultPath": "R:\\lore\\evals\\results\\promptfoo-smoke-2026-03-19T20-36-29-038Z.json",
+  "generatedAt": "2026-03-19T20:38:35.535Z",
+  "scenarios": [
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "low-confidence-vague-request",
+      "scenarioTitle": "Vague request does not mutate state",
+      "passCount": 0,
+      "totalCount": 1,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 1 @ No status emitted",
+          1
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 1: expected response to include \"not sure\".",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "responseIncludes",
+          1
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 1: expected response to include \"not sure\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "responseIncludes",
+              "reason": "expected response to include \"not sure\".",
+              "expected": "not sure",
+              "actual": "Got it! I'll remember that from now on."
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Do the thing",
+              "response": "Got it! I'll remember that from now on."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "add-single-todo-explicit",
+      "scenarioTitle": "Add a single explicit todo",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "add-multiple-todos-inline-list",
+      "scenarioTitle": "Add multiple todos in one message",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "ambiguous-update-needs-clarification",
+      "scenarioTitle": "Ambiguous update asks for clarification",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "delete-specific-todo",
+      "scenarioTitle": "Delete one matching todo",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "greeting-then-add-todo",
+      "scenarioTitle": "Greeting before task creation",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "retrieve-todos-after-creation",
+      "scenarioTitle": "Retrieve todos after creating them",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "update-specific-todo",
+      "scenarioTitle": "Update a specific todo by description",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    }
+  ]
+}

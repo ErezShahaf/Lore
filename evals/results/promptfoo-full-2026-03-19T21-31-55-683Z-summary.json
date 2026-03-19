@@ -1,0 +1,1087 @@
+{
+  "resultPath": "R:\\lore\\evals\\results\\promptfoo-full-2026-03-19T21-31-55-683Z.json",
+  "generatedAt": "2026-03-19T22:05:35.691Z",
+  "scenarios": [
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "ambiguous-delete-needs-clarification",
+      "scenarioTitle": "Ambiguous delete does not act immediately",
+      "passCount": 0,
+      "totalCount": 5,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 2 @ No status emitted",
+          5
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 2: expected 0 deleted events but saw 1.",
+          5
+        ],
+        [
+          "Step 2: expected 2 todos but found 1.",
+          5
+        ],
+        [
+          "Step 2: expected a clarification request in \"Ambiguous delete does not act immediately\". Judge: The user's input 'Delete the water one' is ambiguous because there are two documents containing 'water' ('drink the water' and 'jump on the water'). The assistant failed to ask the user to disambiguate, instead automatically selecting and deleting the 'jump on the water' document without explicit confirmation or clarification.",
+          1
+        ],
+        [
+          "Step 2: expected a clarification request in \"Ambiguous delete does not act immediately\". Judge: The user's request 'Delete the water one' is ambiguous because there are multiple items containing the word 'water' in the context (e.g., 'drink the water' and 'jump on the water'). The assistant proceeded to delete an item ('drink the water') without first asking the user to clarify which specific 'water' item they intended to remove, directly violating the rubric requirement to ask for disambiguation before taking action.",
+          1
+        ],
+        [
+          "Step 2: expected a clarification request in \"Ambiguous delete does not act immediately\". Judge: The assistant failed to ask the user to disambiguate before taking action. The user's input 'Delete the water one' is ambiguous because there are multiple items containing 'water' (e.g., 'jump on the water' and 'drink the water'). Despite this, the assistant immediately executed a delete operation without clarifying which specific item the user intended to remove.",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "requiresClarification",
+          5
+        ],
+        [
+          "deletedCount",
+          5
+        ],
+        [
+          "todoCount",
+          5
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 2: expected a clarification request in \"Ambiguous delete does not act immediately\". Judge: The user's input 'Delete the water one' is ambiguous because there are two documents containing 'water' ('drink the water' and 'jump on the water'). The assistant failed to ask the user to disambiguate, instead automatically selecting and deleting the 'jump on the water' document without explicit confirmation or clarification.",
+            "Step 2: expected 0 deleted events but saw 1.",
+            "Step 2: expected 2 todos but found 1."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 1,
+              "checkType": "requiresClarification",
+              "reason": "expected a clarification request in \"Ambiguous delete does not act immediately\". Judge: The user's input 'Delete the water one' is ambiguous because there are two documents containing 'water' ('drink the water' and 'jump on the water'). The assistant failed to ask the user to disambiguate, instead automatically selecting and deleting the 'jump on the water' document without explicit confirmation or clarification.",
+              "expected": "true",
+              "actual": "Done! I've removed \"jump on the water\"."
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "deletedCount",
+              "reason": "expected 0 deleted events but saw 1.",
+              "expected": "0",
+              "actual": "1"
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "todoCount",
+              "reason": "expected 2 todos but found 1.",
+              "expected": "2",
+              "actual": "1"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Delete the water one",
+              "response": "Done! I've removed \"jump on the water\"."
+            }
+          ]
+        },
+        {
+          "failureReasons": [
+            "Step 2: expected a clarification request in \"Ambiguous delete does not act immediately\". Judge: The user's request 'Delete the water one' is ambiguous because there are multiple items containing the word 'water' in the context (e.g., 'drink the water' and 'jump on the water'). The assistant proceeded to delete an item ('drink the water') without first asking the user to clarify which specific 'water' item they intended to remove, directly violating the rubric requirement to ask for disambiguation before taking action.",
+            "Step 2: expected 0 deleted events but saw 1.",
+            "Step 2: expected 2 todos but found 1."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 1,
+              "checkType": "requiresClarification",
+              "reason": "expected a clarification request in \"Ambiguous delete does not act immediately\". Judge: The user's request 'Delete the water one' is ambiguous because there are multiple items containing the word 'water' in the context (e.g., 'drink the water' and 'jump on the water'). The assistant proceeded to delete an item ('drink the water') without first asking the user to clarify which specific 'water' item they intended to remove, directly violating the rubric requirement to ask for disambiguation before taking action.",
+              "expected": "true",
+              "actual": "Done! I've removed \"drink the water\"."
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "deletedCount",
+              "reason": "expected 0 deleted events but saw 1.",
+              "expected": "0",
+              "actual": "1"
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "todoCount",
+              "reason": "expected 2 todos but found 1.",
+              "expected": "2",
+              "actual": "1"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Delete the water one",
+              "response": "Done! I've removed \"drink the water\"."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "seeded-ambiguous-retrieval-needs-clarification",
+      "scenarioTitle": "Seeded retrieval ambiguity asks for clarification",
+      "passCount": 0,
+      "totalCount": 5,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 1 @ No status emitted",
+          5
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 1: expected a clarification request in \"Seeded retrieval ambiguity asks for clarification\". Judge: Judge returned invalid JSON: Based on the retrieved notes, **Alex** asked for two specific things:\n\n1.  **For the Finance Report:** Alex requested **monthly cash flow summaries**.\n2.  **For the UI Design:** Alex requested a **darker sidebar** and **tighter spacing**.",
+          1
+        ],
+        [
+          "Step 1: response judge failed: The user's query 'What did Alex ask for?' is ambiguous because there are multiple 'Alex' entities in the context (implied by the retrieval of two relevant notes). The assistant failed to follow the rubric by not explaining that there are at least two plausible matches or asking for clarification before providing a combined answer. Instead, it immediately generated a response attributing both requests to a single 'Alex', which contradicts the instruction to handle ambiguity through clarification.",
+          1
+        ],
+        [
+          "Step 1: expected a clarification request in \"Seeded retrieval ambiguity asks for clarification\". Judge: Judge returned invalid JSON: Based on the retrieval results, **Alex** asked for the following two things:\n\n1.  **From Finance:** Monthly cash flow summaries in the report.\n2.  **From Design:** A darker sidebar and tighter spacing.",
+          1
+        ],
+        [
+          "Step 1: response judge failed: The assistant failed to follow the rubric. Instead of explaining that there are at least two plausible matches for 'Alex' and asking the user to clarify, the assistant directly answered the question based on the retrieved documents without any clarification step.",
+          1
+        ],
+        [
+          "Step 1: expected a clarification request in \"Seeded retrieval ambiguity asks for clarification\". Judge: Judge returned invalid JSON: Based on the notes retrieved:\n\n*   **Alex from finance** asked for **monthly cash flow summaries** in the report.\n*   **Alex from design** asked for a **darker sidebar** and **tighter spacing**.",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "requiresClarification",
+          5
+        ],
+        [
+          "responseJudge",
+          5
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 1: expected a clarification request in \"Seeded retrieval ambiguity asks for clarification\". Judge: Judge returned invalid JSON: Based on the retrieved notes, **Alex** asked for two specific things:\n\n1.  **For the Finance Report:** Alex requested **monthly cash flow summaries**.\n2.  **For the UI Design:** Alex requested a **darker sidebar** and **tighter spacing**.",
+            "Step 1: response judge failed: The user's query 'What did Alex ask for?' is ambiguous because there are multiple 'Alex' entities in the context (implied by the retrieval of two relevant notes). The assistant failed to follow the rubric by not explaining that there are at least two plausible matches or asking for clarification before providing a combined answer. Instead, it immediately generated a response attributing both requests to a single 'Alex', which contradicts the instruction to handle ambiguity through clarification."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "requiresClarification",
+              "reason": "expected a clarification request in \"Seeded retrieval ambiguity asks for clarification\". Judge: Judge returned invalid JSON: Based on the retrieved notes, **Alex** asked for two specific things:\n\n1.  **For the Finance Report:** Alex requested **monthly cash flow summaries**.\n2.  **For the UI Design:** Alex requested a **darker sidebar** and **tighter spacing**.",
+              "expected": "true",
+              "actual": "Alex asked for monthly cash flow summaries in the finance report and a darker sidebar with tighter spacing for the UI design."
+            },
+            {
+              "stepIndex": 0,
+              "checkType": "responseJudge",
+              "reason": "response judge failed: The user's query 'What did Alex ask for?' is ambiguous because there are multiple 'Alex' entities in the context (implied by the retrieval of two relevant notes). The assistant failed to follow the rubric by not explaining that there are at least two plausible matches or asking for clarification before providing a combined answer. Instead, it immediately generated a response attributing both requests to a single 'Alex', which contradicts the instruction to handle ambiguity through clarification.",
+              "expected": "The assistant should explain that there are at least two plausible Alex matches and ask the user to clarify which Alex they mean before answering.",
+              "actual": "{\n  \"userInput\": \"What did Alex ask for?\",\n  \"response\": \"Alex asked for monthly cash flow summaries in the finance report and a darker sidebar with tighter spacing for the UI design.\",\n  \"events\": [\n    {\n      \"type\": \"status\",\n      \"message\": \"Classifying your input...\"\n    },\n    {\n      \"type\": \"status\",\n      \"message\": \"Searching your notes...\"\n    },\n    {\n      \"type\": \"retrieved\",\n  ..."
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "What did Alex ask for?",
+              "response": "Alex asked for monthly cash flow summaries in the finance report and a darker sidebar with tighter spacing for the UI design."
+            }
+          ]
+        },
+        {
+          "failureReasons": [
+            "Step 1: expected a clarification request in \"Seeded retrieval ambiguity asks for clarification\". Judge: Judge returned invalid JSON: Based on the retrieval results, **Alex** asked for the following two things:\n\n1.  **From Finance:** Monthly cash flow summaries in the report.\n2.  **From Design:** A darker sidebar and tighter spacing.",
+            "Step 1: response judge failed: The assistant failed to follow the rubric. Instead of explaining that there are at least two plausible matches for 'Alex' and asking the user to clarify, the assistant directly answered the question based on the retrieved documents without any clarification step."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "requiresClarification",
+              "reason": "expected a clarification request in \"Seeded retrieval ambiguity asks for clarification\". Judge: Judge returned invalid JSON: Based on the retrieval results, **Alex** asked for the following two things:\n\n1.  **From Finance:** Monthly cash flow summaries in the report.\n2.  **From Design:** A darker sidebar and tighter spacing.",
+              "expected": "true",
+              "actual": "Alex asked for monthly cash flow summaries in the report, as well as a darker sidebar and tighter spacing."
+            },
+            {
+              "stepIndex": 0,
+              "checkType": "responseJudge",
+              "reason": "response judge failed: The assistant failed to follow the rubric. Instead of explaining that there are at least two plausible matches for 'Alex' and asking the user to clarify, the assistant directly answered the question based on the retrieved documents without any clarification step.",
+              "expected": "The assistant should explain that there are at least two plausible Alex matches and ask the user to clarify which Alex they mean before answering.",
+              "actual": "{\n  \"userInput\": \"What did Alex ask for?\",\n  \"response\": \"Alex asked for monthly cash flow summaries in the report, as well as a darker sidebar and tighter spacing.\",\n  \"events\": [\n    {\n      \"type\": \"status\",\n      \"message\": \"Classifying your input...\"\n    },\n    {\n      \"type\": \"status\",\n      \"message\": \"Searching your notes...\"\n    },\n    {\n      \"type\": \"retrieved\",\n      \"documentIds\": ..."
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "What did Alex ask for?",
+              "response": "Alex asked for monthly cash flow summaries in the report, as well as a darker sidebar and tighter spacing."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "seeded-ambiguous-retrieval-clarification-resolves",
+      "scenarioTitle": "Seeded retrieval clarification leads to the right Alex",
+      "passCount": 0,
+      "totalCount": 5,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 1 @ No status emitted",
+          5
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 1: expected the interaction to include a clarification request in \"Seeded retrieval clarification leads to the right Alex\".",
+          5
+        ],
+        [
+          "Step 1: response judge failed: The actual response states that Alex asked for two different things: monthly cash flow summaries for the finance report and a darker sidebar with tighter spacing for the design UI. The rubric requires the final answer to clearly state that 'Alex from finance' asked for the summaries. The actual response fails to explicitly link Alex to the finance department (it only mentions 'finance report'), which could imply Alex requested the report but not necessarily as part of his department role, or it lacks the specific attribution 'Alex from finance' required by the rubric.",
+          1
+        ],
+        [
+          "Step 1: response judge failed: The response incorrectly states that 'Alex' asked for the summaries, whereas the rubric requires the final answer to specify 'Alex from finance'.",
+          1
+        ],
+        [
+          "Step 1: response judge failed: The actual response states that Alex asked for monthly cash flow summaries, design tweaks, etc., but it fails to specify that Alex is from finance, which is a required detail according to the rubric. The response does not satisfy the condition that the final answer clearly says Alex from finance asked for monthly cash flow summaries.",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "clarificationRequestedDuringInteraction",
+          5
+        ],
+        [
+          "responseJudge",
+          3
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 1: expected the interaction to include a clarification request in \"Seeded retrieval clarification leads to the right Alex\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "clarificationRequestedDuringInteraction",
+              "reason": "expected the interaction to include a clarification request in \"Seeded retrieval clarification leads to the right Alex\".",
+              "expected": "true",
+              "actual": "[\n  {\n    \"userInput\": \"What did Alex ask for?\",\n    \"response\": \"Alex asked for monthly cash flow summaries in the report and a darker sidebar with tighter spacing.\",\n    \"pass\": false,\n    \"reason\": \"The user's query 'What did Alex ask for?' is inherently ambiguous because there are multiple 'Alexes' in the system. The rubric requires the assistant to clearly ask for disambiguation or clarifi..."
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "What did Alex ask for?",
+              "response": "Alex asked for monthly cash flow summaries in the report and a darker sidebar with tighter spacing."
+            }
+          ]
+        },
+        {
+          "failureReasons": [
+            "Step 1: expected the interaction to include a clarification request in \"Seeded retrieval clarification leads to the right Alex\".",
+            "Step 1: response judge failed: The actual response states that Alex asked for two different things: monthly cash flow summaries for the finance report and a darker sidebar with tighter spacing for the design UI. The rubric requires the final answer to clearly state that 'Alex from finance' asked for the summaries. The actual response fails to explicitly link Alex to the finance department (it only mentions 'finance report'), which could imply Alex requested the report but not necessarily as part of his department role, or it lacks the specific attribution 'Alex from finance' required by the rubric."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "clarificationRequestedDuringInteraction",
+              "reason": "expected the interaction to include a clarification request in \"Seeded retrieval clarification leads to the right Alex\".",
+              "expected": "true",
+              "actual": "[\n  {\n    \"userInput\": \"What did Alex ask for?\",\n    \"response\": \"Alex asked for two different things: monthly cash flow summaries for the finance report and a darker sidebar with tighter spacing for the design UI.\",\n    \"pass\": false,\n    \"reason\": \"The assistant failed to ask for clarification. It immediately provided a combined answer ('Alex asked for two different things...') without verify..."
+            },
+            {
+              "stepIndex": 0,
+              "checkType": "responseJudge",
+              "reason": "response judge failed: The actual response states that Alex asked for two different things: monthly cash flow summaries for the finance report and a darker sidebar with tighter spacing for the design UI. The rubric requires the final answer to clearly state that 'Alex from finance' asked for the summaries. The actual response fails to explicitly link Alex to the finance department (it only mentions 'finance report'), which could imply Alex requested the report but not necessarily as part of his department role, or it lacks the specific attribution 'Alex from finance' required by the rubric.",
+              "expected": "After the clarification, the final answer should clearly say that Alex from finance asked for monthly cash flow summaries in the report.",
+              "actual": "{\n  \"userInput\": \"What did Alex ask for?\",\n  \"response\": \"Alex asked for two different things: monthly cash flow summaries for the finance report and a darker sidebar with tighter spacing for the design UI.\",\n  \"events\": [\n    {\n      \"type\": \"status\",\n      \"message\": \"Classifying your input...\"\n    },\n    {\n      \"type\": \"status\",\n      \"message\": \"Searching your notes...\"\n    },\n    {\n      ..."
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "What did Alex ask for?",
+              "response": "Alex asked for two different things: monthly cash flow summaries for the finance report and a darker sidebar with tighter spacing for the design UI."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "seeded-retrieval-threshold-discipline",
+      "scenarioTitle": "Seeded retrieval keeps the result set focused",
+      "passCount": 0,
+      "totalCount": 5,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 1 @ No status emitted",
+          5
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 1: expected at most 2 retrieved documents but saw 4.",
+          5
+        ],
+        [
+          "Step 1: expected at most 2 retrieval candidates but saw 12.",
+          5
+        ],
+        [
+          "Step 1: did not expect retrieved content containing \"Tokyo hotel shortlist\".",
+          5
+        ],
+        [
+          "Step 1: did not expect retrieved content containing \"Kyoto restaurant shortlist\".",
+          5
+        ],
+        [
+          "Step 1: retrieval judge failed: The retrieval set includes irrelevant documents that violate the rubric. Document #2 is about a 'Tokyo hotel' and Document #3 is about a 'Kyoto restaurant', neither of which are relevant to the user's specific question about the 'Tokyo restaurant'. Document #4 is about a 'Tokyo subway', which is also irrelevant to restaurant selection. The retrieval should have been tightly focused only on the Tokyo restaurant document.",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "retrievedContentsExcludeSubstrings",
+          10
+        ],
+        [
+          "maxRetrievedCount",
+          5
+        ],
+        [
+          "maxRetrievedCandidates",
+          5
+        ],
+        [
+          "retrievalJudge",
+          5
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 1: expected at most 2 retrieved documents but saw 4.",
+            "Step 1: expected at most 2 retrieval candidates but saw 12.",
+            "Step 1: did not expect retrieved content containing \"Tokyo hotel shortlist\".",
+            "Step 1: did not expect retrieved content containing \"Kyoto restaurant shortlist\".",
+            "Step 1: retrieval judge failed: The retrieval set includes irrelevant documents that violate the rubric. Document #2 is about a 'Tokyo hotel' and Document #3 is about a 'Kyoto restaurant', neither of which are relevant to the user's specific question about the 'Tokyo restaurant'. Document #4 is about a 'Tokyo subway', which is also irrelevant to restaurant selection. The retrieval should have been tightly focused only on the Tokyo restaurant document."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "maxRetrievedCount",
+              "reason": "expected at most 2 retrieved documents but saw 4.",
+              "expected": "2",
+              "actual": "4"
+            },
+            {
+              "stepIndex": 0,
+              "checkType": "maxRetrievedCandidates",
+              "reason": "expected at most 2 retrieval candidates but saw 12.",
+              "expected": "2",
+              "actual": "12"
+            },
+            {
+              "stepIndex": 0,
+              "checkType": "retrievedContentsExcludeSubstrings",
+              "reason": "did not expect retrieved content containing \"Tokyo hotel shortlist\".",
+              "expected": "Retrieved content must exclude \"Tokyo hotel shortlist\"",
+              "actual": "[\n  \"Tokyo restaurant shortlist: Sushi Saito.\",\n  \"Tokyo hotel shortlist: Hoshinoya Tokyo.\",\n  \"Kyoto restaurant shortlist: Monk.\",\n  \"Tokyo subway tip: use the Suica card for easier transfers.\"\n]"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Which Tokyo restaurant did I want to try?",
+              "response": "You wanted to try Sushi Saito in Tokyo."
+            }
+          ]
+        },
+        {
+          "failureReasons": [
+            "Step 1: expected at most 2 retrieved documents but saw 4.",
+            "Step 1: expected at most 2 retrieval candidates but saw 12.",
+            "Step 1: did not expect retrieved content containing \"Tokyo hotel shortlist\".",
+            "Step 1: did not expect retrieved content containing \"Kyoto restaurant shortlist\".",
+            "Step 1: retrieval judge failed: The retrieval set includes irrelevant documents that do not answer the question about the Tokyo restaurant. Specifically, the document regarding 'Tokyo hotel shortlist: Hoshinoya Tokyo' and 'Kyoto restaurant shortlist: Monk' are semantically adjacent (same city or same category) but irrelevant to the user's query. Only the first document about 'Sushi Saito' is relevant. According to the rubric, the retrieval set should stay tightly focused on the Tokyo restaurant document and avoid these irrelevant notes."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "maxRetrievedCount",
+              "reason": "expected at most 2 retrieved documents but saw 4.",
+              "expected": "2",
+              "actual": "4"
+            },
+            {
+              "stepIndex": 0,
+              "checkType": "maxRetrievedCandidates",
+              "reason": "expected at most 2 retrieval candidates but saw 12.",
+              "expected": "2",
+              "actual": "12"
+            },
+            {
+              "stepIndex": 0,
+              "checkType": "retrievedContentsExcludeSubstrings",
+              "reason": "did not expect retrieved content containing \"Tokyo hotel shortlist\".",
+              "expected": "Retrieved content must exclude \"Tokyo hotel shortlist\"",
+              "actual": "[\n  \"Tokyo restaurant shortlist: Sushi Saito.\",\n  \"Tokyo hotel shortlist: Hoshinoya Tokyo.\",\n  \"Kyoto restaurant shortlist: Monk.\",\n  \"Tokyo subway tip: use the Suica card for easier transfers.\"\n]"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Which Tokyo restaurant did I want to try?",
+              "response": "Your Tokyo restaurant shortlist includes Sushi Saito."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "clarification-resolves-ambiguous-delete",
+      "scenarioTitle": "Clarification follow-up deletes the intended todo",
+      "passCount": 1,
+      "totalCount": 5,
+      "passPercentage": 20,
+      "topFailureStages": [
+        [
+          "Step 2 @ No status emitted",
+          4
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 2: expected 1 deleted events but saw 0.",
+          3
+        ],
+        [
+          "Step 2: expected the interaction to include a clarification request in \"Clarification follow-up deletes the intended todo\".",
+          1
+        ],
+        [
+          "Step 2: expected 1 todos but found 0.",
+          1
+        ],
+        [
+          "Step 2: expected todo \"jump on the water\" to exist.",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "deletedCount",
+          3
+        ],
+        [
+          "clarificationRequestedDuringInteraction",
+          1
+        ],
+        [
+          "todoCount",
+          1
+        ],
+        [
+          "todoContentsIncludeExact",
+          1
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 2: expected 1 deleted events but saw 0."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 1,
+              "checkType": "deletedCount",
+              "reason": "expected 1 deleted events but saw 0.",
+              "expected": "1",
+              "actual": "0"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Delete the water one",
+              "response": "Done! I've removed \"drink the water\"."
+            },
+            {
+              "userInput": "Delete the one about drinking water.",
+              "response": "I found a document with content: 'jump on the water'. Did you mean to delete 'drink the water' as well, or is 'drink the water' no longer in the list?"
+            }
+          ]
+        },
+        {
+          "failureReasons": [
+            "Step 2: expected the interaction to include a clarification request in \"Clarification follow-up deletes the intended todo\".",
+            "Step 2: expected 1 todos but found 0.",
+            "Step 2: expected todo \"jump on the water\" to exist."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 1,
+              "checkType": "clarificationRequestedDuringInteraction",
+              "reason": "expected the interaction to include a clarification request in \"Clarification follow-up deletes the intended todo\".",
+              "expected": "true",
+              "actual": "[\n  {\n    \"userInput\": \"Delete the water one\",\n    \"response\": \"Done! I've removed \\\"drink the water\\\".\",\n    \"pass\": false,\n    \"reason\": \"The user's input 'Delete the water one' is ambiguous because there could be multiple items with 'water' (e.g., 'drink the water', 'wash with water', 'water the plants'). The assistant failed to ask for clarification to ensure it deleted the correct item. In..."
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "todoCount",
+              "reason": "expected 1 todos but found 0.",
+              "expected": "1",
+              "actual": "0"
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsIncludeExact",
+              "reason": "expected todo \"jump on the water\" to exist.",
+              "expected": "jump on the water",
+              "actual": "[]"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Delete the water one",
+              "response": "Done! I've removed \"drink the water\"."
+            },
+            {
+              "userInput": "Delete the one about drinking water.",
+              "response": "Done! I've removed \"jump on the water\"."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "clarification-resolves-ambiguous-update",
+      "scenarioTitle": "Clarification follow-up resolves the right todo",
+      "passCount": 1,
+      "totalCount": 5,
+      "passPercentage": 20,
+      "topFailureStages": [
+        [
+          "Step 2 @ No status emitted",
+          4
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 2: did not expect todo \"drink the water\" to exist.",
+          4
+        ],
+        [
+          "Step 2: expected a todo containing \"drink the fire\".",
+          4
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "todoContentsExcludeExact",
+          4
+        ],
+        [
+          "todoContentsIncludeSubstrings",
+          4
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 2: did not expect todo \"drink the water\" to exist.",
+            "Step 2: expected a todo containing \"drink the fire\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsExcludeExact",
+              "reason": "did not expect todo \"drink the water\" to exist.",
+              "expected": "Todo list must exclude \"drink the water\"",
+              "actual": "[\n  \"jump on the water\",\n  \"drink the water\"\n]"
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsIncludeSubstrings",
+              "reason": "expected a todo containing \"drink the fire\".",
+              "expected": "drink the fire",
+              "actual": "undefined"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Edit the water to fire",
+              "response": "I found a few possible matches, but I'm not sure which one you mean.\n1. \"drink the water\"\n2. \"jump on the water\"\n\nWhich one did you mean?"
+            },
+            {
+              "userInput": "The one about drinking. Change it to drink the fire.",
+              "response": "I found a few possible matches, but I can't tell for sure which one you mean.\n1. \"drink the water\"\n2. \"jump on the water\"\n\nWhich one did you mean?"
+            }
+          ]
+        },
+        {
+          "failureReasons": [
+            "Step 2: did not expect todo \"drink the water\" to exist.",
+            "Step 2: expected a todo containing \"drink the fire\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsExcludeExact",
+              "reason": "did not expect todo \"drink the water\" to exist.",
+              "expected": "Todo list must exclude \"drink the water\"",
+              "actual": "[\n  \"jump on the water\",\n  \"drink the water\"\n]"
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsIncludeSubstrings",
+              "reason": "expected a todo containing \"drink the fire\".",
+              "expected": "drink the fire",
+              "actual": "undefined"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Edit the water to fire",
+              "response": "I found two todos that mention 'water'. Which one do you want to edit to 'fire', or do you mean a different action?\n1. ID 31ce1569: 'drink the water'\n2. ID 8f0f6e20: 'jump on the water'"
+            },
+            {
+              "userInput": "The one about drinking. Change it to drink the fire.",
+              "response": "I found a few possible matches, but I can't tell for sure which one you mean.\n1. \"drink the water\"\n2. \"jump on the water\"\n\nWhich one did you mean?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "explicit-edit-similar-todos",
+      "scenarioTitle": "Explicit edit of one similar todo",
+      "passCount": 1,
+      "totalCount": 5,
+      "passPercentage": 20,
+      "topFailureStages": [
+        [
+          "Step 2 @ No status emitted",
+          4
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 2: did not expect todo \"jump on the water\" to exist.",
+          4
+        ],
+        [
+          "Step 2: expected a todo containing \"jump on the fire\".",
+          4
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "todoContentsExcludeExact",
+          4
+        ],
+        [
+          "todoContentsIncludeSubstrings",
+          4
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 2: did not expect todo \"jump on the water\" to exist.",
+            "Step 2: expected a todo containing \"jump on the fire\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsExcludeExact",
+              "reason": "did not expect todo \"jump on the water\" to exist.",
+              "expected": "Todo list must exclude \"jump on the water\"",
+              "actual": "[\n  \"jump on the water\",\n  \"drink the water\"\n]"
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsIncludeSubstrings",
+              "reason": "expected a todo containing \"jump on the fire\".",
+              "expected": "jump on the fire",
+              "actual": "undefined"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Change \"jump on the water\" to \"jump on the fire\"",
+              "response": "I found a few possible matches, but I can't tell for sure which one you mean.\n1. \"jump on the water\"\n2. \"drink the water\"\n\nWhich one did you mean?"
+            }
+          ]
+        },
+        {
+          "failureReasons": [
+            "Step 2: did not expect todo \"jump on the water\" to exist.",
+            "Step 2: expected a todo containing \"jump on the fire\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsExcludeExact",
+              "reason": "did not expect todo \"jump on the water\" to exist.",
+              "expected": "Todo list must exclude \"jump on the water\"",
+              "actual": "[\n  \"jump on the water\",\n  \"drink the water\"\n]"
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsIncludeSubstrings",
+              "reason": "expected a todo containing \"jump on the fire\".",
+              "expected": "jump on the fire",
+              "actual": "undefined"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Change \"jump on the water\" to \"jump on the fire\"",
+              "response": "I found a few possible matches, but I can't tell for sure which one you mean.\n1. \"jump on the water\"\n2. \"drink the water\"\n\nWhich one did you mean?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "low-confidence-vague-request",
+      "scenarioTitle": "Vague request does not mutate state",
+      "passCount": 1,
+      "totalCount": 5,
+      "passPercentage": 20,
+      "topFailureStages": [
+        [
+          "Step 1 @ No status emitted",
+          4
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 1: expected response to include \"not sure\".",
+          4
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "responseIncludes",
+          4
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 1: expected response to include \"not sure\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "responseIncludes",
+              "reason": "expected response to include \"not sure\".",
+              "expected": "not sure",
+              "actual": "That sounds like an interesting request, but I don't have a specific feature with that exact name! Could you let me know what you'd like to do? For example, I can help you save notes, set reminders, search your stored data, or manage your to-do lists. Just let me know what you need!"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Do the thing",
+              "response": "That sounds like an interesting request, but I don't have a specific feature with that exact name! Could you let me know what you'd like to do? For example, I can help you save notes, set reminders, search your stored data, or manage your to-do lists. Just let me know what you need!"
+            }
+          ]
+        },
+        {
+          "failureReasons": [
+            "Step 1: expected response to include \"not sure\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "responseIncludes",
+              "reason": "expected response to include \"not sure\".",
+              "expected": "not sure",
+              "actual": "Could you clarify what you mean by \"the thing\"? Are you looking to save a new note, set a reminder, search your stored data, or perhaps modify an existing item? Let me know!"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Do the thing",
+              "response": "Could you clarify what you mean by \"the thing\"? Are you looking to save a new note, set a reminder, search your stored data, or perhaps modify an existing item? Let me know!"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "ambiguous-update-needs-clarification",
+      "scenarioTitle": "Ambiguous update asks for clarification",
+      "passCount": 4,
+      "totalCount": 5,
+      "passPercentage": 80,
+      "topFailureStages": [
+        [
+          "Step 2 @ No status emitted",
+          1
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 2: expected a clarification request in \"Ambiguous update asks for clarification\". Judge: The user's request 'Edit the water to fire' is ambiguous. The assistant immediately retrieved two documents with unrelated content ('drink the fire' and 'jump on the fire') and executed updates without asking for clarification or disambiguation. The assistant should have confirmed which documents or content the user intended to modify before acting.",
+          1
+        ],
+        [
+          "Step 2: expected todo \"jump on the water\" to exist.",
+          1
+        ],
+        [
+          "Step 2: expected todo \"drink the water\" to exist.",
+          1
+        ],
+        [
+          "Step 2: did not expect a todo containing \"fire\".",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "todoContentsIncludeExact",
+          2
+        ],
+        [
+          "requiresClarification",
+          1
+        ],
+        [
+          "todoContentsExcludeSubstrings",
+          1
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 2: expected a clarification request in \"Ambiguous update asks for clarification\". Judge: The user's request 'Edit the water to fire' is ambiguous. The assistant immediately retrieved two documents with unrelated content ('drink the fire' and 'jump on the fire') and executed updates without asking for clarification or disambiguation. The assistant should have confirmed which documents or content the user intended to modify before acting.",
+            "Step 2: expected todo \"jump on the water\" to exist.",
+            "Step 2: expected todo \"drink the water\" to exist.",
+            "Step 2: did not expect a todo containing \"fire\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 1,
+              "checkType": "requiresClarification",
+              "reason": "expected a clarification request in \"Ambiguous update asks for clarification\". Judge: The user's request 'Edit the water to fire' is ambiguous. The assistant immediately retrieved two documents with unrelated content ('drink the fire' and 'jump on the fire') and executed updates without asking for clarification or disambiguation. The assistant should have confirmed which documents or content the user intended to modify before acting.",
+              "expected": "true",
+              "actual": "Done! I've updated 2 documents."
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsIncludeExact",
+              "reason": "expected todo \"jump on the water\" to exist.",
+              "expected": "jump on the water",
+              "actual": "[\n  \"drink the fire\",\n  \"jump on the fire\"\n]"
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsIncludeExact",
+              "reason": "expected todo \"drink the water\" to exist.",
+              "expected": "drink the water",
+              "actual": "undefined"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Edit the water to fire",
+              "response": "Done! I've updated 2 documents."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "add-single-todo-explicit",
+      "scenarioTitle": "Add a single explicit todo",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "add-single-todo-variant-phrasing",
+      "scenarioTitle": "Add a todo with alternate phrasing",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "add-multiple-todos-inline-list",
+      "scenarioTitle": "Add multiple todos in one message",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "add-multiple-todos-multiline",
+      "scenarioTitle": "Add todos from a multiline list",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "delete-specific-todo",
+      "scenarioTitle": "Delete one matching todo",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "pure-greeting-does-not-store",
+      "scenarioTitle": "Greeting alone does not create data",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "greeting-then-add-todo",
+      "scenarioTitle": "Greeting before task creation",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "instruction-does-not-become-todo",
+      "scenarioTitle": "Instruction stays separate from todos",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "duplicate-todo-still-persists-separately",
+      "scenarioTitle": "Near-duplicate todo requests still store separately",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "smalltalk-random-question-then-add",
+      "scenarioTitle": "Random smalltalk before action",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "seeded-large-db-targeted-retrieval",
+      "scenarioTitle": "Retrieve the right fact from seeded large data",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "retrieve-todos-after-creation",
+      "scenarioTitle": "Retrieve todos after creating them",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "retrieve-todos-with-casual-phrasing",
+      "scenarioTitle": "Retrieve todos with casual wording",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "update-specific-todo",
+      "scenarioTitle": "Update a specific todo by description",
+      "passCount": 5,
+      "totalCount": 5,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    }
+  ]
+}

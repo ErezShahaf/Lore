@@ -1,0 +1,3461 @@
+{
+  "evalId": "eval-9Au-2026-03-19T20:36:31",
+  "results": {
+    "version": 3,
+    "timestamp": "2026-03-19T20:36:31.141Z",
+    "prompts": [
+      {
+        "id": "f523ba5078be8fafa45a46639427f728a7ef0f188ae4f693154ff9cade3f9f40",
+        "raw": "{{scenarioId}}",
+        "label": "{{scenarioId}}",
+        "provider": "qwen3.5:9b",
+        "metrics": {
+          "score": 7,
+          "testPassCount": 7,
+          "testFailCount": 1,
+          "testErrorCount": 0,
+          "assertPassCount": 7,
+          "assertFailCount": 1,
+          "totalLatencyMs": 123339,
+          "tokenUsage": {
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "total": 0,
+            "numRequests": 8,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0
+            },
+            "assertions": {
+              "total": 0,
+              "prompt": 0,
+              "completion": 0,
+              "cached": 0,
+              "numRequests": 0,
+              "completionDetails": {
+                "reasoning": 0,
+                "acceptedPrediction": 0,
+                "rejectedPrediction": 0
+              }
+            }
+          },
+          "namedScores": {},
+          "namedScoresCount": {},
+          "cost": 0
+        }
+      }
+    ],
+    "results": [
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Passed: Add a single explicit todo"
+            }
+          ]
+        },
+        "id": "2ea611d4-bb24-4b8a-9ff8-ae17b6b54fd4",
+        "latencyMs": 9125,
+        "namedScores": {},
+        "prompt": {
+          "raw": "add-single-todo-explicit",
+          "label": "{{scenarioId}}",
+          "config": {}
+        },
+        "promptId": "f523ba5078be8fafa45a46639427f728a7ef0f188ae4f693154ff9cade3f9f40",
+        "promptIdx": 0,
+        "provider": {
+          "id": "R:\\lore\\evals\\provider\\loreScenarioProvider.mjs",
+          "label": "qwen3.5:9b"
+        },
+        "response": {
+          "output": "Passed: Add a single explicit todo",
+          "metadata": {
+            "passed": true,
+            "summary": "Passed: Add a single explicit todo",
+            "scenarioId": "add-single-todo-explicit",
+            "scenarioTitle": "Add a single explicit todo",
+            "model": "qwen3.5:9b",
+            "judgeModel": "qwen3.5:9b",
+            "failures": [],
+            "failedChecks": [],
+            "transcript": [
+              {
+                "stepIndex": 0,
+                "initialUserInput": "Add to my todo list: buy milk",
+                "finalUserInput": "Add to my todo list: buy milk",
+                "response": "Got it! I've saved your todo about buy milk.",
+                "events": [
+                  {
+                    "type": "status",
+                    "message": "Classifying your input..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Saving your thought..."
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "54a27a2d-c2cf-4e25-a2d8-d104a0420125"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "Got it! I've saved your todo about buy milk."
+                  },
+                  {
+                    "type": "done"
+                  }
+                ],
+                "todoContents": [
+                  "buy milk"
+                ],
+                "retrievedDocumentIds": [],
+                "retrievedContents": [],
+                "retrievedCount": 0,
+                "totalCandidates": 0,
+                "cutoffScore": null,
+                "interactionTurns": [
+                  {
+                    "turnIndex": 0,
+                    "userInput": "Add to my todo list: buy milk",
+                    "response": "Got it! I've saved your todo about buy milk.",
+                    "todoContents": [
+                      "buy milk"
+                    ],
+                    "retrievedDocumentIds": [],
+                    "retrievedContents": [],
+                    "retrievedCount": 0,
+                    "totalCandidates": 0,
+                    "cutoffScore": null,
+                    "simulatedUserDecision": null
+                  }
+                ],
+                "failedChecks": []
+              }
+            ],
+            "finalTodos": [
+              {
+                "id": "54a27a2d-c2cf-4e25-a2d8-d104a0420125",
+                "content": "buy milk",
+                "type": "todo",
+                "createdAt": "2026-03-19T20:36:35.050Z",
+                "updatedAt": "2026-03-19T20:36:35.050Z",
+                "date": "2026-03-19",
+                "tags": "todo",
+                "source": "Add to my todo list: buy milk",
+                "metadata": "{}",
+                "isDeleted": false
+              }
+            ],
+            "evalServerOutput": ""
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "vars": {
+            "scenarioId": "add-single-todo-explicit"
+          },
+          "metadata": {
+            "scenarioId": "add-single-todo-explicit",
+            "scenarioTitle": "Add a single explicit todo",
+            "suites": [
+              "smoke",
+              "full"
+            ]
+          },
+          "description": "Add a single explicit todo",
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "\n            const metadata = context.providerResponse?.metadata ?? {};\n            return {\n              pass: metadata.passed === true,\n              score: metadata.passed === true ? 1 : 0,\n              reason: metadata.summary || metadata.failures?.join('\\n') || 'Scenario failed',\n            };\n          "
+            }
+          ],
+          "options": {}
+        },
+        "testIdx": 0,
+        "vars": {
+          "scenarioId": "add-single-todo-explicit"
+        },
+        "metadata": {
+          "scenarioId": "add-single-todo-explicit",
+          "scenarioTitle": "Add a single explicit todo",
+          "suites": [
+            "smoke",
+            "full"
+          ],
+          "passed": true,
+          "summary": "Passed: Add a single explicit todo",
+          "model": "qwen3.5:9b",
+          "judgeModel": "qwen3.5:9b",
+          "failures": [],
+          "failedChecks": [],
+          "transcript": [
+            {
+              "stepIndex": 0,
+              "initialUserInput": "Add to my todo list: buy milk",
+              "finalUserInput": "Add to my todo list: buy milk",
+              "response": "Got it! I've saved your todo about buy milk.",
+              "events": [
+                {
+                  "type": "status",
+                  "message": "Classifying your input..."
+                },
+                {
+                  "type": "status",
+                  "message": "Saving your thought..."
+                },
+                {
+                  "type": "stored",
+                  "documentId": "54a27a2d-c2cf-4e25-a2d8-d104a0420125"
+                },
+                {
+                  "type": "chunk",
+                  "content": "Got it! I've saved your todo about buy milk."
+                },
+                {
+                  "type": "done"
+                }
+              ],
+              "todoContents": [
+                "buy milk"
+              ],
+              "retrievedDocumentIds": [],
+              "retrievedContents": [],
+              "retrievedCount": 0,
+              "totalCandidates": 0,
+              "cutoffScore": null,
+              "interactionTurns": [
+                {
+                  "turnIndex": 0,
+                  "userInput": "Add to my todo list: buy milk",
+                  "response": "Got it! I've saved your todo about buy milk.",
+                  "todoContents": [
+                    "buy milk"
+                  ],
+                  "retrievedDocumentIds": [],
+                  "retrievedContents": [],
+                  "retrievedCount": 0,
+                  "totalCandidates": 0,
+                  "cutoffScore": null,
+                  "simulatedUserDecision": null
+                }
+              ],
+              "failedChecks": []
+            }
+          ],
+          "finalTodos": [
+            {
+              "id": "54a27a2d-c2cf-4e25-a2d8-d104a0420125",
+              "content": "buy milk",
+              "type": "todo",
+              "createdAt": "2026-03-19T20:36:35.050Z",
+              "updatedAt": "2026-03-19T20:36:35.050Z",
+              "date": "2026-03-19",
+              "tags": "todo",
+              "source": "Add to my todo list: buy milk",
+              "metadata": "{}",
+              "isDeleted": false
+            }
+          ],
+          "evalServerOutput": "",
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Passed: Add multiple todos in one message"
+            }
+          ]
+        },
+        "id": "3d7fd438-bac3-45d7-a2e6-4a32c70247a9",
+        "latencyMs": 22108,
+        "namedScores": {},
+        "prompt": {
+          "raw": "add-multiple-todos-inline-list",
+          "label": "{{scenarioId}}",
+          "config": {}
+        },
+        "promptId": "f523ba5078be8fafa45a46639427f728a7ef0f188ae4f693154ff9cade3f9f40",
+        "promptIdx": 0,
+        "provider": {
+          "id": "R:\\lore\\evals\\provider\\loreScenarioProvider.mjs",
+          "label": "qwen3.5:9b"
+        },
+        "response": {
+          "output": "Passed: Add multiple todos in one message",
+          "metadata": {
+            "passed": true,
+            "summary": "Passed: Add multiple todos in one message",
+            "scenarioId": "add-multiple-todos-inline-list",
+            "scenarioTitle": "Add multiple todos in one message",
+            "model": "qwen3.5:9b",
+            "judgeModel": "qwen3.5:9b",
+            "failures": [],
+            "failedChecks": [],
+            "transcript": [
+              {
+                "stepIndex": 0,
+                "initialUserInput": "Todos: buy milk, call mom, pay rent",
+                "finalUserInput": "Todos: buy milk, call mom, pay rent",
+                "response": "Got it! I've saved 3 todos.",
+                "events": [
+                  {
+                    "type": "status",
+                    "message": "Classifying your input..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Saving your thought..."
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "88ca42e0-b3ed-485d-92d4-b4b352f27d05"
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "fdb4e4a3-38c0-4723-9175-f06391e06952"
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "b72ce491-63f0-4ae9-ab35-65c9d781a00e"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "Got it! I've saved 3 todos."
+                  },
+                  {
+                    "type": "done"
+                  }
+                ],
+                "todoContents": [
+                  "buy milk",
+                  "call mom",
+                  "pay rent"
+                ],
+                "retrievedDocumentIds": [],
+                "retrievedContents": [],
+                "retrievedCount": 0,
+                "totalCandidates": 0,
+                "cutoffScore": null,
+                "interactionTurns": [
+                  {
+                    "turnIndex": 0,
+                    "userInput": "Todos: buy milk, call mom, pay rent",
+                    "response": "Got it! I've saved 3 todos.",
+                    "todoContents": [
+                      "buy milk",
+                      "call mom",
+                      "pay rent"
+                    ],
+                    "retrievedDocumentIds": [],
+                    "retrievedContents": [],
+                    "retrievedCount": 0,
+                    "totalCandidates": 0,
+                    "cutoffScore": null,
+                    "simulatedUserDecision": null
+                  }
+                ],
+                "failedChecks": []
+              }
+            ],
+            "finalTodos": [
+              {
+                "id": "88ca42e0-b3ed-485d-92d4-b4b352f27d05",
+                "content": "buy milk",
+                "type": "todo",
+                "createdAt": "2026-03-19T20:36:51.385Z",
+                "updatedAt": "2026-03-19T20:36:51.385Z",
+                "date": "2026-03-19",
+                "tags": "todo",
+                "source": "Todos: buy milk, call mom, pay rent",
+                "metadata": "{\"groupId\":\"1d5b1a6b-435f-4596-9f27-5e6d9e089cd1\"}",
+                "isDeleted": false
+              },
+              {
+                "id": "fdb4e4a3-38c0-4723-9175-f06391e06952",
+                "content": "call mom",
+                "type": "todo",
+                "createdAt": "2026-03-19T20:36:51.521Z",
+                "updatedAt": "2026-03-19T20:36:51.521Z",
+                "date": "2026-03-19",
+                "tags": "todo",
+                "source": "Todos: buy milk, call mom, pay rent",
+                "metadata": "{\"groupId\":\"1d5b1a6b-435f-4596-9f27-5e6d9e089cd1\"}",
+                "isDeleted": false
+              },
+              {
+                "id": "b72ce491-63f0-4ae9-ab35-65c9d781a00e",
+                "content": "pay rent",
+                "type": "todo",
+                "createdAt": "2026-03-19T20:36:51.657Z",
+                "updatedAt": "2026-03-19T20:36:51.657Z",
+                "date": "2026-03-19",
+                "tags": "todo",
+                "source": "Todos: buy milk, call mom, pay rent",
+                "metadata": "{\"groupId\":\"1d5b1a6b-435f-4596-9f27-5e6d9e089cd1\"}",
+                "isDeleted": false
+              }
+            ],
+            "evalServerOutput": ""
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "vars": {
+            "scenarioId": "add-multiple-todos-inline-list"
+          },
+          "metadata": {
+            "scenarioId": "add-multiple-todos-inline-list",
+            "scenarioTitle": "Add multiple todos in one message",
+            "suites": [
+              "smoke",
+              "full"
+            ]
+          },
+          "description": "Add multiple todos in one message",
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "\n            const metadata = context.providerResponse?.metadata ?? {};\n            return {\n              pass: metadata.passed === true,\n              score: metadata.passed === true ? 1 : 0,\n              reason: metadata.summary || metadata.failures?.join('\\n') || 'Scenario failed',\n            };\n          "
+            }
+          ],
+          "options": {}
+        },
+        "testIdx": 1,
+        "vars": {
+          "scenarioId": "add-multiple-todos-inline-list"
+        },
+        "metadata": {
+          "scenarioId": "add-multiple-todos-inline-list",
+          "scenarioTitle": "Add multiple todos in one message",
+          "suites": [
+            "smoke",
+            "full"
+          ],
+          "passed": true,
+          "summary": "Passed: Add multiple todos in one message",
+          "model": "qwen3.5:9b",
+          "judgeModel": "qwen3.5:9b",
+          "failures": [],
+          "failedChecks": [],
+          "transcript": [
+            {
+              "stepIndex": 0,
+              "initialUserInput": "Todos: buy milk, call mom, pay rent",
+              "finalUserInput": "Todos: buy milk, call mom, pay rent",
+              "response": "Got it! I've saved 3 todos.",
+              "events": [
+                {
+                  "type": "status",
+                  "message": "Classifying your input..."
+                },
+                {
+                  "type": "status",
+                  "message": "Saving your thought..."
+                },
+                {
+                  "type": "stored",
+                  "documentId": "88ca42e0-b3ed-485d-92d4-b4b352f27d05"
+                },
+                {
+                  "type": "stored",
+                  "documentId": "fdb4e4a3-38c0-4723-9175-f06391e06952"
+                },
+                {
+                  "type": "stored",
+                  "documentId": "b72ce491-63f0-4ae9-ab35-65c9d781a00e"
+                },
+                {
+                  "type": "chunk",
+                  "content": "Got it! I've saved 3 todos."
+                },
+                {
+                  "type": "done"
+                }
+              ],
+              "todoContents": [
+                "buy milk",
+                "call mom",
+                "pay rent"
+              ],
+              "retrievedDocumentIds": [],
+              "retrievedContents": [],
+              "retrievedCount": 0,
+              "totalCandidates": 0,
+              "cutoffScore": null,
+              "interactionTurns": [
+                {
+                  "turnIndex": 0,
+                  "userInput": "Todos: buy milk, call mom, pay rent",
+                  "response": "Got it! I've saved 3 todos.",
+                  "todoContents": [
+                    "buy milk",
+                    "call mom",
+                    "pay rent"
+                  ],
+                  "retrievedDocumentIds": [],
+                  "retrievedContents": [],
+                  "retrievedCount": 0,
+                  "totalCandidates": 0,
+                  "cutoffScore": null,
+                  "simulatedUserDecision": null
+                }
+              ],
+              "failedChecks": []
+            }
+          ],
+          "finalTodos": [
+            {
+              "id": "88ca42e0-b3ed-485d-92d4-b4b352f27d05",
+              "content": "buy milk",
+              "type": "todo",
+              "createdAt": "2026-03-19T20:36:51.385Z",
+              "updatedAt": "2026-03-19T20:36:51.385Z",
+              "date": "2026-03-19",
+              "tags": "todo",
+              "source": "Todos: buy milk, call mom, pay rent",
+              "metadata": "{\"groupId\":\"1d5b1a6b-435f-4596-9f27-5e6d9e089cd1\"}",
+              "isDeleted": false
+            },
+            {
+              "id": "fdb4e4a3-38c0-4723-9175-f06391e06952",
+              "content": "call mom",
+              "type": "todo",
+              "createdAt": "2026-03-19T20:36:51.521Z",
+              "updatedAt": "2026-03-19T20:36:51.521Z",
+              "date": "2026-03-19",
+              "tags": "todo",
+              "source": "Todos: buy milk, call mom, pay rent",
+              "metadata": "{\"groupId\":\"1d5b1a6b-435f-4596-9f27-5e6d9e089cd1\"}",
+              "isDeleted": false
+            },
+            {
+              "id": "b72ce491-63f0-4ae9-ab35-65c9d781a00e",
+              "content": "pay rent",
+              "type": "todo",
+              "createdAt": "2026-03-19T20:36:51.657Z",
+              "updatedAt": "2026-03-19T20:36:51.657Z",
+              "date": "2026-03-19",
+              "tags": "todo",
+              "source": "Todos: buy milk, call mom, pay rent",
+              "metadata": "{\"groupId\":\"1d5b1a6b-435f-4596-9f27-5e6d9e089cd1\"}",
+              "isDeleted": false
+            }
+          ],
+          "evalServerOutput": "",
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Passed: Greeting before task creation"
+            }
+          ]
+        },
+        "id": "b9dfe43f-563f-479b-8ce5-24ed0a3cb0b8",
+        "latencyMs": 16946,
+        "namedScores": {},
+        "prompt": {
+          "raw": "greeting-then-add-todo",
+          "label": "{{scenarioId}}",
+          "config": {}
+        },
+        "promptId": "f523ba5078be8fafa45a46639427f728a7ef0f188ae4f693154ff9cade3f9f40",
+        "promptIdx": 0,
+        "provider": {
+          "id": "R:\\lore\\evals\\provider\\loreScenarioProvider.mjs",
+          "label": "qwen3.5:9b"
+        },
+        "response": {
+          "output": "Passed: Greeting before task creation",
+          "metadata": {
+            "passed": true,
+            "summary": "Passed: Greeting before task creation",
+            "scenarioId": "greeting-then-add-todo",
+            "scenarioTitle": "Greeting before task creation",
+            "model": "qwen3.5:9b",
+            "judgeModel": "qwen3.5:9b",
+            "failures": [],
+            "failedChecks": [],
+            "transcript": [
+              {
+                "stepIndex": 0,
+                "initialUserInput": "Hey, how are you today?",
+                "finalUserInput": "Hey, how are you today?",
+                "response": "Hi there! I'm doing well, thanks for asking. How about you?\n\nI'm here to help you save notes, ideas, and reminders; manage your todos and meetings; search your stored data; or just chat casually. Is there anything specific you'd like to do or talk about today?",
+                "events": [
+                  {
+                    "type": "status",
+                    "message": "Classifying your input..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Thinking..."
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "Hi"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " there"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "!"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " I"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "'m"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " doing"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " well"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": ","
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " thanks"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " for"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " asking"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "."
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " How"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " about"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " you"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "?"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "\n\nI"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "'m"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " here"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " to"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " help"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " you"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " save"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " notes"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": ","
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " ideas"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": ","
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " and"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " reminders"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": ";"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " manage"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " your"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " todos"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " and"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " meetings"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": ";"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " search"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " your"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " stored"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " data"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": ";"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " or"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " just"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " chat"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " casually"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "."
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " Is"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " there"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " anything"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " specific"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " you"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "'d"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " like"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " to"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " do"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " or"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " talk"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " about"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " today"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "?"
+                  },
+                  {
+                    "type": "done"
+                  }
+                ],
+                "todoContents": [],
+                "retrievedDocumentIds": [],
+                "retrievedContents": [],
+                "retrievedCount": 0,
+                "totalCandidates": 0,
+                "cutoffScore": null,
+                "interactionTurns": [
+                  {
+                    "turnIndex": 0,
+                    "userInput": "Hey, how are you today?",
+                    "response": "Hi there! I'm doing well, thanks for asking. How about you?\n\nI'm here to help you save notes, ideas, and reminders; manage your todos and meetings; search your stored data; or just chat casually. Is there anything specific you'd like to do or talk about today?",
+                    "todoContents": [],
+                    "retrievedDocumentIds": [],
+                    "retrievedContents": [],
+                    "retrievedCount": 0,
+                    "totalCandidates": 0,
+                    "cutoffScore": null,
+                    "simulatedUserDecision": null
+                  }
+                ],
+                "failedChecks": []
+              },
+              {
+                "stepIndex": 1,
+                "initialUserInput": "Nice. Add to my todo list: stretch for ten minutes",
+                "finalUserInput": "Nice. Add to my todo list: stretch for ten minutes",
+                "response": "Got it! I've saved your todo about Nice. Add to my todo list:....",
+                "events": [
+                  {
+                    "type": "status",
+                    "message": "Classifying your input..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Saving your thought..."
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "f6798030-e6a9-4e03-a0c7-dcb5347d6f73"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "Got it! I've saved your todo about Nice. Add to my todo list:...."
+                  },
+                  {
+                    "type": "done"
+                  }
+                ],
+                "todoContents": [
+                  "Nice. Add to my todo list: stretch for ten minutes"
+                ],
+                "retrievedDocumentIds": [],
+                "retrievedContents": [],
+                "retrievedCount": 0,
+                "totalCandidates": 0,
+                "cutoffScore": null,
+                "interactionTurns": [
+                  {
+                    "turnIndex": 0,
+                    "userInput": "Nice. Add to my todo list: stretch for ten minutes",
+                    "response": "Got it! I've saved your todo about Nice. Add to my todo list:....",
+                    "todoContents": [
+                      "Nice. Add to my todo list: stretch for ten minutes"
+                    ],
+                    "retrievedDocumentIds": [],
+                    "retrievedContents": [],
+                    "retrievedCount": 0,
+                    "totalCandidates": 0,
+                    "cutoffScore": null,
+                    "simulatedUserDecision": null
+                  }
+                ],
+                "failedChecks": []
+              }
+            ],
+            "finalTodos": [
+              {
+                "id": "f6798030-e6a9-4e03-a0c7-dcb5347d6f73",
+                "content": "Nice. Add to my todo list: stretch for ten minutes",
+                "type": "todo",
+                "createdAt": "2026-03-19T20:37:19.336Z",
+                "updatedAt": "2026-03-19T20:37:19.336Z",
+                "date": "2026-03-19",
+                "tags": "todo,exercise,health",
+                "source": "Nice. Add to my todo list: stretch for ten minutes",
+                "metadata": "{}",
+                "isDeleted": false
+              }
+            ],
+            "evalServerOutput": ""
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "vars": {
+            "scenarioId": "greeting-then-add-todo"
+          },
+          "metadata": {
+            "scenarioId": "greeting-then-add-todo",
+            "scenarioTitle": "Greeting before task creation",
+            "suites": [
+              "smoke",
+              "full"
+            ]
+          },
+          "description": "Greeting before task creation",
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "\n            const metadata = context.providerResponse?.metadata ?? {};\n            return {\n              pass: metadata.passed === true,\n              score: metadata.passed === true ? 1 : 0,\n              reason: metadata.summary || metadata.failures?.join('\\n') || 'Scenario failed',\n            };\n          "
+            }
+          ],
+          "options": {}
+        },
+        "testIdx": 2,
+        "vars": {
+          "scenarioId": "greeting-then-add-todo"
+        },
+        "metadata": {
+          "scenarioId": "greeting-then-add-todo",
+          "scenarioTitle": "Greeting before task creation",
+          "suites": [
+            "smoke",
+            "full"
+          ],
+          "passed": true,
+          "summary": "Passed: Greeting before task creation",
+          "model": "qwen3.5:9b",
+          "judgeModel": "qwen3.5:9b",
+          "failures": [],
+          "failedChecks": [],
+          "transcript": [
+            {
+              "stepIndex": 0,
+              "initialUserInput": "Hey, how are you today?",
+              "finalUserInput": "Hey, how are you today?",
+              "response": "Hi there! I'm doing well, thanks for asking. How about you?\n\nI'm here to help you save notes, ideas, and reminders; manage your todos and meetings; search your stored data; or just chat casually. Is there anything specific you'd like to do or talk about today?",
+              "events": [
+                {
+                  "type": "status",
+                  "message": "Classifying your input..."
+                },
+                {
+                  "type": "status",
+                  "message": "Thinking..."
+                },
+                {
+                  "type": "chunk",
+                  "content": "Hi"
+                },
+                {
+                  "type": "chunk",
+                  "content": " there"
+                },
+                {
+                  "type": "chunk",
+                  "content": "!"
+                },
+                {
+                  "type": "chunk",
+                  "content": " I"
+                },
+                {
+                  "type": "chunk",
+                  "content": "'m"
+                },
+                {
+                  "type": "chunk",
+                  "content": " doing"
+                },
+                {
+                  "type": "chunk",
+                  "content": " well"
+                },
+                {
+                  "type": "chunk",
+                  "content": ","
+                },
+                {
+                  "type": "chunk",
+                  "content": " thanks"
+                },
+                {
+                  "type": "chunk",
+                  "content": " for"
+                },
+                {
+                  "type": "chunk",
+                  "content": " asking"
+                },
+                {
+                  "type": "chunk",
+                  "content": "."
+                },
+                {
+                  "type": "chunk",
+                  "content": " How"
+                },
+                {
+                  "type": "chunk",
+                  "content": " about"
+                },
+                {
+                  "type": "chunk",
+                  "content": " you"
+                },
+                {
+                  "type": "chunk",
+                  "content": "?"
+                },
+                {
+                  "type": "chunk",
+                  "content": "\n\nI"
+                },
+                {
+                  "type": "chunk",
+                  "content": "'m"
+                },
+                {
+                  "type": "chunk",
+                  "content": " here"
+                },
+                {
+                  "type": "chunk",
+                  "content": " to"
+                },
+                {
+                  "type": "chunk",
+                  "content": " help"
+                },
+                {
+                  "type": "chunk",
+                  "content": " you"
+                },
+                {
+                  "type": "chunk",
+                  "content": " save"
+                },
+                {
+                  "type": "chunk",
+                  "content": " notes"
+                },
+                {
+                  "type": "chunk",
+                  "content": ","
+                },
+                {
+                  "type": "chunk",
+                  "content": " ideas"
+                },
+                {
+                  "type": "chunk",
+                  "content": ","
+                },
+                {
+                  "type": "chunk",
+                  "content": " and"
+                },
+                {
+                  "type": "chunk",
+                  "content": " reminders"
+                },
+                {
+                  "type": "chunk",
+                  "content": ";"
+                },
+                {
+                  "type": "chunk",
+                  "content": " manage"
+                },
+                {
+                  "type": "chunk",
+                  "content": " your"
+                },
+                {
+                  "type": "chunk",
+                  "content": " todos"
+                },
+                {
+                  "type": "chunk",
+                  "content": " and"
+                },
+                {
+                  "type": "chunk",
+                  "content": " meetings"
+                },
+                {
+                  "type": "chunk",
+                  "content": ";"
+                },
+                {
+                  "type": "chunk",
+                  "content": " search"
+                },
+                {
+                  "type": "chunk",
+                  "content": " your"
+                },
+                {
+                  "type": "chunk",
+                  "content": " stored"
+                },
+                {
+                  "type": "chunk",
+                  "content": " data"
+                },
+                {
+                  "type": "chunk",
+                  "content": ";"
+                },
+                {
+                  "type": "chunk",
+                  "content": " or"
+                },
+                {
+                  "type": "chunk",
+                  "content": " just"
+                },
+                {
+                  "type": "chunk",
+                  "content": " chat"
+                },
+                {
+                  "type": "chunk",
+                  "content": " casually"
+                },
+                {
+                  "type": "chunk",
+                  "content": "."
+                },
+                {
+                  "type": "chunk",
+                  "content": " Is"
+                },
+                {
+                  "type": "chunk",
+                  "content": " there"
+                },
+                {
+                  "type": "chunk",
+                  "content": " anything"
+                },
+                {
+                  "type": "chunk",
+                  "content": " specific"
+                },
+                {
+                  "type": "chunk",
+                  "content": " you"
+                },
+                {
+                  "type": "chunk",
+                  "content": "'d"
+                },
+                {
+                  "type": "chunk",
+                  "content": " like"
+                },
+                {
+                  "type": "chunk",
+                  "content": " to"
+                },
+                {
+                  "type": "chunk",
+                  "content": " do"
+                },
+                {
+                  "type": "chunk",
+                  "content": " or"
+                },
+                {
+                  "type": "chunk",
+                  "content": " talk"
+                },
+                {
+                  "type": "chunk",
+                  "content": " about"
+                },
+                {
+                  "type": "chunk",
+                  "content": " today"
+                },
+                {
+                  "type": "chunk",
+                  "content": "?"
+                },
+                {
+                  "type": "done"
+                }
+              ],
+              "todoContents": [],
+              "retrievedDocumentIds": [],
+              "retrievedContents": [],
+              "retrievedCount": 0,
+              "totalCandidates": 0,
+              "cutoffScore": null,
+              "interactionTurns": [
+                {
+                  "turnIndex": 0,
+                  "userInput": "Hey, how are you today?",
+                  "response": "Hi there! I'm doing well, thanks for asking. How about you?\n\nI'm here to help you save notes, ideas, and reminders; manage your todos and meetings; search your stored data; or just chat casually. Is there anything specific you'd like to do or talk about today?",
+                  "todoContents": [],
+                  "retrievedDocumentIds": [],
+                  "retrievedContents": [],
+                  "retrievedCount": 0,
+                  "totalCandidates": 0,
+                  "cutoffScore": null,
+                  "simulatedUserDecision": null
+                }
+              ],
+              "failedChecks": []
+            },
+            {
+              "stepIndex": 1,
+              "initialUserInput": "Nice. Add to my todo list: stretch for ten minutes",
+              "finalUserInput": "Nice. Add to my todo list: stretch for ten minutes",
+              "response": "Got it! I've saved your todo about Nice. Add to my todo list:....",
+              "events": [
+                {
+                  "type": "status",
+                  "message": "Classifying your input..."
+                },
+                {
+                  "type": "status",
+                  "message": "Saving your thought..."
+                },
+                {
+                  "type": "stored",
+                  "documentId": "f6798030-e6a9-4e03-a0c7-dcb5347d6f73"
+                },
+                {
+                  "type": "chunk",
+                  "content": "Got it! I've saved your todo about Nice. Add to my todo list:...."
+                },
+                {
+                  "type": "done"
+                }
+              ],
+              "todoContents": [
+                "Nice. Add to my todo list: stretch for ten minutes"
+              ],
+              "retrievedDocumentIds": [],
+              "retrievedContents": [],
+              "retrievedCount": 0,
+              "totalCandidates": 0,
+              "cutoffScore": null,
+              "interactionTurns": [
+                {
+                  "turnIndex": 0,
+                  "userInput": "Nice. Add to my todo list: stretch for ten minutes",
+                  "response": "Got it! I've saved your todo about Nice. Add to my todo list:....",
+                  "todoContents": [
+                    "Nice. Add to my todo list: stretch for ten minutes"
+                  ],
+                  "retrievedDocumentIds": [],
+                  "retrievedContents": [],
+                  "retrievedCount": 0,
+                  "totalCandidates": 0,
+                  "cutoffScore": null,
+                  "simulatedUserDecision": null
+                }
+              ],
+              "failedChecks": []
+            }
+          ],
+          "finalTodos": [
+            {
+              "id": "f6798030-e6a9-4e03-a0c7-dcb5347d6f73",
+              "content": "Nice. Add to my todo list: stretch for ten minutes",
+              "type": "todo",
+              "createdAt": "2026-03-19T20:37:19.336Z",
+              "updatedAt": "2026-03-19T20:37:19.336Z",
+              "date": "2026-03-19",
+              "tags": "todo,exercise,health",
+              "source": "Nice. Add to my todo list: stretch for ten minutes",
+              "metadata": "{}",
+              "isDeleted": false
+            }
+          ],
+          "evalServerOutput": "",
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Passed: Retrieve todos after creating them"
+            }
+          ]
+        },
+        "id": "cdba0a04-d08d-46d1-95e4-958dd2eda3c2",
+        "latencyMs": 6065,
+        "namedScores": {},
+        "prompt": {
+          "raw": "retrieve-todos-after-creation",
+          "label": "{{scenarioId}}",
+          "config": {}
+        },
+        "promptId": "f523ba5078be8fafa45a46639427f728a7ef0f188ae4f693154ff9cade3f9f40",
+        "promptIdx": 0,
+        "provider": {
+          "id": "R:\\lore\\evals\\provider\\loreScenarioProvider.mjs",
+          "label": "qwen3.5:9b"
+        },
+        "response": {
+          "output": "Passed: Retrieve todos after creating them",
+          "metadata": {
+            "passed": true,
+            "summary": "Passed: Retrieve todos after creating them",
+            "scenarioId": "retrieve-todos-after-creation",
+            "scenarioTitle": "Retrieve todos after creating them",
+            "model": "qwen3.5:9b",
+            "judgeModel": "qwen3.5:9b",
+            "failures": [],
+            "failedChecks": [],
+            "transcript": [
+              {
+                "stepIndex": 0,
+                "initialUserInput": "Todos: buy milk, call mom",
+                "finalUserInput": "Todos: buy milk, call mom",
+                "response": "Got it! I've saved 2 todos.",
+                "events": [
+                  {
+                    "type": "status",
+                    "message": "Classifying your input..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Saving your thought..."
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "520491b1-54b9-49fb-802f-8d32fe8ca4c6"
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "970d9b18-b203-45eb-a480-6adf1dfd5c22"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "Got it! I've saved 2 todos."
+                  },
+                  {
+                    "type": "done"
+                  }
+                ],
+                "todoContents": [
+                  "buy milk",
+                  "call mom"
+                ],
+                "retrievedDocumentIds": [],
+                "retrievedContents": [],
+                "retrievedCount": 0,
+                "totalCandidates": 0,
+                "cutoffScore": null,
+                "interactionTurns": [
+                  {
+                    "turnIndex": 0,
+                    "userInput": "Todos: buy milk, call mom",
+                    "response": "Got it! I've saved 2 todos.",
+                    "todoContents": [
+                      "buy milk",
+                      "call mom"
+                    ],
+                    "retrievedDocumentIds": [],
+                    "retrievedContents": [],
+                    "retrievedCount": 0,
+                    "totalCandidates": 0,
+                    "cutoffScore": null,
+                    "simulatedUserDecision": null
+                  }
+                ],
+                "failedChecks": []
+              },
+              {
+                "stepIndex": 1,
+                "initialUserInput": "What are my todos?",
+                "finalUserInput": "What are my todos?",
+                "response": "Your todos are:\n- buy milk\n- call mom",
+                "events": [
+                  {
+                    "type": "status",
+                    "message": "Classifying your input..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Searching your notes..."
+                  },
+                  {
+                    "type": "retrieved",
+                    "documentIds": [
+                      "520491b1-54b9-49fb-802f-8d32fe8ca4c6",
+                      "970d9b18-b203-45eb-a480-6adf1dfd5c22"
+                    ],
+                    "totalRetrieved": 2,
+                    "totalCandidates": 2,
+                    "cutoffScore": 0.5250868240992228
+                  },
+                  {
+                    "type": "status",
+                    "message": "Found 2 relevant notes. Generating answer..."
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "Your"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " todos"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " are"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": ":"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "\n-"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " buy"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " milk"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "\n-"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " call"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": " mom"
+                  },
+                  {
+                    "type": "done"
+                  }
+                ],
+                "todoContents": [
+                  "buy milk",
+                  "call mom"
+                ],
+                "retrievedContents": [
+                  "buy milk",
+                  "call mom"
+                ],
+                "retrievedCount": 2,
+                "totalCandidates": 2,
+                "cutoffScore": 0.5250868240992228,
+                "interactionTurns": [
+                  {
+                    "turnIndex": 0,
+                    "userInput": "What are my todos?",
+                    "response": "Your todos are:\n- buy milk\n- call mom",
+                    "todoContents": [
+                      "buy milk",
+                      "call mom"
+                    ],
+                    "retrievedContents": [
+                      "buy milk",
+                      "call mom"
+                    ],
+                    "retrievedCount": 2,
+                    "totalCandidates": 2,
+                    "cutoffScore": 0.5250868240992228,
+                    "simulatedUserDecision": null
+                  }
+                ],
+                "failedChecks": []
+              }
+            ],
+            "finalTodos": [
+              {
+                "id": "520491b1-54b9-49fb-802f-8d32fe8ca4c6",
+                "content": "buy milk",
+                "type": "todo",
+                "createdAt": "2026-03-19T20:37:22.192Z",
+                "updatedAt": "2026-03-19T20:37:22.192Z",
+                "date": "2026-03-19",
+                "tags": "todo",
+                "source": "Todos: buy milk, call mom",
+                "metadata": "{\"groupId\":\"9be988a1-8097-4faf-b9e7-7cc52a839b7f\"}",
+                "isDeleted": false
+              },
+              {
+                "id": "970d9b18-b203-45eb-a480-6adf1dfd5c22",
+                "content": "call mom",
+                "type": "todo",
+                "createdAt": "2026-03-19T20:37:22.327Z",
+                "updatedAt": "2026-03-19T20:37:22.327Z",
+                "date": "2026-03-19",
+                "tags": "todo",
+                "source": "Todos: buy milk, call mom",
+                "metadata": "{\"groupId\":\"9be988a1-8097-4faf-b9e7-7cc52a839b7f\"}",
+                "isDeleted": false
+              }
+            ],
+            "evalServerOutput": ""
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "vars": {
+            "scenarioId": "retrieve-todos-after-creation"
+          },
+          "metadata": {
+            "scenarioId": "retrieve-todos-after-creation",
+            "scenarioTitle": "Retrieve todos after creating them",
+            "suites": [
+              "smoke",
+              "full"
+            ]
+          },
+          "description": "Retrieve todos after creating them",
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "\n            const metadata = context.providerResponse?.metadata ?? {};\n            return {\n              pass: metadata.passed === true,\n              score: metadata.passed === true ? 1 : 0,\n              reason: metadata.summary || metadata.failures?.join('\\n') || 'Scenario failed',\n            };\n          "
+            }
+          ],
+          "options": {}
+        },
+        "testIdx": 3,
+        "vars": {
+          "scenarioId": "retrieve-todos-after-creation"
+        },
+        "metadata": {
+          "scenarioId": "retrieve-todos-after-creation",
+          "scenarioTitle": "Retrieve todos after creating them",
+          "suites": [
+            "smoke",
+            "full"
+          ],
+          "passed": true,
+          "summary": "Passed: Retrieve todos after creating them",
+          "model": "qwen3.5:9b",
+          "judgeModel": "qwen3.5:9b",
+          "failures": [],
+          "failedChecks": [],
+          "transcript": [
+            {
+              "stepIndex": 0,
+              "initialUserInput": "Todos: buy milk, call mom",
+              "finalUserInput": "Todos: buy milk, call mom",
+              "response": "Got it! I've saved 2 todos.",
+              "events": [
+                {
+                  "type": "status",
+                  "message": "Classifying your input..."
+                },
+                {
+                  "type": "status",
+                  "message": "Saving your thought..."
+                },
+                {
+                  "type": "stored",
+                  "documentId": "520491b1-54b9-49fb-802f-8d32fe8ca4c6"
+                },
+                {
+                  "type": "stored",
+                  "documentId": "970d9b18-b203-45eb-a480-6adf1dfd5c22"
+                },
+                {
+                  "type": "chunk",
+                  "content": "Got it! I've saved 2 todos."
+                },
+                {
+                  "type": "done"
+                }
+              ],
+              "todoContents": [
+                "buy milk",
+                "call mom"
+              ],
+              "retrievedDocumentIds": [],
+              "retrievedContents": [],
+              "retrievedCount": 0,
+              "totalCandidates": 0,
+              "cutoffScore": null,
+              "interactionTurns": [
+                {
+                  "turnIndex": 0,
+                  "userInput": "Todos: buy milk, call mom",
+                  "response": "Got it! I've saved 2 todos.",
+                  "todoContents": [
+                    "buy milk",
+                    "call mom"
+                  ],
+                  "retrievedDocumentIds": [],
+                  "retrievedContents": [],
+                  "retrievedCount": 0,
+                  "totalCandidates": 0,
+                  "cutoffScore": null,
+                  "simulatedUserDecision": null
+                }
+              ],
+              "failedChecks": []
+            },
+            {
+              "stepIndex": 1,
+              "initialUserInput": "What are my todos?",
+              "finalUserInput": "What are my todos?",
+              "response": "Your todos are:\n- buy milk\n- call mom",
+              "events": [
+                {
+                  "type": "status",
+                  "message": "Classifying your input..."
+                },
+                {
+                  "type": "status",
+                  "message": "Searching your notes..."
+                },
+                {
+                  "type": "retrieved",
+                  "documentIds": [
+                    "520491b1-54b9-49fb-802f-8d32fe8ca4c6",
+                    "970d9b18-b203-45eb-a480-6adf1dfd5c22"
+                  ],
+                  "totalRetrieved": 2,
+                  "totalCandidates": 2,
+                  "cutoffScore": 0.5250868240992228
+                },
+                {
+                  "type": "status",
+                  "message": "Found 2 relevant notes. Generating answer..."
+                },
+                {
+                  "type": "chunk",
+                  "content": "Your"
+                },
+                {
+                  "type": "chunk",
+                  "content": " todos"
+                },
+                {
+                  "type": "chunk",
+                  "content": " are"
+                },
+                {
+                  "type": "chunk",
+                  "content": ":"
+                },
+                {
+                  "type": "chunk",
+                  "content": "\n-"
+                },
+                {
+                  "type": "chunk",
+                  "content": " buy"
+                },
+                {
+                  "type": "chunk",
+                  "content": " milk"
+                },
+                {
+                  "type": "chunk",
+                  "content": "\n-"
+                },
+                {
+                  "type": "chunk",
+                  "content": " call"
+                },
+                {
+                  "type": "chunk",
+                  "content": " mom"
+                },
+                {
+                  "type": "done"
+                }
+              ],
+              "todoContents": [
+                "buy milk",
+                "call mom"
+              ],
+              "retrievedContents": [
+                "buy milk",
+                "call mom"
+              ],
+              "retrievedCount": 2,
+              "totalCandidates": 2,
+              "cutoffScore": 0.5250868240992228,
+              "interactionTurns": [
+                {
+                  "turnIndex": 0,
+                  "userInput": "What are my todos?",
+                  "response": "Your todos are:\n- buy milk\n- call mom",
+                  "todoContents": [
+                    "buy milk",
+                    "call mom"
+                  ],
+                  "retrievedContents": [
+                    "buy milk",
+                    "call mom"
+                  ],
+                  "retrievedCount": 2,
+                  "totalCandidates": 2,
+                  "cutoffScore": 0.5250868240992228,
+                  "simulatedUserDecision": null
+                }
+              ],
+              "failedChecks": []
+            }
+          ],
+          "finalTodos": [
+            {
+              "id": "520491b1-54b9-49fb-802f-8d32fe8ca4c6",
+              "content": "buy milk",
+              "type": "todo",
+              "createdAt": "2026-03-19T20:37:22.192Z",
+              "updatedAt": "2026-03-19T20:37:22.192Z",
+              "date": "2026-03-19",
+              "tags": "todo",
+              "source": "Todos: buy milk, call mom",
+              "metadata": "{\"groupId\":\"9be988a1-8097-4faf-b9e7-7cc52a839b7f\"}",
+              "isDeleted": false
+            },
+            {
+              "id": "970d9b18-b203-45eb-a480-6adf1dfd5c22",
+              "content": "call mom",
+              "type": "todo",
+              "createdAt": "2026-03-19T20:37:22.327Z",
+              "updatedAt": "2026-03-19T20:37:22.327Z",
+              "date": "2026-03-19",
+              "tags": "todo",
+              "source": "Todos: buy milk, call mom",
+              "metadata": "{\"groupId\":\"9be988a1-8097-4faf-b9e7-7cc52a839b7f\"}",
+              "isDeleted": false
+            }
+          ],
+          "evalServerOutput": "",
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Passed: Update a specific todo by description"
+            }
+          ]
+        },
+        "id": "f3f90d9c-6e45-46d7-abe5-03d2dc943b02",
+        "latencyMs": 21603,
+        "namedScores": {},
+        "prompt": {
+          "raw": "update-specific-todo",
+          "label": "{{scenarioId}}",
+          "config": {}
+        },
+        "promptId": "f523ba5078be8fafa45a46639427f728a7ef0f188ae4f693154ff9cade3f9f40",
+        "promptIdx": 0,
+        "provider": {
+          "id": "R:\\lore\\evals\\provider\\loreScenarioProvider.mjs",
+          "label": "qwen3.5:9b"
+        },
+        "response": {
+          "output": "Passed: Update a specific todo by description",
+          "metadata": {
+            "passed": true,
+            "summary": "Passed: Update a specific todo by description",
+            "scenarioId": "update-specific-todo",
+            "scenarioTitle": "Update a specific todo by description",
+            "model": "qwen3.5:9b",
+            "judgeModel": "qwen3.5:9b",
+            "failures": [],
+            "failedChecks": [],
+            "transcript": [
+              {
+                "stepIndex": 0,
+                "initialUserInput": "Todos: buy milk, call mom",
+                "finalUserInput": "Todos: buy milk, call mom",
+                "response": "Got it! I've saved 2 todos.",
+                "events": [
+                  {
+                    "type": "status",
+                    "message": "Classifying your input..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Saving your thought..."
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "bb1cec5a-9b5a-4cac-a77a-a2520a6ece94"
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "43a0bafb-7204-4663-a9de-6dbca342666b"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "Got it! I've saved 2 todos."
+                  },
+                  {
+                    "type": "done"
+                  }
+                ],
+                "todoContents": [
+                  "buy milk",
+                  "call mom"
+                ],
+                "retrievedDocumentIds": [],
+                "retrievedContents": [],
+                "retrievedCount": 0,
+                "totalCandidates": 0,
+                "cutoffScore": null,
+                "interactionTurns": [
+                  {
+                    "turnIndex": 0,
+                    "userInput": "Todos: buy milk, call mom",
+                    "response": "Got it! I've saved 2 todos.",
+                    "todoContents": [
+                      "buy milk",
+                      "call mom"
+                    ],
+                    "retrievedDocumentIds": [],
+                    "retrievedContents": [],
+                    "retrievedCount": 0,
+                    "totalCandidates": 0,
+                    "cutoffScore": null,
+                    "simulatedUserDecision": null
+                  }
+                ],
+                "failedChecks": []
+              },
+              {
+                "stepIndex": 1,
+                "initialUserInput": "Change the todo about milk to buy oat milk",
+                "finalUserInput": "Change the todo about milk to buy oat milk",
+                "response": "Done! I've updated \"buy milk\".",
+                "events": [
+                  {
+                    "type": "status",
+                    "message": "Classifying your input..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Finding relevant documents..."
+                  },
+                  {
+                    "type": "retrieved",
+                    "documentIds": [
+                      "bb1cec5a-9b5a-4cac-a77a-a2520a6ece94",
+                      "43a0bafb-7204-4663-a9de-6dbca342666b"
+                    ],
+                    "totalRetrieved": 2
+                  },
+                  {
+                    "type": "status",
+                    "message": "Analyzing your request..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Executing update..."
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "Done! I've updated \"buy milk\"."
+                  },
+                  {
+                    "type": "done"
+                  }
+                ],
+                "todoContents": [
+                  "call mom",
+                  "buy oat milk"
+                ],
+                "retrievedContents": [
+                  "buy oat milk",
+                  "call mom"
+                ],
+                "retrievedCount": 2,
+                "totalCandidates": 2,
+                "cutoffScore": null,
+                "interactionTurns": [
+                  {
+                    "turnIndex": 0,
+                    "userInput": "Change the todo about milk to buy oat milk",
+                    "response": "Done! I've updated \"buy milk\".",
+                    "todoContents": [
+                      "call mom",
+                      "buy oat milk"
+                    ],
+                    "retrievedContents": [
+                      "buy oat milk",
+                      "call mom"
+                    ],
+                    "retrievedCount": 2,
+                    "totalCandidates": 2,
+                    "cutoffScore": null,
+                    "simulatedUserDecision": null
+                  }
+                ],
+                "failedChecks": []
+              }
+            ],
+            "finalTodos": [
+              {
+                "id": "43a0bafb-7204-4663-a9de-6dbca342666b",
+                "content": "call mom",
+                "type": "todo",
+                "createdAt": "2026-03-19T20:37:31.397Z",
+                "updatedAt": "2026-03-19T20:37:31.397Z",
+                "date": "2026-03-19",
+                "tags": "todo",
+                "source": "Todos: buy milk, call mom",
+                "metadata": "{\"groupId\":\"ae0c6048-a505-4981-b6e6-ba1b671a71cd\"}",
+                "isDeleted": false
+              },
+              {
+                "id": "bb1cec5a-9b5a-4cac-a77a-a2520a6ece94",
+                "content": "buy oat milk",
+                "type": "todo",
+                "createdAt": "2026-03-19T20:37:31.261Z",
+                "updatedAt": "2026-03-19T20:37:36.676Z",
+                "date": "2026-03-19",
+                "tags": "todo",
+                "source": "Todos: buy milk, call mom",
+                "metadata": "{\"groupId\":\"ae0c6048-a505-4981-b6e6-ba1b671a71cd\"}",
+                "isDeleted": false
+              }
+            ],
+            "evalServerOutput": ""
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "vars": {
+            "scenarioId": "update-specific-todo"
+          },
+          "metadata": {
+            "scenarioId": "update-specific-todo",
+            "scenarioTitle": "Update a specific todo by description",
+            "suites": [
+              "smoke",
+              "full"
+            ]
+          },
+          "description": "Update a specific todo by description",
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "\n            const metadata = context.providerResponse?.metadata ?? {};\n            return {\n              pass: metadata.passed === true,\n              score: metadata.passed === true ? 1 : 0,\n              reason: metadata.summary || metadata.failures?.join('\\n') || 'Scenario failed',\n            };\n          "
+            }
+          ],
+          "options": {}
+        },
+        "testIdx": 4,
+        "vars": {
+          "scenarioId": "update-specific-todo"
+        },
+        "metadata": {
+          "scenarioId": "update-specific-todo",
+          "scenarioTitle": "Update a specific todo by description",
+          "suites": [
+            "smoke",
+            "full"
+          ],
+          "passed": true,
+          "summary": "Passed: Update a specific todo by description",
+          "model": "qwen3.5:9b",
+          "judgeModel": "qwen3.5:9b",
+          "failures": [],
+          "failedChecks": [],
+          "transcript": [
+            {
+              "stepIndex": 0,
+              "initialUserInput": "Todos: buy milk, call mom",
+              "finalUserInput": "Todos: buy milk, call mom",
+              "response": "Got it! I've saved 2 todos.",
+              "events": [
+                {
+                  "type": "status",
+                  "message": "Classifying your input..."
+                },
+                {
+                  "type": "status",
+                  "message": "Saving your thought..."
+                },
+                {
+                  "type": "stored",
+                  "documentId": "bb1cec5a-9b5a-4cac-a77a-a2520a6ece94"
+                },
+                {
+                  "type": "stored",
+                  "documentId": "43a0bafb-7204-4663-a9de-6dbca342666b"
+                },
+                {
+                  "type": "chunk",
+                  "content": "Got it! I've saved 2 todos."
+                },
+                {
+                  "type": "done"
+                }
+              ],
+              "todoContents": [
+                "buy milk",
+                "call mom"
+              ],
+              "retrievedDocumentIds": [],
+              "retrievedContents": [],
+              "retrievedCount": 0,
+              "totalCandidates": 0,
+              "cutoffScore": null,
+              "interactionTurns": [
+                {
+                  "turnIndex": 0,
+                  "userInput": "Todos: buy milk, call mom",
+                  "response": "Got it! I've saved 2 todos.",
+                  "todoContents": [
+                    "buy milk",
+                    "call mom"
+                  ],
+                  "retrievedDocumentIds": [],
+                  "retrievedContents": [],
+                  "retrievedCount": 0,
+                  "totalCandidates": 0,
+                  "cutoffScore": null,
+                  "simulatedUserDecision": null
+                }
+              ],
+              "failedChecks": []
+            },
+            {
+              "stepIndex": 1,
+              "initialUserInput": "Change the todo about milk to buy oat milk",
+              "finalUserInput": "Change the todo about milk to buy oat milk",
+              "response": "Done! I've updated \"buy milk\".",
+              "events": [
+                {
+                  "type": "status",
+                  "message": "Classifying your input..."
+                },
+                {
+                  "type": "status",
+                  "message": "Finding relevant documents..."
+                },
+                {
+                  "type": "retrieved",
+                  "documentIds": [
+                    "bb1cec5a-9b5a-4cac-a77a-a2520a6ece94",
+                    "43a0bafb-7204-4663-a9de-6dbca342666b"
+                  ],
+                  "totalRetrieved": 2
+                },
+                {
+                  "type": "status",
+                  "message": "Analyzing your request..."
+                },
+                {
+                  "type": "status",
+                  "message": "Executing update..."
+                },
+                {
+                  "type": "chunk",
+                  "content": "Done! I've updated \"buy milk\"."
+                },
+                {
+                  "type": "done"
+                }
+              ],
+              "todoContents": [
+                "call mom",
+                "buy oat milk"
+              ],
+              "retrievedContents": [
+                "buy oat milk",
+                "call mom"
+              ],
+              "retrievedCount": 2,
+              "totalCandidates": 2,
+              "cutoffScore": null,
+              "interactionTurns": [
+                {
+                  "turnIndex": 0,
+                  "userInput": "Change the todo about milk to buy oat milk",
+                  "response": "Done! I've updated \"buy milk\".",
+                  "todoContents": [
+                    "call mom",
+                    "buy oat milk"
+                  ],
+                  "retrievedContents": [
+                    "buy oat milk",
+                    "call mom"
+                  ],
+                  "retrievedCount": 2,
+                  "totalCandidates": 2,
+                  "cutoffScore": null,
+                  "simulatedUserDecision": null
+                }
+              ],
+              "failedChecks": []
+            }
+          ],
+          "finalTodos": [
+            {
+              "id": "43a0bafb-7204-4663-a9de-6dbca342666b",
+              "content": "call mom",
+              "type": "todo",
+              "createdAt": "2026-03-19T20:37:31.397Z",
+              "updatedAt": "2026-03-19T20:37:31.397Z",
+              "date": "2026-03-19",
+              "tags": "todo",
+              "source": "Todos: buy milk, call mom",
+              "metadata": "{\"groupId\":\"ae0c6048-a505-4981-b6e6-ba1b671a71cd\"}",
+              "isDeleted": false
+            },
+            {
+              "id": "bb1cec5a-9b5a-4cac-a77a-a2520a6ece94",
+              "content": "buy oat milk",
+              "type": "todo",
+              "createdAt": "2026-03-19T20:37:31.261Z",
+              "updatedAt": "2026-03-19T20:37:36.676Z",
+              "date": "2026-03-19",
+              "tags": "todo",
+              "source": "Todos: buy milk, call mom",
+              "metadata": "{\"groupId\":\"ae0c6048-a505-4981-b6e6-ba1b671a71cd\"}",
+              "isDeleted": false
+            }
+          ],
+          "evalServerOutput": "",
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Passed: Ambiguous update asks for clarification"
+            }
+          ]
+        },
+        "id": "8bcf55c4-cfab-41b7-802e-03d6ceae5067",
+        "latencyMs": 29243,
+        "namedScores": {},
+        "prompt": {
+          "raw": "ambiguous-update-needs-clarification",
+          "label": "{{scenarioId}}",
+          "config": {}
+        },
+        "promptId": "f523ba5078be8fafa45a46639427f728a7ef0f188ae4f693154ff9cade3f9f40",
+        "promptIdx": 0,
+        "provider": {
+          "id": "R:\\lore\\evals\\provider\\loreScenarioProvider.mjs",
+          "label": "qwen3.5:9b"
+        },
+        "response": {
+          "output": "Passed: Ambiguous update asks for clarification",
+          "metadata": {
+            "passed": true,
+            "summary": "Passed: Ambiguous update asks for clarification",
+            "scenarioId": "ambiguous-update-needs-clarification",
+            "scenarioTitle": "Ambiguous update asks for clarification",
+            "model": "qwen3.5:9b",
+            "judgeModel": "qwen3.5:9b",
+            "failures": [],
+            "failedChecks": [],
+            "transcript": [
+              {
+                "stepIndex": 0,
+                "initialUserInput": "Todos: jump on the water, drink the water",
+                "finalUserInput": "Todos: jump on the water, drink the water",
+                "response": "Got it! I've saved 2 todos.",
+                "events": [
+                  {
+                    "type": "status",
+                    "message": "Classifying your input..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Saving your thought..."
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "c34c2a1b-6c5a-49a3-aebf-92ea08dc58ac"
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "0a41553d-c1fc-4bde-9fdf-572e98ee507e"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "Got it! I've saved 2 todos."
+                  },
+                  {
+                    "type": "done"
+                  }
+                ],
+                "todoContents": [
+                  "jump on the water",
+                  "drink the water"
+                ],
+                "retrievedDocumentIds": [],
+                "retrievedContents": [],
+                "retrievedCount": 0,
+                "totalCandidates": 0,
+                "cutoffScore": null,
+                "interactionTurns": [
+                  {
+                    "turnIndex": 0,
+                    "userInput": "Todos: jump on the water, drink the water",
+                    "response": "Got it! I've saved 2 todos.",
+                    "todoContents": [
+                      "jump on the water",
+                      "drink the water"
+                    ],
+                    "retrievedDocumentIds": [],
+                    "retrievedContents": [],
+                    "retrievedCount": 0,
+                    "totalCandidates": 0,
+                    "cutoffScore": null,
+                    "simulatedUserDecision": null
+                  }
+                ],
+                "failedChecks": []
+              },
+              {
+                "stepIndex": 1,
+                "initialUserInput": "Edit the water to fire",
+                "finalUserInput": "Edit the water to fire",
+                "response": "I found a few possible matches, but I'm not sure which one you mean.\n1. \"drink the water\"\n2. \"jump on the water\"\n\nWhich one did you mean?",
+                "events": [
+                  {
+                    "type": "status",
+                    "message": "Classifying your input..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Finding relevant documents..."
+                  },
+                  {
+                    "type": "retrieved",
+                    "documentIds": [
+                      "0a41553d-c1fc-4bde-9fdf-572e98ee507e",
+                      "c34c2a1b-6c5a-49a3-aebf-92ea08dc58ac"
+                    ],
+                    "totalRetrieved": 2
+                  },
+                  {
+                    "type": "status",
+                    "message": "Analyzing your request..."
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "I found a few possible matches, but I'm not sure which one you mean.\n1. \"drink the water\"\n2. \"jump on the water\"\n\nWhich one did you mean?"
+                  },
+                  {
+                    "type": "done"
+                  }
+                ],
+                "todoContents": [
+                  "jump on the water",
+                  "drink the water"
+                ],
+                "retrievedContents": [
+                  "drink the water",
+                  "jump on the water"
+                ],
+                "retrievedCount": 2,
+                "totalCandidates": 2,
+                "cutoffScore": null,
+                "interactionTurns": [
+                  {
+                    "turnIndex": 0,
+                    "userInput": "Edit the water to fire",
+                    "response": "I found a few possible matches, but I'm not sure which one you mean.\n1. \"drink the water\"\n2. \"jump on the water\"\n\nWhich one did you mean?",
+                    "todoContents": [
+                      "jump on the water",
+                      "drink the water"
+                    ],
+                    "retrievedContents": [
+                      "drink the water",
+                      "jump on the water"
+                    ],
+                    "retrievedCount": 2,
+                    "totalCandidates": 2,
+                    "cutoffScore": null,
+                    "simulatedUserDecision": null
+                  }
+                ],
+                "failedChecks": []
+              }
+            ],
+            "finalTodos": [
+              {
+                "id": "c34c2a1b-6c5a-49a3-aebf-92ea08dc58ac",
+                "content": "jump on the water",
+                "type": "todo",
+                "createdAt": "2026-03-19T20:37:57.939Z",
+                "updatedAt": "2026-03-19T20:37:57.939Z",
+                "date": "2026-03-19",
+                "tags": "todo",
+                "source": "Todos: jump on the water, drink the water",
+                "metadata": "{\"groupId\":\"2b4ec1b4-7d2a-41f9-8dea-ccf32508d207\"}",
+                "isDeleted": false
+              },
+              {
+                "id": "0a41553d-c1fc-4bde-9fdf-572e98ee507e",
+                "content": "drink the water",
+                "type": "todo",
+                "createdAt": "2026-03-19T20:37:58.075Z",
+                "updatedAt": "2026-03-19T20:37:58.075Z",
+                "date": "2026-03-19",
+                "tags": "todo",
+                "source": "Todos: jump on the water, drink the water",
+                "metadata": "{\"groupId\":\"2b4ec1b4-7d2a-41f9-8dea-ccf32508d207\"}",
+                "isDeleted": false
+              }
+            ],
+            "evalServerOutput": ""
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "vars": {
+            "scenarioId": "ambiguous-update-needs-clarification"
+          },
+          "metadata": {
+            "scenarioId": "ambiguous-update-needs-clarification",
+            "scenarioTitle": "Ambiguous update asks for clarification",
+            "suites": [
+              "smoke",
+              "full"
+            ]
+          },
+          "description": "Ambiguous update asks for clarification",
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "\n            const metadata = context.providerResponse?.metadata ?? {};\n            return {\n              pass: metadata.passed === true,\n              score: metadata.passed === true ? 1 : 0,\n              reason: metadata.summary || metadata.failures?.join('\\n') || 'Scenario failed',\n            };\n          "
+            }
+          ],
+          "options": {}
+        },
+        "testIdx": 5,
+        "vars": {
+          "scenarioId": "ambiguous-update-needs-clarification"
+        },
+        "metadata": {
+          "scenarioId": "ambiguous-update-needs-clarification",
+          "scenarioTitle": "Ambiguous update asks for clarification",
+          "suites": [
+            "smoke",
+            "full"
+          ],
+          "passed": true,
+          "summary": "Passed: Ambiguous update asks for clarification",
+          "model": "qwen3.5:9b",
+          "judgeModel": "qwen3.5:9b",
+          "failures": [],
+          "failedChecks": [],
+          "transcript": [
+            {
+              "stepIndex": 0,
+              "initialUserInput": "Todos: jump on the water, drink the water",
+              "finalUserInput": "Todos: jump on the water, drink the water",
+              "response": "Got it! I've saved 2 todos.",
+              "events": [
+                {
+                  "type": "status",
+                  "message": "Classifying your input..."
+                },
+                {
+                  "type": "status",
+                  "message": "Saving your thought..."
+                },
+                {
+                  "type": "stored",
+                  "documentId": "c34c2a1b-6c5a-49a3-aebf-92ea08dc58ac"
+                },
+                {
+                  "type": "stored",
+                  "documentId": "0a41553d-c1fc-4bde-9fdf-572e98ee507e"
+                },
+                {
+                  "type": "chunk",
+                  "content": "Got it! I've saved 2 todos."
+                },
+                {
+                  "type": "done"
+                }
+              ],
+              "todoContents": [
+                "jump on the water",
+                "drink the water"
+              ],
+              "retrievedDocumentIds": [],
+              "retrievedContents": [],
+              "retrievedCount": 0,
+              "totalCandidates": 0,
+              "cutoffScore": null,
+              "interactionTurns": [
+                {
+                  "turnIndex": 0,
+                  "userInput": "Todos: jump on the water, drink the water",
+                  "response": "Got it! I've saved 2 todos.",
+                  "todoContents": [
+                    "jump on the water",
+                    "drink the water"
+                  ],
+                  "retrievedDocumentIds": [],
+                  "retrievedContents": [],
+                  "retrievedCount": 0,
+                  "totalCandidates": 0,
+                  "cutoffScore": null,
+                  "simulatedUserDecision": null
+                }
+              ],
+              "failedChecks": []
+            },
+            {
+              "stepIndex": 1,
+              "initialUserInput": "Edit the water to fire",
+              "finalUserInput": "Edit the water to fire",
+              "response": "I found a few possible matches, but I'm not sure which one you mean.\n1. \"drink the water\"\n2. \"jump on the water\"\n\nWhich one did you mean?",
+              "events": [
+                {
+                  "type": "status",
+                  "message": "Classifying your input..."
+                },
+                {
+                  "type": "status",
+                  "message": "Finding relevant documents..."
+                },
+                {
+                  "type": "retrieved",
+                  "documentIds": [
+                    "0a41553d-c1fc-4bde-9fdf-572e98ee507e",
+                    "c34c2a1b-6c5a-49a3-aebf-92ea08dc58ac"
+                  ],
+                  "totalRetrieved": 2
+                },
+                {
+                  "type": "status",
+                  "message": "Analyzing your request..."
+                },
+                {
+                  "type": "chunk",
+                  "content": "I found a few possible matches, but I'm not sure which one you mean.\n1. \"drink the water\"\n2. \"jump on the water\"\n\nWhich one did you mean?"
+                },
+                {
+                  "type": "done"
+                }
+              ],
+              "todoContents": [
+                "jump on the water",
+                "drink the water"
+              ],
+              "retrievedContents": [
+                "drink the water",
+                "jump on the water"
+              ],
+              "retrievedCount": 2,
+              "totalCandidates": 2,
+              "cutoffScore": null,
+              "interactionTurns": [
+                {
+                  "turnIndex": 0,
+                  "userInput": "Edit the water to fire",
+                  "response": "I found a few possible matches, but I'm not sure which one you mean.\n1. \"drink the water\"\n2. \"jump on the water\"\n\nWhich one did you mean?",
+                  "todoContents": [
+                    "jump on the water",
+                    "drink the water"
+                  ],
+                  "retrievedContents": [
+                    "drink the water",
+                    "jump on the water"
+                  ],
+                  "retrievedCount": 2,
+                  "totalCandidates": 2,
+                  "cutoffScore": null,
+                  "simulatedUserDecision": null
+                }
+              ],
+              "failedChecks": []
+            }
+          ],
+          "finalTodos": [
+            {
+              "id": "c34c2a1b-6c5a-49a3-aebf-92ea08dc58ac",
+              "content": "jump on the water",
+              "type": "todo",
+              "createdAt": "2026-03-19T20:37:57.939Z",
+              "updatedAt": "2026-03-19T20:37:57.939Z",
+              "date": "2026-03-19",
+              "tags": "todo",
+              "source": "Todos: jump on the water, drink the water",
+              "metadata": "{\"groupId\":\"2b4ec1b4-7d2a-41f9-8dea-ccf32508d207\"}",
+              "isDeleted": false
+            },
+            {
+              "id": "0a41553d-c1fc-4bde-9fdf-572e98ee507e",
+              "content": "drink the water",
+              "type": "todo",
+              "createdAt": "2026-03-19T20:37:58.075Z",
+              "updatedAt": "2026-03-19T20:37:58.075Z",
+              "date": "2026-03-19",
+              "tags": "todo",
+              "source": "Todos: jump on the water, drink the water",
+              "metadata": "{\"groupId\":\"2b4ec1b4-7d2a-41f9-8dea-ccf32508d207\"}",
+              "isDeleted": false
+            }
+          ],
+          "evalServerOutput": "",
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Passed: Delete one matching todo"
+            }
+          ]
+        },
+        "id": "ea449a4b-6db4-41bd-97c1-7e97a24a41aa",
+        "latencyMs": 15427,
+        "namedScores": {},
+        "prompt": {
+          "raw": "delete-specific-todo",
+          "label": "{{scenarioId}}",
+          "config": {}
+        },
+        "promptId": "f523ba5078be8fafa45a46639427f728a7ef0f188ae4f693154ff9cade3f9f40",
+        "promptIdx": 0,
+        "provider": {
+          "id": "R:\\lore\\evals\\provider\\loreScenarioProvider.mjs",
+          "label": "qwen3.5:9b"
+        },
+        "response": {
+          "output": "Passed: Delete one matching todo",
+          "metadata": {
+            "passed": true,
+            "summary": "Passed: Delete one matching todo",
+            "scenarioId": "delete-specific-todo",
+            "scenarioTitle": "Delete one matching todo",
+            "model": "qwen3.5:9b",
+            "judgeModel": "qwen3.5:9b",
+            "failures": [],
+            "failedChecks": [],
+            "transcript": [
+              {
+                "stepIndex": 0,
+                "initialUserInput": "Todos: buy milk, buy bread",
+                "finalUserInput": "Todos: buy milk, buy bread",
+                "response": "Got it! I've saved 2 todos.",
+                "events": [
+                  {
+                    "type": "status",
+                    "message": "Classifying your input..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Saving your thought..."
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "decb777f-36fe-457e-94f5-556df661843c"
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "804445a4-5ad4-4c36-ba41-c5532bb06415"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "Got it! I've saved 2 todos."
+                  },
+                  {
+                    "type": "done"
+                  }
+                ],
+                "todoContents": [
+                  "buy milk",
+                  "buy bread"
+                ],
+                "retrievedDocumentIds": [],
+                "retrievedContents": [],
+                "retrievedCount": 0,
+                "totalCandidates": 0,
+                "cutoffScore": null,
+                "interactionTurns": [
+                  {
+                    "turnIndex": 0,
+                    "userInput": "Todos: buy milk, buy bread",
+                    "response": "Got it! I've saved 2 todos.",
+                    "todoContents": [
+                      "buy milk",
+                      "buy bread"
+                    ],
+                    "retrievedDocumentIds": [],
+                    "retrievedContents": [],
+                    "retrievedCount": 0,
+                    "totalCandidates": 0,
+                    "cutoffScore": null,
+                    "simulatedUserDecision": null
+                  }
+                ],
+                "failedChecks": []
+              },
+              {
+                "stepIndex": 1,
+                "initialUserInput": "Remove the todo about milk",
+                "finalUserInput": "Remove the todo about milk",
+                "response": "Done! I've removed \"buy milk\".",
+                "events": [
+                  {
+                    "type": "status",
+                    "message": "Classifying your input..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Finding relevant documents..."
+                  },
+                  {
+                    "type": "retrieved",
+                    "documentIds": [
+                      "decb777f-36fe-457e-94f5-556df661843c",
+                      "804445a4-5ad4-4c36-ba41-c5532bb06415"
+                    ],
+                    "totalRetrieved": 2
+                  },
+                  {
+                    "type": "status",
+                    "message": "Analyzing your request..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Executing delete..."
+                  },
+                  {
+                    "type": "deleted",
+                    "documentId": "decb777f-36fe-457e-94f5-556df661843c"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "Done! I've removed \"buy milk\"."
+                  },
+                  {
+                    "type": "done"
+                  }
+                ],
+                "todoContents": [
+                  "buy bread"
+                ],
+                "retrievedContents": [
+                  "buy bread"
+                ],
+                "retrievedCount": 2,
+                "totalCandidates": 1,
+                "cutoffScore": null,
+                "interactionTurns": [
+                  {
+                    "turnIndex": 0,
+                    "userInput": "Remove the todo about milk",
+                    "response": "Done! I've removed \"buy milk\".",
+                    "todoContents": [
+                      "buy bread"
+                    ],
+                    "retrievedContents": [
+                      "buy bread"
+                    ],
+                    "retrievedCount": 2,
+                    "totalCandidates": 1,
+                    "cutoffScore": null,
+                    "simulatedUserDecision": null
+                  }
+                ],
+                "failedChecks": []
+              }
+            ],
+            "finalTodos": [
+              {
+                "id": "804445a4-5ad4-4c36-ba41-c5532bb06415",
+                "content": "buy bread",
+                "type": "todo",
+                "createdAt": "2026-03-19T20:38:27.190Z",
+                "updatedAt": "2026-03-19T20:38:27.190Z",
+                "date": "2026-03-19",
+                "tags": "todo",
+                "source": "Todos: buy milk, buy bread",
+                "metadata": "{\"groupId\":\"2688c3a7-2a65-423b-b91c-412c46340282\"}",
+                "isDeleted": false
+              }
+            ],
+            "evalServerOutput": ""
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "vars": {
+            "scenarioId": "delete-specific-todo"
+          },
+          "metadata": {
+            "scenarioId": "delete-specific-todo",
+            "scenarioTitle": "Delete one matching todo",
+            "suites": [
+              "smoke",
+              "full"
+            ]
+          },
+          "description": "Delete one matching todo",
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "\n            const metadata = context.providerResponse?.metadata ?? {};\n            return {\n              pass: metadata.passed === true,\n              score: metadata.passed === true ? 1 : 0,\n              reason: metadata.summary || metadata.failures?.join('\\n') || 'Scenario failed',\n            };\n          "
+            }
+          ],
+          "options": {}
+        },
+        "testIdx": 6,
+        "vars": {
+          "scenarioId": "delete-specific-todo"
+        },
+        "metadata": {
+          "scenarioId": "delete-specific-todo",
+          "scenarioTitle": "Delete one matching todo",
+          "suites": [
+            "smoke",
+            "full"
+          ],
+          "passed": true,
+          "summary": "Passed: Delete one matching todo",
+          "model": "qwen3.5:9b",
+          "judgeModel": "qwen3.5:9b",
+          "failures": [],
+          "failedChecks": [],
+          "transcript": [
+            {
+              "stepIndex": 0,
+              "initialUserInput": "Todos: buy milk, buy bread",
+              "finalUserInput": "Todos: buy milk, buy bread",
+              "response": "Got it! I've saved 2 todos.",
+              "events": [
+                {
+                  "type": "status",
+                  "message": "Classifying your input..."
+                },
+                {
+                  "type": "status",
+                  "message": "Saving your thought..."
+                },
+                {
+                  "type": "stored",
+                  "documentId": "decb777f-36fe-457e-94f5-556df661843c"
+                },
+                {
+                  "type": "stored",
+                  "documentId": "804445a4-5ad4-4c36-ba41-c5532bb06415"
+                },
+                {
+                  "type": "chunk",
+                  "content": "Got it! I've saved 2 todos."
+                },
+                {
+                  "type": "done"
+                }
+              ],
+              "todoContents": [
+                "buy milk",
+                "buy bread"
+              ],
+              "retrievedDocumentIds": [],
+              "retrievedContents": [],
+              "retrievedCount": 0,
+              "totalCandidates": 0,
+              "cutoffScore": null,
+              "interactionTurns": [
+                {
+                  "turnIndex": 0,
+                  "userInput": "Todos: buy milk, buy bread",
+                  "response": "Got it! I've saved 2 todos.",
+                  "todoContents": [
+                    "buy milk",
+                    "buy bread"
+                  ],
+                  "retrievedDocumentIds": [],
+                  "retrievedContents": [],
+                  "retrievedCount": 0,
+                  "totalCandidates": 0,
+                  "cutoffScore": null,
+                  "simulatedUserDecision": null
+                }
+              ],
+              "failedChecks": []
+            },
+            {
+              "stepIndex": 1,
+              "initialUserInput": "Remove the todo about milk",
+              "finalUserInput": "Remove the todo about milk",
+              "response": "Done! I've removed \"buy milk\".",
+              "events": [
+                {
+                  "type": "status",
+                  "message": "Classifying your input..."
+                },
+                {
+                  "type": "status",
+                  "message": "Finding relevant documents..."
+                },
+                {
+                  "type": "retrieved",
+                  "documentIds": [
+                    "decb777f-36fe-457e-94f5-556df661843c",
+                    "804445a4-5ad4-4c36-ba41-c5532bb06415"
+                  ],
+                  "totalRetrieved": 2
+                },
+                {
+                  "type": "status",
+                  "message": "Analyzing your request..."
+                },
+                {
+                  "type": "status",
+                  "message": "Executing delete..."
+                },
+                {
+                  "type": "deleted",
+                  "documentId": "decb777f-36fe-457e-94f5-556df661843c"
+                },
+                {
+                  "type": "chunk",
+                  "content": "Done! I've removed \"buy milk\"."
+                },
+                {
+                  "type": "done"
+                }
+              ],
+              "todoContents": [
+                "buy bread"
+              ],
+              "retrievedContents": [
+                "buy bread"
+              ],
+              "retrievedCount": 2,
+              "totalCandidates": 1,
+              "cutoffScore": null,
+              "interactionTurns": [
+                {
+                  "turnIndex": 0,
+                  "userInput": "Remove the todo about milk",
+                  "response": "Done! I've removed \"buy milk\".",
+                  "todoContents": [
+                    "buy bread"
+                  ],
+                  "retrievedContents": [
+                    "buy bread"
+                  ],
+                  "retrievedCount": 2,
+                  "totalCandidates": 1,
+                  "cutoffScore": null,
+                  "simulatedUserDecision": null
+                }
+              ],
+              "failedChecks": []
+            }
+          ],
+          "finalTodos": [
+            {
+              "id": "804445a4-5ad4-4c36-ba41-c5532bb06415",
+              "content": "buy bread",
+              "type": "todo",
+              "createdAt": "2026-03-19T20:38:27.190Z",
+              "updatedAt": "2026-03-19T20:38:27.190Z",
+              "date": "2026-03-19",
+              "tags": "todo",
+              "source": "Todos: buy milk, buy bread",
+              "metadata": "{\"groupId\":\"2688c3a7-2a65-423b-b91c-412c46340282\"}",
+              "isDeleted": false
+            }
+          ],
+          "evalServerOutput": "",
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "error": "Failed: Vague request does not mutate state (1 issue)",
+        "gradingResult": {
+          "pass": false,
+          "score": 0,
+          "reason": "Failed: Vague request does not mutate state (1 issue)",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": false,
+              "score": 0,
+              "reason": "Failed: Vague request does not mutate state (1 issue)"
+            }
+          ]
+        },
+        "id": "55614177-62a0-401a-979c-805765b680ee",
+        "latencyMs": 2822,
+        "namedScores": {},
+        "prompt": {
+          "raw": "low-confidence-vague-request",
+          "label": "{{scenarioId}}",
+          "config": {}
+        },
+        "promptId": "f523ba5078be8fafa45a46639427f728a7ef0f188ae4f693154ff9cade3f9f40",
+        "promptIdx": 0,
+        "provider": {
+          "id": "R:\\lore\\evals\\provider\\loreScenarioProvider.mjs",
+          "label": "qwen3.5:9b"
+        },
+        "response": {
+          "output": "Failed: Vague request does not mutate state (1 issue)",
+          "metadata": {
+            "passed": false,
+            "summary": "Failed: Vague request does not mutate state (1 issue)",
+            "scenarioId": "low-confidence-vague-request",
+            "scenarioTitle": "Vague request does not mutate state",
+            "model": "qwen3.5:9b",
+            "judgeModel": "qwen3.5:9b",
+            "failures": [
+              "Step 1: expected response to include \"not sure\"."
+            ],
+            "failedChecks": [
+              {
+                "stepIndex": 0,
+                "checkType": "responseIncludes",
+                "expected": "not sure",
+                "actual": "Got it! I'll remember that from now on.",
+                "reason": "expected response to include \"not sure\"."
+              }
+            ],
+            "transcript": [
+              {
+                "stepIndex": 0,
+                "initialUserInput": "Do the thing",
+                "finalUserInput": "Do the thing",
+                "response": "Got it! I'll remember that from now on.",
+                "events": [
+                  {
+                    "type": "status",
+                    "message": "Classifying your input..."
+                  },
+                  {
+                    "type": "status",
+                    "message": "Saving instruction..."
+                  },
+                  {
+                    "type": "stored",
+                    "documentId": "40943036-0221-44d5-a181-a28c83d53325"
+                  },
+                  {
+                    "type": "chunk",
+                    "content": "Got it! I'll remember that from now on."
+                  },
+                  {
+                    "type": "done"
+                  }
+                ],
+                "todoContents": [],
+                "retrievedDocumentIds": [],
+                "retrievedContents": [],
+                "retrievedCount": 0,
+                "totalCandidates": 0,
+                "cutoffScore": null,
+                "interactionTurns": [
+                  {
+                    "turnIndex": 0,
+                    "userInput": "Do the thing",
+                    "response": "Got it! I'll remember that from now on.",
+                    "todoContents": [],
+                    "retrievedDocumentIds": [],
+                    "retrievedContents": [],
+                    "retrievedCount": 0,
+                    "totalCandidates": 0,
+                    "cutoffScore": null,
+                    "simulatedUserDecision": null
+                  }
+                ],
+                "failedChecks": [
+                  null
+                ]
+              }
+            ],
+            "finalTodos": [],
+            "evalServerOutput": ""
+          }
+        },
+        "score": 0,
+        "success": false,
+        "testCase": {
+          "vars": {
+            "scenarioId": "low-confidence-vague-request"
+          },
+          "metadata": {
+            "scenarioId": "low-confidence-vague-request",
+            "scenarioTitle": "Vague request does not mutate state",
+            "suites": [
+              "smoke",
+              "full"
+            ]
+          },
+          "description": "Vague request does not mutate state",
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "\n            const metadata = context.providerResponse?.metadata ?? {};\n            return {\n              pass: metadata.passed === true,\n              score: metadata.passed === true ? 1 : 0,\n              reason: metadata.summary || metadata.failures?.join('\\n') || 'Scenario failed',\n            };\n          "
+            }
+          ],
+          "options": {}
+        },
+        "testIdx": 7,
+        "vars": {
+          "scenarioId": "low-confidence-vague-request"
+        },
+        "metadata": {
+          "scenarioId": "low-confidence-vague-request",
+          "scenarioTitle": "Vague request does not mutate state",
+          "suites": [
+            "smoke",
+            "full"
+          ],
+          "passed": false,
+          "summary": "Failed: Vague request does not mutate state (1 issue)",
+          "model": "qwen3.5:9b",
+          "judgeModel": "qwen3.5:9b",
+          "failures": [
+            "Step 1: expected response to include \"not sure\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "responseIncludes",
+              "expected": "not sure",
+              "actual": "Got it! I'll remember that from now on.",
+              "reason": "expected response to include \"not sure\"."
+            }
+          ],
+          "transcript": [
+            {
+              "stepIndex": 0,
+              "initialUserInput": "Do the thing",
+              "finalUserInput": "Do the thing",
+              "response": "Got it! I'll remember that from now on.",
+              "events": [
+                {
+                  "type": "status",
+                  "message": "Classifying your input..."
+                },
+                {
+                  "type": "status",
+                  "message": "Saving instruction..."
+                },
+                {
+                  "type": "stored",
+                  "documentId": "40943036-0221-44d5-a181-a28c83d53325"
+                },
+                {
+                  "type": "chunk",
+                  "content": "Got it! I'll remember that from now on."
+                },
+                {
+                  "type": "done"
+                }
+              ],
+              "todoContents": [],
+              "retrievedDocumentIds": [],
+              "retrievedContents": [],
+              "retrievedCount": 0,
+              "totalCandidates": 0,
+              "cutoffScore": null,
+              "interactionTurns": [
+                {
+                  "turnIndex": 0,
+                  "userInput": "Do the thing",
+                  "response": "Got it! I'll remember that from now on.",
+                  "todoContents": [],
+                  "retrievedDocumentIds": [],
+                  "retrievedContents": [],
+                  "retrievedCount": 0,
+                  "totalCandidates": 0,
+                  "cutoffScore": null,
+                  "simulatedUserDecision": null
+                }
+              ],
+              "failedChecks": [
+                null
+              ]
+            }
+          ],
+          "finalTodos": [],
+          "evalServerOutput": "",
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 1
+      }
+    ],
+    "stats": {
+      "successes": 7,
+      "failures": 1,
+      "errors": 0,
+      "tokenUsage": {
+        "prompt": 0,
+        "completion": 0,
+        "cached": 0,
+        "total": 0,
+        "numRequests": 8,
+        "completionDetails": {
+          "reasoning": 0,
+          "acceptedPrediction": 0,
+          "rejectedPrediction": 0
+        },
+        "assertions": {
+          "total": 0,
+          "prompt": 0,
+          "completion": 0,
+          "cached": 0,
+          "numRequests": 0,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0
+          }
+        }
+      },
+      "durationMs": 123395,
+      "evaluationDurationMs": 123395
+    }
+  },
+  "config": {
+    "tags": {},
+    "description": "Lore promptfoo conversation evals",
+    "prompts": [
+      "{{scenarioId}}"
+    ],
+    "providers": [
+      {
+        "id": "R:\\lore\\evals\\provider\\loreScenarioProvider.mjs",
+        "label": "qwen3.5:9b",
+        "config": {
+          "repositoryRoot": "R:\\lore",
+          "model": "qwen3.5:9b",
+          "embeddingModel": "qwen3-embedding:0.6b",
+          "ollamaHost": "http://127.0.0.1:11434",
+          "judgeModel": ""
+        }
+      }
+    ],
+    "tests": [
+      {
+        "vars": {
+          "scenarioId": "add-single-todo-explicit"
+        },
+        "metadata": {
+          "scenarioId": "add-single-todo-explicit",
+          "scenarioTitle": "Add a single explicit todo",
+          "suites": [
+            "smoke",
+            "full"
+          ]
+        },
+        "description": "Add a single explicit todo"
+      },
+      {
+        "vars": {
+          "scenarioId": "add-multiple-todos-inline-list"
+        },
+        "metadata": {
+          "scenarioId": "add-multiple-todos-inline-list",
+          "scenarioTitle": "Add multiple todos in one message",
+          "suites": [
+            "smoke",
+            "full"
+          ]
+        },
+        "description": "Add multiple todos in one message"
+      },
+      {
+        "vars": {
+          "scenarioId": "greeting-then-add-todo"
+        },
+        "metadata": {
+          "scenarioId": "greeting-then-add-todo",
+          "scenarioTitle": "Greeting before task creation",
+          "suites": [
+            "smoke",
+            "full"
+          ]
+        },
+        "description": "Greeting before task creation"
+      },
+      {
+        "vars": {
+          "scenarioId": "retrieve-todos-after-creation"
+        },
+        "metadata": {
+          "scenarioId": "retrieve-todos-after-creation",
+          "scenarioTitle": "Retrieve todos after creating them",
+          "suites": [
+            "smoke",
+            "full"
+          ]
+        },
+        "description": "Retrieve todos after creating them"
+      },
+      {
+        "vars": {
+          "scenarioId": "update-specific-todo"
+        },
+        "metadata": {
+          "scenarioId": "update-specific-todo",
+          "scenarioTitle": "Update a specific todo by description",
+          "suites": [
+            "smoke",
+            "full"
+          ]
+        },
+        "description": "Update a specific todo by description"
+      },
+      {
+        "vars": {
+          "scenarioId": "ambiguous-update-needs-clarification"
+        },
+        "metadata": {
+          "scenarioId": "ambiguous-update-needs-clarification",
+          "scenarioTitle": "Ambiguous update asks for clarification",
+          "suites": [
+            "smoke",
+            "full"
+          ]
+        },
+        "description": "Ambiguous update asks for clarification"
+      },
+      {
+        "vars": {
+          "scenarioId": "delete-specific-todo"
+        },
+        "metadata": {
+          "scenarioId": "delete-specific-todo",
+          "scenarioTitle": "Delete one matching todo",
+          "suites": [
+            "smoke",
+            "full"
+          ]
+        },
+        "description": "Delete one matching todo"
+      },
+      {
+        "vars": {
+          "scenarioId": "low-confidence-vague-request"
+        },
+        "metadata": {
+          "scenarioId": "low-confidence-vague-request",
+          "scenarioTitle": "Vague request does not mutate state",
+          "suites": [
+            "smoke",
+            "full"
+          ]
+        },
+        "description": "Vague request does not mutate state"
+      }
+    ],
+    "scenarios": [],
+    "env": {},
+    "defaultTest": {
+      "assert": [
+        {
+          "type": "javascript",
+          "value": "\n            const metadata = context.providerResponse?.metadata ?? {};\n            return {\n              pass: metadata.passed === true,\n              score: metadata.passed === true ? 1 : 0,\n              reason: metadata.summary || metadata.failures?.join('\\n') || 'Scenario failed',\n            };\n          "
+        }
+      ],
+      "vars": {},
+      "options": {},
+      "metadata": {}
+    },
+    "outputPath": [
+      "R:\\lore\\evals\\results\\promptfoo-smoke-2026-03-19T20-36-29-038Z.json"
+    ],
+    "extensions": [],
+    "metadata": {},
+    "evaluateOptions": {
+      "repeat": 1,
+      "cache": false,
+      "maxConcurrency": 1
+    }
+  },
+  "shareableUrl": null,
+  "metadata": {
+    "promptfooVersion": "0.121.2",
+    "nodeVersion": "v20.20.0",
+    "platform": "win32",
+    "arch": "x64",
+    "exportedAt": "2026-03-19T20:38:34.586Z",
+    "evaluationCreatedAt": "2026-03-19T20:36:31.141Z"
+  }
+}

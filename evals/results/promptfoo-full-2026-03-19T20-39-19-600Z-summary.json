@@ -1,0 +1,668 @@
+{
+  "resultPath": "R:\\lore\\evals\\results\\promptfoo-full-2026-03-19T20-39-19-600Z.json",
+  "generatedAt": "2026-03-19T20:47:03.811Z",
+  "scenarios": [
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "ambiguous-delete-needs-clarification",
+      "scenarioTitle": "Ambiguous delete does not act immediately",
+      "passCount": 0,
+      "totalCount": 1,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 2 @ No status emitted",
+          1
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 2: expected a clarification request in \"Ambiguous delete does not act immediately\". Judge: The user's input 'Delete the water one' is ambiguous as there are two documents containing the word 'water': 'drink the water' and 'jump on the water'. The assistant should have clarified which item to delete instead of immediately deleting 'drink the water'.",
+          1
+        ],
+        [
+          "Step 2: expected 0 deleted events but saw 1.",
+          1
+        ],
+        [
+          "Step 2: expected 2 todos but found 1.",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "requiresClarification",
+          1
+        ],
+        [
+          "deletedCount",
+          1
+        ],
+        [
+          "todoCount",
+          1
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 2: expected a clarification request in \"Ambiguous delete does not act immediately\". Judge: The user's input 'Delete the water one' is ambiguous as there are two documents containing the word 'water': 'drink the water' and 'jump on the water'. The assistant should have clarified which item to delete instead of immediately deleting 'drink the water'.",
+            "Step 2: expected 0 deleted events but saw 1.",
+            "Step 2: expected 2 todos but found 1."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 1,
+              "checkType": "requiresClarification",
+              "reason": "expected a clarification request in \"Ambiguous delete does not act immediately\". Judge: The user's input 'Delete the water one' is ambiguous as there are two documents containing the word 'water': 'drink the water' and 'jump on the water'. The assistant should have clarified which item to delete instead of immediately deleting 'drink the water'.",
+              "expected": "true",
+              "actual": "Done! I've removed \"drink the water\"."
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "deletedCount",
+              "reason": "expected 0 deleted events but saw 1.",
+              "expected": "0",
+              "actual": "1"
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "todoCount",
+              "reason": "expected 2 todos but found 1.",
+              "expected": "2",
+              "actual": "1"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Delete the water one",
+              "response": "Done! I've removed \"drink the water\"."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "clarification-resolves-ambiguous-delete",
+      "scenarioTitle": "Clarification follow-up deletes the intended todo",
+      "passCount": 0,
+      "totalCount": 1,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 2 @ No status emitted",
+          1
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 2: expected 1 deleted events but saw 0.",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "deletedCount",
+          1
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 2: expected 1 deleted events but saw 0."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 1,
+              "checkType": "deletedCount",
+              "reason": "expected 1 deleted events but saw 0.",
+              "expected": "1",
+              "actual": "0"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Delete the water one",
+              "response": "Done! I've removed \"drink the water\"."
+            },
+            {
+              "userInput": "Delete the one about drinking water.",
+              "response": "I found two notes about water:\n1. \"jump on the water\"\n2. \"drink the water\"\n\nDid you mean to delete \"drink the water\" (ID: ???) or \"jump on the water\" (ID: 13814633-7823-4d2e-a685-ef28c621605d)?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "clarification-resolves-ambiguous-update",
+      "scenarioTitle": "Clarification follow-up resolves the right todo",
+      "passCount": 0,
+      "totalCount": 1,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 2 @ No status emitted",
+          1
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 2: did not expect todo \"drink the water\" to exist.",
+          1
+        ],
+        [
+          "Step 2: expected a todo containing \"drink the fire\".",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "todoContentsExcludeExact",
+          1
+        ],
+        [
+          "todoContentsIncludeSubstrings",
+          1
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 2: did not expect todo \"drink the water\" to exist.",
+            "Step 2: expected a todo containing \"drink the fire\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsExcludeExact",
+              "reason": "did not expect todo \"drink the water\" to exist.",
+              "expected": "Todo list must exclude \"drink the water\"",
+              "actual": "[\n  \"jump on the water\",\n  \"drink the water\"\n]"
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsIncludeSubstrings",
+              "reason": "expected a todo containing \"drink the fire\".",
+              "expected": "drink the fire",
+              "actual": "undefined"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Edit the water to fire",
+              "response": "I found a few possible matches, but I can't tell for sure which one you mean.\n1. \"jump on the water\"\n2. \"drink the water\"\n\nWhich one did you mean?"
+            },
+            {
+              "userInput": "The one about drinking. Change it to drink the fire.",
+              "response": "I found a few possible matches, but I can't tell for sure which one you mean.\n1. \"drink the water\"\n2. \"jump on the water\"\n\nWhich one did you mean?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "explicit-edit-similar-todos",
+      "scenarioTitle": "Explicit edit of one similar todo",
+      "passCount": 0,
+      "totalCount": 1,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 2 @ No status emitted",
+          1
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 2: did not expect todo \"jump on the water\" to exist.",
+          1
+        ],
+        [
+          "Step 2: expected a todo containing \"jump on the fire\".",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "todoContentsExcludeExact",
+          1
+        ],
+        [
+          "todoContentsIncludeSubstrings",
+          1
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 2: did not expect todo \"jump on the water\" to exist.",
+            "Step 2: expected a todo containing \"jump on the fire\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsExcludeExact",
+              "reason": "did not expect todo \"jump on the water\" to exist.",
+              "expected": "Todo list must exclude \"jump on the water\"",
+              "actual": "[\n  \"jump on the water\",\n  \"drink the water\"\n]"
+            },
+            {
+              "stepIndex": 1,
+              "checkType": "todoContentsIncludeSubstrings",
+              "reason": "expected a todo containing \"jump on the fire\".",
+              "expected": "jump on the fire",
+              "actual": "undefined"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Change \"jump on the water\" to \"jump on the fire\"",
+              "response": "I found a few possible matches, but I can't tell for sure which one you mean.\n1. \"jump on the water\"\n2. \"drink the water\"\n\nWhich one did you mean?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "seeded-ambiguous-retrieval-needs-clarification",
+      "scenarioTitle": "Seeded retrieval ambiguity asks for clarification",
+      "passCount": 0,
+      "totalCount": 1,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Unknown stage",
+          1
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Unknown failure",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [],
+      "failureExamples": [
+        {
+          "failureReasons": [],
+          "failedChecks": [],
+          "attemptedConversation": []
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "seeded-ambiguous-retrieval-clarification-resolves",
+      "scenarioTitle": "Seeded retrieval clarification leads to the right Alex",
+      "passCount": 0,
+      "totalCount": 1,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 1 @ No status emitted",
+          1
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 1: expected the interaction to include a clarification request in \"Seeded retrieval clarification leads to the right Alex\".",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "clarificationRequestedDuringInteraction",
+          1
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 1: expected the interaction to include a clarification request in \"Seeded retrieval clarification leads to the right Alex\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "clarificationRequestedDuringInteraction",
+              "reason": "expected the interaction to include a clarification request in \"Seeded retrieval clarification leads to the right Alex\".",
+              "expected": "true",
+              "actual": "[\n  {\n    \"userInput\": \"What did Alex ask for?\",\n    \"response\": \"Alex asked for monthly cash flow summaries in the report from finance and a darker sidebar with tighter spacing from design.\",\n    \"pass\": false,\n    \"reason\": \"The user input 'What did Alex ask for?' is ambiguous because there are likely multiple people named Alex (as suggested by the scenario title 'leads to the right Alex'). T..."
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "What did Alex ask for?",
+              "response": "Alex asked for monthly cash flow summaries in the report from finance and a darker sidebar with tighter spacing from design."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "seeded-retrieval-threshold-discipline",
+      "scenarioTitle": "Seeded retrieval keeps the result set focused",
+      "passCount": 0,
+      "totalCount": 1,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 1 @ No status emitted",
+          1
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 1: expected at most 2 retrieved documents but saw 4.",
+          1
+        ],
+        [
+          "Step 1: expected at most 2 retrieval candidates but saw 12.",
+          1
+        ],
+        [
+          "Step 1: did not expect retrieved content containing \"Tokyo hotel shortlist\".",
+          1
+        ],
+        [
+          "Step 1: did not expect retrieved content containing \"Kyoto restaurant shortlist\".",
+          1
+        ],
+        [
+          "Step 1: retrieval judge failed: The retrieval set contains three irrelevant documents: a hotel shortlist for Tokyo, a restaurant shortlist for Kyoto, and a Tokyo subway tip. The rubric explicitly states the retrieval set should avoid semantically adjacent but irrelevant notes and stay tightly focused on the Tokyo restaurant document. Including these unrelated thoughts violates the instruction.",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "retrievedContentsExcludeSubstrings",
+          2
+        ],
+        [
+          "maxRetrievedCount",
+          1
+        ],
+        [
+          "maxRetrievedCandidates",
+          1
+        ],
+        [
+          "retrievalJudge",
+          1
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 1: expected at most 2 retrieved documents but saw 4.",
+            "Step 1: expected at most 2 retrieval candidates but saw 12.",
+            "Step 1: did not expect retrieved content containing \"Tokyo hotel shortlist\".",
+            "Step 1: did not expect retrieved content containing \"Kyoto restaurant shortlist\".",
+            "Step 1: retrieval judge failed: The retrieval set contains three irrelevant documents: a hotel shortlist for Tokyo, a restaurant shortlist for Kyoto, and a Tokyo subway tip. The rubric explicitly states the retrieval set should avoid semantically adjacent but irrelevant notes and stay tightly focused on the Tokyo restaurant document. Including these unrelated thoughts violates the instruction."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "maxRetrievedCount",
+              "reason": "expected at most 2 retrieved documents but saw 4.",
+              "expected": "2",
+              "actual": "4"
+            },
+            {
+              "stepIndex": 0,
+              "checkType": "maxRetrievedCandidates",
+              "reason": "expected at most 2 retrieval candidates but saw 12.",
+              "expected": "2",
+              "actual": "12"
+            },
+            {
+              "stepIndex": 0,
+              "checkType": "retrievedContentsExcludeSubstrings",
+              "reason": "did not expect retrieved content containing \"Tokyo hotel shortlist\".",
+              "expected": "Retrieved content must exclude \"Tokyo hotel shortlist\"",
+              "actual": "[\n  \"Tokyo restaurant shortlist: Sushi Saito.\",\n  \"Tokyo hotel shortlist: Hoshinoya Tokyo.\",\n  \"Kyoto restaurant shortlist: Monk.\",\n  \"Tokyo subway tip: use the Suica card for easier transfers.\"\n]"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Which Tokyo restaurant did I want to try?",
+              "response": "Your Tokyo restaurant shortlist is Sushi Saito."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "low-confidence-vague-request",
+      "scenarioTitle": "Vague request does not mutate state",
+      "passCount": 0,
+      "totalCount": 1,
+      "passPercentage": 0,
+      "topFailureStages": [
+        [
+          "Step 1 @ No status emitted",
+          1
+        ]
+      ],
+      "topFailureReasons": [
+        [
+          "Step 1: expected response to include \"not sure\".",
+          1
+        ]
+      ],
+      "topFailedCheckTypes": [
+        [
+          "responseIncludes",
+          1
+        ]
+      ],
+      "failureExamples": [
+        {
+          "failureReasons": [
+            "Step 1: expected response to include \"not sure\"."
+          ],
+          "failedChecks": [
+            {
+              "stepIndex": 0,
+              "checkType": "responseIncludes",
+              "reason": "expected response to include \"not sure\".",
+              "expected": "not sure",
+              "actual": "I'm here to help! I can save notes, ideas, reminders, meetings, and todos, or I can search my stored data to answer questions. I can also modify or delete those items, remove finished tasks, and remember your preferences for future chats.\n\nIs there something specific you'd like to do, like saving a note or finding an old reminder?"
+            }
+          ],
+          "attemptedConversation": [
+            {
+              "userInput": "Do the thing",
+              "response": "I'm here to help! I can save notes, ideas, reminders, meetings, and todos, or I can search my stored data to answer questions. I can also modify or delete those items, remove finished tasks, and remember your preferences for future chats.\n\nIs there something specific you'd like to do, like saving a note or finding an old reminder?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "add-single-todo-explicit",
+      "scenarioTitle": "Add a single explicit todo",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "add-single-todo-variant-phrasing",
+      "scenarioTitle": "Add a todo with alternate phrasing",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "add-multiple-todos-inline-list",
+      "scenarioTitle": "Add multiple todos in one message",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "add-multiple-todos-multiline",
+      "scenarioTitle": "Add todos from a multiline list",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "ambiguous-update-needs-clarification",
+      "scenarioTitle": "Ambiguous update asks for clarification",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "delete-specific-todo",
+      "scenarioTitle": "Delete one matching todo",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "pure-greeting-does-not-store",
+      "scenarioTitle": "Greeting alone does not create data",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "greeting-then-add-todo",
+      "scenarioTitle": "Greeting before task creation",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "instruction-does-not-become-todo",
+      "scenarioTitle": "Instruction stays separate from todos",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "duplicate-todo-still-persists-separately",
+      "scenarioTitle": "Near-duplicate todo requests still store separately",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "smalltalk-random-question-then-add",
+      "scenarioTitle": "Random smalltalk before action",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "seeded-large-db-targeted-retrieval",
+      "scenarioTitle": "Retrieve the right fact from seeded large data",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "retrieve-todos-after-creation",
+      "scenarioTitle": "Retrieve todos after creating them",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "retrieve-todos-with-casual-phrasing",
+      "scenarioTitle": "Retrieve todos with casual wording",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    },
+    {
+      "providerLabel": "qwen3.5:9b",
+      "scenarioId": "update-specific-todo",
+      "scenarioTitle": "Update a specific todo by description",
+      "passCount": 1,
+      "totalCount": 1,
+      "passPercentage": 100,
+      "topFailureStages": [],
+      "topFailureReasons": [],
+      "topFailedCheckTypes": [],
+      "failureExamples": []
+    }
+  ]
+}

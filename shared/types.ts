@@ -195,10 +195,18 @@ export type CommandResolution =
   | { status: 'execute'; operations: CommandOperation[]; clarificationMessage: null }
   | { status: 'clarify'; operations: []; clarificationMessage: string }
 
+export interface RetrievedAgentEvent {
+  readonly type: 'retrieved'
+  readonly documentIds: string[]
+  readonly totalRetrieved?: number
+  readonly totalCandidates?: number
+  readonly cutoffScore?: number
+}
+
 export type AgentEvent =
   | { type: 'status'; message: string }
   | { type: 'chunk'; content: string }
-  | { type: 'retrieved'; documentIds: string[] }
+  | RetrievedAgentEvent
   | { type: 'stored'; documentId: string }
   | { type: 'deleted'; documentId: string }
   | { type: 'duplicate'; existingContent: string }

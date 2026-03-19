@@ -53,7 +53,13 @@ export async function* handleQuestion(
     return
   }
 
-  yield { type: 'retrieved', documentIds: documents.map((document) => document.id) }
+  yield {
+    type: 'retrieved',
+    documentIds: documents.map((document) => document.id),
+    totalRetrieved: documents.length,
+    totalCandidates: result.totalCandidates,
+    cutoffScore: result.cutoffScore,
+  }
 
   const instructions = await retrieveRelevantDocuments(userInput, { type: 'instruction' })
 

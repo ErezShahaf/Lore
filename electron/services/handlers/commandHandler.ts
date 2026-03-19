@@ -49,6 +49,12 @@ export async function* handleCommand(
     return
   }
 
+  yield {
+    type: 'retrieved',
+    documentIds: documents.map((document) => document.id),
+    totalRetrieved: documents.length,
+  }
+
   yield { type: 'status', message: 'Analyzing your request...' }
 
   let resolution

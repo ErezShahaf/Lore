@@ -1,0 +1,344 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Lore promptfoo conversation evals</title>
+    <style>
+      body {
+        font-family:
+          -apple-system,
+          BlinkMacSystemFont,
+          Segoe UI,
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        text-align: left;
+        word-break: break-all;
+      }
+      th,
+      td {
+        padding: 5px;
+        min-width: 200px;
+        white-space: pre-wrap;
+        vertical-align: top;
+      }
+
+      tr > td[data-content^='[PASS]'] {
+        color: green;
+      }
+      tr > td[data-content^='[FAIL]'] {
+        color: #ad0000;
+      }
+    </style>
+  </head>
+  <body>
+    <table>
+      <thead>
+        
+        <th>scenarioId</th>
+        
+        <th>[qwen3.5:9b] {{scenarioId}}</th>
+        
+      </thead>
+      <tbody>
+        
+        <tr>
+          
+          <td data-content="add-single-todo-explicit">add-single-todo-explicit</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Add a single explicit todo
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Add a single explicit todo
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="add-single-todo-variant-phrasing">add-single-todo-variant-phrasing</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Add a todo with alternate phrasing
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Add a todo with alternate phrasing
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="add-multiple-todos-inline-list">add-multiple-todos-inline-list</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Add multiple todos in one message
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Add multiple todos in one message
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="add-multiple-todos-multiline">add-multiple-todos-multiline</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Add todos from a multiline list
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Add todos from a multiline list
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="greeting-then-add-todo">greeting-then-add-todo</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Greeting before task creation
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Greeting before task creation
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="smalltalk-random-question-then-add">smalltalk-random-question-then-add</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Random smalltalk before action
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Random smalltalk before action
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="retrieve-todos-after-creation">retrieve-todos-after-creation</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Retrieve todos after creating them
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Retrieve todos after creating them
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="retrieve-todos-with-casual-phrasing">retrieve-todos-with-casual-phrasing</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Retrieve todos with casual wording
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Retrieve todos with casual wording
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="update-specific-todo">update-specific-todo</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Update a specific todo by description
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Update a specific todo by description
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="ambiguous-update-needs-clarification">ambiguous-update-needs-clarification</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Ambiguous update asks for clarification
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Ambiguous update asks for clarification
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="clarification-resolves-ambiguous-update">clarification-resolves-ambiguous-update</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Clarification follow-up resolves the right todo
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Clarification follow-up resolves the right todo
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="explicit-edit-similar-todos">explicit-edit-similar-todos</td>
+          
+          <td data-content="[FAIL] (0.00)
+
+Failed: Explicit edit of one similar todo (2 issues)
+
+Fail Reason: Failed: Explicit edit of one similar todo (2 issues)">[FAIL] (0.00)
+
+Failed: Explicit edit of one similar todo (2 issues)
+
+Fail Reason: Failed: Explicit edit of one similar todo (2 issues)</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="delete-specific-todo">delete-specific-todo</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Delete one matching todo
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Delete one matching todo
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="ambiguous-delete-needs-clarification">ambiguous-delete-needs-clarification</td>
+          
+          <td data-content="[FAIL] (0.00)
+
+Failed: Ambiguous delete does not act immediately (3 issues)
+
+Fail Reason: Failed: Ambiguous delete does not act immediately (3 issues)">[FAIL] (0.00)
+
+Failed: Ambiguous delete does not act immediately (3 issues)
+
+Fail Reason: Failed: Ambiguous delete does not act immediately (3 issues)</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="instruction-does-not-become-todo">instruction-does-not-become-todo</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Instruction stays separate from todos
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Instruction stays separate from todos
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="low-confidence-vague-request">low-confidence-vague-request</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Vague request does not mutate state
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Vague request does not mutate state
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="duplicate-todo-still-persists-separately">duplicate-todo-still-persists-separately</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Near-duplicate todo requests still store separately
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Near-duplicate todo requests still store separately
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+        <tr>
+          
+          <td data-content="pure-greeting-does-not-store">pure-greeting-does-not-store</td>
+          
+          <td data-content="[PASS] (1.00)
+
+Passed: Greeting alone does not create data
+
+Pass Reason: All assertions passed">[PASS] (1.00)
+
+Passed: Greeting alone does not create data
+
+Pass Reason: All assertions passed</td>
+          
+        </tr>
+        
+      </tbody>
+    </table>
+  </body>
+</html>
