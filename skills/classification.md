@@ -43,12 +43,15 @@ Critical routing rules:
 - If the user confirms a previously discussed creation task, classify as "thought", not "conversational".
 - If the user references something from prior conversation and asks to add, create, save, store, or remember it, classify as "thought", not "command".
 - If the user asks you to save/store/capture/log/put this text into Lore (for later recall), classify as "thought" even if the text contains embedded phrases that look like retrieval or todo requests.
+- If the last user message is (or begins with) raw structured data (e.g. a JSON payload starting with `{` or `[`), classify as "thought" (not "instruction") with HIGH confidence (>= 0.85) so the storage/clarification flow can decide what to do with it.
+- If the last user message requests saving a JSON payload ("save that JSON", "store that JSON", "put this JSON", etc.), classify as "thought" (not "instruction") with HIGH confidence (>= 0.85).
 - Requests like "add to my todos: buy milk", "add to my todo list: call mom", or "todos: buy milk, call mom" are ALWAYS "thought" because they create new stored items.
 - Requests like "remove the todo about milk", "mark the jumping task done", or "change my todo about mom" are "command" because they modify existing stored items.
 - "command" is ONLY for modifying already stored data.
 - Short reaction-like phrases such as "thanks", "cool", "sure", "cry a river", or similar idiomatic/emotional replies are "conversational" unless the user also clearly asks to save/store/add them.
 - Descriptive factual content can still be "thought" even without the verbs "save" or "store" when the message is clearly providing information to capture for later.
 - If the user says they finished or completed a stored todo/task, classify as command subtype "delete".
+- If the user's message confirms completion of *previously listed* stored todos (for example, after the user asked "what's on my todo(s)" and then says those items are done/in place/already seen), classify as command subtype "delete" (not "thought" and not "conversational"), and include the tag `todo` in `extractedTags` even if the word "todo" is not explicitly present.
 - If "finished/done/completed" sounds like sharing a real-life experience instead of removing a stored item, classify as "thought".
 - If task completion vs. life update is ambiguous, lower confidence so the app can ask for clarification.
 - Vague imperative requests like "do the thing", "handle it", "fix this", or "take care of that" without a clear object must get LOW confidence so Lore asks the user to clarify instead of confidently treating them as normal conversation.

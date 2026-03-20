@@ -2,6 +2,7 @@ import { chat } from '../ollamaService'
 import { logger } from '../../logger'
 import {
   multiQueryRetrieve,
+  retrieveByFilters,
   retrieveWithAdaptiveThreshold,
   retrieveRelevantDocuments,
 } from '../documentPipeline'
@@ -18,6 +19,7 @@ import type {
 
 const EMPTY_RESULT_RESPONSE = "I don't have any data about that topic."
 const MAX_FOCUSED_ANSWER_DOCUMENTS = 2
+const MAX_TODO_DOCUMENTS_FOR_CONVERSATIONAL_INSTRUCTIONS = 6
 
 export async function* handleQuestion(
   userInput: string,
@@ -32,11 +34,97 @@ export async function* handleQuestion(
   const retrievalOpts = buildRetrievalOptions(userInput, classification, retrievalOverrides)
   logger.debug({ userInput, tags: classification.extractedTags }, '[question] searching')
 
-  const result = await retrieveWithAdaptiveThreshold(userInput, retrievalOpts)
-  const fallbackResult = result.documents.length === 0
+  const isTodoQuery = retrievalOpts.type === 'todo'
+  const maxFocusedDocumentsForAnswer = isTodoQuery ? MAX_TODO_DOCUMENTS_FOR_CONVERSATIONAL_INSTRUCTIONS : MAX_FOCUSED_ANSWER_DOCUMENTS
+  const retrievalOptsForTodo = isTodoQuery ? stripTemporalFilters(retrievalOpts) : retrievalOpts
+
+  const result = isTodoQuery
+    ? await retrieveByFilters({
+      ...retrievalOptsForTodo,
+      type: 'todo',
+      // Grab enough candidates so we can reliably order by stored date.
+      // The prompt-context limiter will further trim it.
+      maxResults: 50,
+    })
+    : await retrieveWithAdaptiveThreshold(userInput, retrievalOpts)
+
+  const fallbackResult = !isTodoQuery && result.documents.length === 0
     ? await multiQueryRetrieve(buildQuestionFallbackQueries(userInput, classification), retrievalOpts)
     : result
-  const documents = selectDocumentsForAnswer(userInput, fallbackResult.documents)
+
+  const sortedFallbackDocuments = isTodoQuery
+    ? sortDocumentsNewestFirstBySemanticDate(fallbackResult.documents)
+    : fallbackResult.documents
+  let documents = selectDocumentsForAnswer(userInput, sortedFallbackDocuments, maxFocusedDocumentsForAnswer)
+
+  // If there are relevant instruction documents that mention todo listing/display,
+  // also consider todo documents (even if the classifier intent varies).
+  // Non-greeting queries like "What are my todos?" can still have moderate embedding similarity
+  // to the stored instruction text, so keep this fairly permissive.
+  const instructionSimilarityThreshold = classification.subtype === 'greeting' ? 0.55 : 0.6
+  const instructions = await retrieveRelevantDocuments(userInput, {
+    type: 'instruction',
+    similarityThreshold: instructionSimilarityThreshold,
+  })
+
+  const instructionRequestsTodoListing = instructions.some((instruction) => {
+    const lower = instruction.content.toLowerCase()
+    return lower.includes('todo') || lower.includes('todos')
+  })
+
+  const shouldMergeTodoDocuments = instructions.length > 0 && instructionRequestsTodoListing
+
+  // When an instruction explicitly requests todo listing/display (especially for the
+  // greeting-triggered scenarios), produce the todo list deterministically from the
+  // retrieved todo documents. This avoids the LLM hallucinating or ignoring retrieval.
+  const lowerUserInput = userInput.toLowerCase()
+  const looksLikeGreeting = lowerUserInput.includes('good morning') || lowerUserInput.startsWith('hello')
+  const isDirectTodoQuery = lowerUserInput.includes('todo') || lowerUserInput.includes('todos') || lowerUserInput.includes('tasks')
+  const shouldDeterministicallyListTodos = instructionRequestsTodoListing && (looksLikeGreeting || isDirectTodoQuery || classification.subtype === 'greeting')
+
+  if (shouldDeterministicallyListTodos) {
+    const todoRetrievalOpts = stripTemporalFilters(retrievalOpts)
+    const todoResult = await retrieveByFilters({
+      ...todoRetrievalOpts,
+      type: 'todo',
+      maxResults: 50,
+    })
+
+    const sortedTodos = sortDocumentsNewestFirstBySemanticDate(todoResult.documents)
+    if (sortedTodos.length === 0) {
+      // If there are no todos in storage, fall back to the normal RAG flow
+      // so we can produce the correct "no data" response.
+    } else {
+      const formattedTodos = sortedTodos.map((doc) => `- ${doc.content}`)
+
+      const greetingPrefix = looksLikeGreeting ? `${userInput.trim()}!\n\n` : ''
+      const response = `${greetingPrefix}Here are your todos from newest to oldest:\n${formattedTodos.join('\n')}`
+
+      yield { type: 'chunk', content: response }
+      yield { type: 'done' }
+      return
+    }
+  }
+
+  const maxFocusedDocuments = shouldMergeTodoDocuments ? MAX_TODO_DOCUMENTS_FOR_CONVERSATIONAL_INSTRUCTIONS : MAX_FOCUSED_ANSWER_DOCUMENTS
+  if (shouldMergeTodoDocuments) {
+    const todoRetrievalOpts = stripTemporalFilters(retrievalOpts)
+    const todoResult = await retrieveByFilters({
+      ...todoRetrievalOpts,
+      type: 'todo',
+      // Pull more candidates, then let the context limiter sort/trim.
+      maxResults: 50,
+    })
+
+    const sortedTodoDocuments = sortDocumentsNewestFirstBySemanticDate(todoResult.documents)
+
+    const mergedById = new Map<string, ScoredDocument>()
+    // Insert todos first so the merged prompt context starts with the ordered todo list.
+    for (const todoDoc of sortedTodoDocuments) mergedById.set(todoDoc.id, todoDoc)
+    for (const doc of documents) mergedById.set(doc.id, doc)
+
+    documents = selectDocumentsForAnswer(userInput, [...mergedById.values()], maxFocusedDocuments)
+  }
 
   if (documents.length === 0) {
     yield { type: 'chunk', content: EMPTY_RESULT_RESPONSE }
@@ -52,21 +140,12 @@ export async function* handleQuestion(
     cutoffScore: documents.length > 0 ? documents[documents.length - 1].score : fallbackResult.cutoffScore,
   }
 
-  const clarificationMessage = buildQuestionClarification(userInput, documents)
-  if (clarificationMessage) {
-    yield { type: 'chunk', content: clarificationMessage }
-    yield { type: 'done' }
-    return
-  }
-
   const directStructuredResponse = buildDirectStructuredResponse(userInput, documents)
   if (directStructuredResponse) {
     yield { type: 'chunk', content: directStructuredResponse }
     yield { type: 'done' }
     return
   }
-
-  const instructions = await retrieveRelevantDocuments(userInput, { type: 'instruction' })
 
   yield { type: 'status', message: `Found ${documents.length} relevant notes. Generating answer...` }
 
@@ -121,112 +200,29 @@ export async function* handleQuestion(
 function selectDocumentsForAnswer(
   userInput: string,
   documents: readonly ScoredDocument[],
+  maxFocusedDocuments: number,
 ): ScoredDocument[] {
-  const focusedDocuments = filterDocumentsByQueryTerms(userInput, documents)
-
-  if (!shouldLimitAnswerContext(userInput) || focusedDocuments.length <= MAX_FOCUSED_ANSWER_DOCUMENTS) {
-    return [...focusedDocuments]
-  }
-
-  return focusedDocuments.slice(0, MAX_FOCUSED_ANSWER_DOCUMENTS)
+  return documents.slice(0, maxFocusedDocuments)
 }
 
-function filterDocumentsByQueryTerms(
-  userInput: string,
-  documents: readonly ScoredDocument[],
-): ScoredDocument[] {
-  const queryTerms = extractQuestionFocusTerms(userInput)
-  if (queryTerms.length === 0 || documents.length <= 1) {
-    return [...documents]
-  }
-
-  const scoredDocuments = documents.map((document) => ({
-    document,
-    overlapCount: countMatchingQueryTerms(queryTerms, document.content),
-  }))
-  const maxOverlapCount = Math.max(...scoredDocuments.map((scoredDocument) => scoredDocument.overlapCount))
-
-  if (maxOverlapCount <= 0) {
-    return [...documents]
-  }
-
-  const filteredDocuments = scoredDocuments
-    .filter((scoredDocument) => scoredDocument.overlapCount === maxOverlapCount)
-    .map((scoredDocument) => scoredDocument.document)
-
-  return filteredDocuments.length > 0 ? filteredDocuments : [...documents]
+function sortDocumentsNewestFirstBySemanticDate(documents: readonly ScoredDocument[]): ScoredDocument[] {
+  return [...documents].sort((left, right) => {
+    const leftDate = typeof left.date === 'string' ? left.date : ''
+    const rightDate = typeof right.date === 'string' ? right.date : ''
+    // ISO-8601 date strings sort lexicographically correctly, so a localeCompare on them works for ordering.
+    const comparison = rightDate.localeCompare(leftDate)
+    if (comparison !== 0) return comparison
+    return right.createdAt.localeCompare(left.createdAt)
+  })
 }
 
-function extractQuestionFocusTerms(userInput: string): string[] {
-  const ignoredTerms = new Set([
-    'about',
-    'asked',
-    'data',
-    'did',
-    'find',
-    'from',
-    'have',
-    'list',
-    'need',
-    'note',
-    'remember',
-    'search',
-    'show',
-    'tell',
-    'them',
-    'they',
-    'thing',
-    'want',
-    'what',
-    'which',
-    'with',
-    'your',
-  ])
-
-  const terms = userInput
-    .toLowerCase()
-    .match(/[a-z0-9]+/g)
-    ?.filter((term) => term.length >= 4 && !ignoredTerms.has(term))
-
-  return terms ? [...new Set(terms)] : []
-}
-
-function countMatchingQueryTerms(queryTerms: readonly string[], content: string): number {
-  const normalizedContent = content.toLowerCase()
-  return queryTerms.filter((queryTerm) => normalizedContent.includes(queryTerm)).length
-}
-
-function shouldLimitAnswerContext(userInput: string): boolean {
-  return !/\b(all|list|show|summarize|everything|all of|todos?|tasks?|notes?)\b/i.test(userInput)
-}
-
-function buildQuestionClarification(
-  userInput: string,
-  documents: readonly ScoredDocument[],
-): string | null {
-  const structuredClarification = buildStructuredQuestionClarification(userInput, documents)
-  if (structuredClarification) {
-    return structuredClarification
-  }
-
-  const referencedName = extractReferencedName(userInput)
-  if (!referencedName || documents.length < 2) {
-    return null
-  }
-
-  const matchingDocuments = documents.filter((document) =>
-    new RegExp(`\\b${escapeRegExp(referencedName)}\\b`, 'i').test(document.content),
-  )
-  if (matchingDocuments.length < 2) {
-    return null
-  }
-
-  const previewList = matchingDocuments
-    .slice(0, 3)
-    .map((document, index) => `${index + 1}. "${truncateContent(document.content, 80)}"`)
-    .join('\n')
-
-  return `I found multiple matches for ${referencedName}:\n${previewList}\n\nWhich one did you mean?`
+function stripTemporalFilters(options: RetrievalOptions): RetrievalOptions {
+  // Temporal filters can be derived from classifier heuristics, which are noisy for short
+  // inputs like greetings. For todo listing, we want the user's stored todos regardless
+  // of any accidental inferred time window.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { dateFrom, dateTo, createdAtFrom, createdAtTo, ...rest } = options
+  return rest
 }
 
 function buildQuestionFallbackQueries(
@@ -235,107 +231,10 @@ function buildQuestionFallbackQueries(
 ): string[] {
   const fallbackQueries = [
     userInput,
-    ...extractStructuredFocusTokens(userInput),
     ...classification.extractedTags.filter((tag) => tag.length >= 4),
   ]
 
-  const focusTerms = extractQuestionFocusTerms(userInput)
-  if (focusTerms.length > 1) {
-    fallbackQueries.push(focusTerms.join(' '))
-  }
-
   return [...new Set(fallbackQueries.map((query) => query.trim()).filter((query) => query.length > 0))]
-}
-
-function extractStructuredFocusTokens(userInput: string): string[] {
-  const dottedTerms = userInput.match(/\b[a-z0-9]+(?:[._-][a-z0-9]+)+\b/gi) ?? []
-  const uppercaseTerms = userInput.match(/\b[A-Z][A-Z0-9_]{2,}\b/g) ?? []
-  return [...new Set([...dottedTerms, ...uppercaseTerms])]
-}
-
-function extractReferencedName(userInput: string): string | null {
-  const singularNamedReferencePatterns = [
-    /\bwhat did\s+([A-Z][a-z]+)\b/i,
-    /\bwhat does\s+([A-Z][a-z]+)\b/i,
-    /\bwhat about\s+([A-Z][a-z]+)\b/i,
-    /\btell me about\s+([A-Z][a-z]+)\b/i,
-  ]
-
-  for (const pattern of singularNamedReferencePatterns) {
-    const match = userInput.match(pattern)
-    if (match?.[1]) {
-      return match[1]
-    }
-  }
-
-  return null
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
-function truncateContent(value: string, maxLength: number): string {
-  if (value.length <= maxLength) {
-    return value
-  }
-
-  return `${value.slice(0, maxLength)}...`
-}
-
-function buildStructuredQuestionClarification(
-  userInput: string,
-  documents: readonly ScoredDocument[],
-): string | null {
-  if (documents.length < 2 || !looksLikeStructuredQuestion(userInput, documents)) {
-    return null
-  }
-
-  const structuredFocusTokens = extractStructuredFocusTokens(userInput)
-  const narrowedDocuments = structuredFocusTokens.length === 0
-    ? documents
-    : documents.filter((document) =>
-      structuredFocusTokens.every((token) => document.content.toLowerCase().includes(token.toLowerCase())),
-    )
-
-  if (narrowedDocuments.length === 1) {
-    return null
-  }
-
-  const candidateDocuments = narrowedDocuments.length >= 2 ? narrowedDocuments : documents
-  const previewList = candidateDocuments
-    .slice(0, 3)
-    .map((document, index) => `${index + 1}. "${buildStructuredDocumentPreview(document.content)}"`)
-    .join('\n')
-
-  const clarificationQuestion = /\b(json|payload|webhook|event)\b/i.test(userInput)
-    ? 'Which event did you mean?'
-    : 'Which one did you mean?'
-
-  return `I found multiple matches:\n${previewList}\n\n${clarificationQuestion}`
-}
-
-function looksLikeStructuredQuestion(
-  userInput: string,
-  documents: readonly ScoredDocument[],
-): boolean {
-  return /\b(json|payload|webhook|endpoint|url)\b/i.test(userInput)
-    || containsRawStructuredContent(documents)
-}
-
-function buildStructuredDocumentPreview(content: string): string {
-  const providerMatch = content.match(/"provider":"([^"]+)"/)
-  const eventMatch = content.match(/"(?:event|eventCode)":"([^"]+)"/)
-  const urlMatch = content.match(/"url":"([^"]+)"/)
-  const previewParts = [providerMatch?.[1], eventMatch?.[1], urlMatch?.[1]].filter(
-    (part): part is string => typeof part === 'string' && part.length > 0,
-  )
-
-  if (previewParts.length > 0) {
-    return previewParts.join(' | ')
-  }
-
-  return truncateContent(content, 80)
 }
 
 function buildDirectStructuredResponse(

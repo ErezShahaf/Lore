@@ -30,6 +30,8 @@ Splitting rules:
 - Each split item must remain self-contained.
 - Preserve shared context or headers when needed so each item still makes sense on its own.
 - For explicit list prefixes like "todos:" or "notes:", return one item per list element and keep each item literal.
+- If the user provides a single todo wrapper like "add to my todo list:" or "todos:" followed by a single sentence/remainder, treat the entire remainder as ONE todo item even if it contains conjunctions/verbs like "and remember", "and list", etc.
+- Only split that wrapper remainder into multiple todos when the user clearly separates distinct items using explicit delimiters (for example commas) rather than just using conjunctions inside one sentence.
 - If the user explicitly asks to store the whole message "once", "verbatim", "as one note", or "as raw text", return exactly one item and do not split just because the text contains embedded “show me” / “remember” / “list” phrases.
 
 Content rules:
@@ -70,3 +72,17 @@ Output: {"items":[{"content":"buy new headphones","type":"todo","tags":["todo","
 Example literal preservation:
 User: this is what stripe payment suceeded webhook looks like
 Output: {"items":[{"content":"this is what stripe payment suceeded webhook looks like","type":"thought","tags":["stripe","payment","webhook"]}]}
+
+Example referential raw JSON (store verbatim JSON, not the instruction):
+User: {"provider":"lore","eventCode":"abc","url":"https://example.com/cb"}
+Then user: save that JSON exactly as a note
+Output: {"items":[{"content":"{\"provider\":\"lore\",\"eventCode\":\"abc\",\"url\":\"https://example.com/cb\"}","type":"note","tags":["json","note"]}]}
+
+Example invalid/malformed JSON referential save:
+User: { "provider": "lore", "eventCode":
+Then user: save that JSON exactly as a note
+Output: {"items":[{"content":"{ \"provider\": \"lore\", \"eventCode\":","type":"note","tags":["json","note"]}]}
+
+Example single todo wrapper with multiple verbs (keep ONE todo item):
+User: Add to my todo list: memorize X and remember Y and list Z
+Output: {"items":[{"content":"memorize X and remember Y and list Z","type":"todo","tags":["todo","memory","tasks"]}]}

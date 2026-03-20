@@ -5,6 +5,7 @@ import { handleQuestion } from './handlers/questionHandler'
 import { handleCommand } from './handlers/commandHandler'
 import { handleInstruction } from './handlers/instructionHandler'
 import { handleConversational } from './handlers/conversationalHandler'
+import { retrieveRelevantDocuments } from './documentPipeline'
 import type {
   AgentEvent,
   ConversationEntry,
@@ -122,9 +123,28 @@ export async function* processUserInput(userInput: string): AsyncGenerator<Agent
           break
         }
         case 'conversational': {
-          for await (const event of handleConversational(userInput, classification, priorHistory)) {
-            if (event.type === 'chunk') assistantResponse += event.content
-            yield event
+          // Some scenarios expect stored instructions to influence "conversational" messages (e.g. greetings).
+          // If there are relevant instruction documents, route through the question flow so instructions + RAG are applied.
+          const relevantInstructions = await retrieveRelevantDocuments(userInput, {
+            type: 'instruction',
+            // Greetings are short and can have low embedding similarity to the stored instruction text.
+            // For greeting-type conversational inputs, we use a more permissive threshold.
+            similarityThreshold: classification.subtype === 'greeting' ? 0.55 : 0.8,
+          })
+
+          if (relevantInstructions.length > 0) {
+            session.lastDocumentIds = []
+
+            for await (const event of handleQuestion(userInput, classification, priorHistory)) {
+              if (event.type === 'chunk') assistantResponse += event.content
+              if (event.type === 'retrieved') session.lastDocumentIds = [...event.documentIds]
+              yield event
+            }
+          } else {
+            for await (const event of handleConversational(userInput, classification, priorHistory)) {
+              if (event.type === 'chunk') assistantResponse += event.content
+              yield event
+            }
           }
           break
         }

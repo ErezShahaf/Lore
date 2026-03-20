@@ -40,8 +40,8 @@ export async function decomposeForStorage(
   const settings = getSettings()
   const systemPrompt = loadSkill('save-decomposition')
 
-  const decompositionInput = resolveRawStructuredDataReference(userInput, conversationHistory)
-    ?? userInput
+  // Let the LLM decide how to treat referential structured data (e.g. "save that JSON").
+  const decompositionInput = userInput
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: systemPrompt },
@@ -98,7 +98,8 @@ function validateItems(rawItems: unknown, originalInput: string): DecomposedItem
       const rawContent = (item.content as string).trim()
 
       return {
-        content: type === 'todo' ? normalizeTodoContent(rawContent) : rawContent,
+        // Preserve the model's literal stored content for all item types.
+        content: rawContent,
         type,
         tags: ensureDefaultTags(type, rawTags),
       }
@@ -119,82 +120,6 @@ function buildFallbackItem(originalInput: string): DecomposedItem {
     type,
     tags: getDefaultTags(type),
   }
-}
-
-function resolveRawStructuredDataReference(
-  userInput: string,
-  conversationHistory: readonly ConversationEntry[],
-): string | null {
-  // Handles cases like: "Save that JSON exactly as a note."
-  // In these cases, we want to store the previously provided JSON payload verbatim,
-  // not the instruction text.
-  const isReferentialJsonSave = /\b(save|store|capture|remember|log|put)\b/i.test(userInput)
-    && /\bthat\b/i.test(userInput)
-    && /\bjson\b/i.test(userInput)
-
-  if (!isReferentialJsonSave) return null
-
-  const lastUserStructuredPayload = getLastUserStandaloneStructuredPayload(conversationHistory)
-  return lastUserStructuredPayload
-}
-
-function getLastUserStandaloneStructuredPayload(
-  conversationHistory: readonly ConversationEntry[],
-): string | null {
-  for (let index = conversationHistory.length - 1; index >= 0; index -= 1) {
-    const entry = conversationHistory[index]
-    if (entry.role !== 'user') continue
-
-    const trimmed = entry.content.trim()
-    if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) continue
-    if (trimmed.length < 2) continue
-
-    // Even if parsing fails (malformed JSON), we still return the raw string:
-    // the rubric expects verbatim storage of what the user previously provided.
-    return trimmed
-  }
-
-  return null
-}
-
-function normalizeTodoContent(content: string): string {
-  // If the model captured todo wrapper text like:
-  // "Add to my todo list: buy milk"
-  // we should store only the actionable todo portion ("buy milk").
-  // The heuristic is applied only when the content looks like a todo wrapper.
-  const trimmed = content.trim()
-
-  const wrapperPatterns: ReadonlyArray<RegExp> = [
-    /^\s*add to (?:my )?todo list\s*:\s*/i,
-    /^\s*add to (?:my )?todos\s*:\s*/i,
-    /^\s*todos\s*:\s*/i,
-    /^\s*todo\s*:\s*/i,
-    /^\s*add\s+(.+?)\s+to (?:my )?todo list\s*:\s*/i,
-  ]
-
-  for (const pattern of wrapperPatterns) {
-    const match = trimmed.match(pattern)
-    if (match) {
-      const replaced = trimmed.replace(pattern, '')
-      if (replaced.trim().length > 0) return replaced.trim()
-    }
-  }
-
-  // Support common phrasing: `put "X" on my todo list`
-  const putOnTodoListPattern = /^\s*put\s+.+?\s+on (?:my )?todo list\s*:\s*/i
-  if (putOnTodoListPattern.test(trimmed)) {
-    return trimmed.replace(putOnTodoListPattern, '').trim()
-  }
-
-  // If model stored "Add to my todo list: <task>" inside the content but with minor casing,
-  // we attempt a final fallback: strip everything up to the last colon.
-  const colonIndex = trimmed.lastIndexOf(':')
-  if (colonIndex > 0 && /\b(todo list|todos|todo)\b/i.test(trimmed.slice(0, colonIndex))) {
-    const afterColon = trimmed.slice(colonIndex + 1).trim()
-    if (afterColon.length > 0) return afterColon
-  }
-
-  return trimmed
 }
 
 function resolveDocumentType(
