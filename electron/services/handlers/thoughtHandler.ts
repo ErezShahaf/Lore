@@ -5,7 +5,17 @@ import { getSettings } from '../settingsService'
 import { loadSkill } from '../skillLoader'
 import { generateStructuredResponse } from '../ollamaService'
 import { decomposeForStorage } from '../saveDecompositionService'
+import { planSaveShape } from '../saveShapeService'
 import type { ClassificationResult, AgentEvent, DecomposedItem, DocumentType, ConversationEntry } from '../../../shared/types'
+
+const RAW_JSON_CLARIFICATION_VALID_MESSAGE =
+  'You shared raw JSON. What would you like to do with it? For example: save it as a note, or use it to retrieve matching stored JSON.'
+
+const RAW_JSON_CLARIFICATION_INVALID_MESSAGE =
+  'This structured JSON appears incomplete or malformed. What would you like to do with it (save it as a note, or retrieve matching stored JSON)?'
+
+const RAW_JSON_CONFIRMATION_MESSAGE =
+  "Got it! I've saved the previously provided JSON exactly as requested."
 
 const RAW_JSON_THOUGHT_ROUTING_SCHEMA = {
   type: 'object',
@@ -26,12 +36,15 @@ export async function* handleThought(
   classification: ClassificationResult,
   conversationHistory: readonly ConversationEntry[] = [],
 ): AsyncGenerator<AgentEvent> {
-  yield { type: 'status', message: 'Saving your thought...' }
+  yield { type: 'status', message: 'Checking JSON routing and save path…' }
 
   const routing = await routeRawJsonThought(userInput, conversationHistory)
 
   if (routing.action === 'clarify_raw_json') {
-    yield { type: 'chunk', content: routing.clarificationMessage ?? '' }
+    yield {
+      type: 'chunk',
+      content: routing.clarificationMessage ?? RAW_JSON_CLARIFICATION_VALID_MESSAGE,
+    }
     yield { type: 'done' }
     return
   }
@@ -40,15 +53,8 @@ export async function* handleThought(
   const date = classification.extractedDate ?? today
 
   const previousRawJson = findMostRecentValidRawJson(conversationHistory)
-  const lowerUserInput = userInput.toLowerCase()
-  const isSaveThatJsonExactlyRequest = lowerUserInput.includes('save that')
-    && lowerUserInput.includes('json')
-    && lowerUserInput.includes('exactly')
 
-  if (
-    previousRawJson
-    && (routing.action === 'confirm_save_previously_provided_json_exactly' || isSaveThatJsonExactlyRequest)
-  ) {
+  if (previousRawJson && routing.action === 'confirm_save_previously_provided_json_exactly') {
     const tags = deriveTagsFromJsonPayload(previousRawJson)
     yield* storeSingleItem(
       previousRawJson,
@@ -56,7 +62,7 @@ export async function* handleThought(
       'note',
       date,
       tags,
-      routing.confirmationMessage,
+      routing.confirmationMessage ?? RAW_JSON_CONFIRMATION_MESSAGE,
     )
     yield { type: 'done' }
     return
@@ -66,17 +72,21 @@ export async function* handleThought(
     // Better to ask what to do next than to store the confirmation text or a misresolved payload.
     yield {
       type: 'chunk',
-      content: routing.clarificationMessage
-        ?? 'You shared raw JSON. What would you like to do with it? For example: save it as a note, or use it to retrieve matching stored JSON.',
+      content: routing.clarificationMessage ?? RAW_JSON_CLARIFICATION_VALID_MESSAGE,
     }
     yield { type: 'done' }
     return
   }
 
-  const { items } = await decomposeForStorage(userInput, conversationHistory)
+  yield { type: 'status', message: 'Planning how to split your note or todos…' }
+  const shapePlan = await planSaveShape(userInput, conversationHistory)
+  yield { type: 'status', message: 'Extracting items to store…' }
+  const { items } = await decomposeForStorage(userInput, conversationHistory, shapePlan)
 
   const customSavedJsonMessage =
-    routing.action === 'confirm_save_previously_provided_json_exactly' ? routing.confirmationMessage : null
+    routing.action === 'confirm_save_previously_provided_json_exactly'
+      ? (routing.confirmationMessage ?? RAW_JSON_CONFIRMATION_MESSAGE)
+      : null
 
   if (items.length <= 1) {
     const item = items[0] ?? { content: userInput, type: 'thought' as const, tags: [] }
@@ -185,29 +195,26 @@ async function routeRawJsonThought(
 }> {
   const trimmedInput = userInput.trim()
   if (trimmedInput.startsWith('{') || trimmedInput.startsWith('[')) {
-    // If the user's entire message is raw structured data, skip the LLM router and deterministically
-    // ask what they want to do with it.
+    // Entire message is raw structured data: clarify deterministically so behavior does not depend
+    // on the router model for JSON-only turns.
     try {
       const parsed: unknown = JSON.parse(trimmedInput)
       if (parsed && typeof parsed === 'object') {
         return {
           action: 'clarify_raw_json',
-          clarificationMessage:
-            'You shared raw JSON. What would you like to do with it? For example: save it as a note, or use it to retrieve matching stored JSON.',
+          clarificationMessage: RAW_JSON_CLARIFICATION_VALID_MESSAGE,
           confirmationMessage: null,
         }
       }
       return {
         action: 'clarify_raw_json',
-        clarificationMessage:
-          'This structured JSON appears incomplete or malformed. What would you like to do with it (save it as a note, or retrieve matching stored JSON)?',
+        clarificationMessage: RAW_JSON_CLARIFICATION_INVALID_MESSAGE,
         confirmationMessage: null,
       }
     } catch {
       return {
         action: 'clarify_raw_json',
-        clarificationMessage:
-          'This structured JSON appears incomplete or malformed. What would you like to do with it (save it as a note, or retrieve matching stored JSON)?',
+        clarificationMessage: RAW_JSON_CLARIFICATION_INVALID_MESSAGE,
         confirmationMessage: null,
       }
     }
@@ -294,8 +301,6 @@ function deriveTagsFromJsonPayload(rawJson: string): readonly string[] {
     if (event) tags.add(event)
     if (eventCode) tags.add(eventCode)
     if (url) tags.add('webhook')
-    // The eval seeds use `webhook` tag for retrieval heuristics.
-    tags.add('webhook')
   } catch {
     // If parsing fails, keep minimal tags.
   }

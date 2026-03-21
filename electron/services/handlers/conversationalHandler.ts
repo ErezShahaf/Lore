@@ -25,7 +25,7 @@ export async function* handleConversational(
   _classification: ClassificationResult,
   conversationHistory: readonly ConversationEntry[] = [],
 ): AsyncGenerator<AgentEvent> {
-  yield { type: 'status', message: 'Thinking...' }
+  yield { type: 'status', message: 'Drafting a conversational reply…' }
 
   const settings = getSettings()
   const systemPrompt = buildConversationalSystemPrompt()
@@ -176,6 +176,11 @@ function looksLikeStructuredAgentOutput(response: string): boolean {
     '"targetdocumentids"',
     '"updatedcontent"',
     '"action"',
+    '"situationsummary"',
+    '"splitstrategy"',
+    '"assistantrecentlyaskedforclarification"',
+    '"mode"',
+    '"notesfordecomposer"',
   ]
 
   return structuredMarkers.some((marker) => lowerResponse.includes(marker))

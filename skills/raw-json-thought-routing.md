@@ -4,7 +4,7 @@ Task:
 - Decide whether the LAST user message should be treated as:
   1) a standalone raw JSON/payload that needs clarification (we should ask what the user wants to do with it),
   2) a referential request to save previously provided JSON exactly (we should confirm),
-  3) a normal message that should be stored/processed normally by the save-decomposition flow.
+  3) a normal message that should be stored/processed normally by the save-items flow.
 
 Important:
 - Use conversation context to understand references like "save that JSON exactly".
@@ -23,13 +23,12 @@ Allowed values:
 - clarificationMessage: string or null
 - confirmationMessage: string or null
 
-Message templates (use these exactly):
-- clarificationMessage for valid JSON:
-  "You shared raw JSON. What would you like to do with it? For example: save it as a note, or use it to retrieve matching stored JSON."
-- clarificationMessage for invalid/malformed JSON:
-  "This structured JSON appears incomplete or malformed. What would you like to do with it (save it as a note, or retrieve matching stored JSON)?"
-- confirmationMessage for "save that JSON exactly" style requests:
-  "Got it! I've saved the previously provided JSON exactly as requested."
+Message content (when you supply strings):
+- **clarify_raw_json** for parseable structured data: acknowledge raw JSON was shared, ask what the user wants next (save as a note, retrieve similar stored data, etc.), and do not imply data was already stored.
+- **clarify_raw_json** for malformed/incomplete JSON: say it may be incomplete, then ask the same kind of next-step question.
+- **confirm_save_previously_provided_json_exactly**: briefly confirm that the prior message’s JSON was saved exactly as given.
+
+The application may substitute default wording when you leave `clarificationMessage` or `confirmationMessage` null; the meaning above must still hold.
 
 Decisions:
 - Choose "clarify_raw_json" when the user's message is primarily a standalone JSON payload and they have not yet said what to do with it (e.g. it's just JSON, or it's malformed JSON they want to handle).

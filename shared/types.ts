@@ -165,6 +165,33 @@ export type CommandSubtype = 'delete' | 'update' | 'reorder'
 export type InstructionSubtype = 'general'
 export type ConversationalSubtype = 'greeting' | 'usage' | 'reaction'
 
+export interface SituationSummary {
+  readonly situationSummary: string
+  readonly assistantRecentlyAskedForClarification: boolean
+}
+
+export interface IntentRouteResult {
+  readonly intent: InputClassification
+  readonly confidence: number
+  readonly reasoning: string
+}
+
+export interface MetadataExtractionResult {
+  readonly subtype: string
+  readonly extractedDate: string | null
+  readonly extractedTags: string[]
+}
+
+export interface SaveShapePlan {
+  readonly splitStrategy: 'single' | 'list' | 'verbatim_single'
+  readonly notesForDecomposer: string
+}
+
+export interface QuestionStrategyResult {
+  readonly mode: 'answer' | 'ask_clarification'
+  readonly clarificationMessage: string | null
+}
+
 export interface ClassificationResult {
   intent: InputClassification
   subtype: string
@@ -172,7 +199,22 @@ export interface ClassificationResult {
   extractedTags: string[]
   confidence: number
   reasoning: string
+  situationSummary: string
 }
+
+/** Mutable accumulator for one user turn; updated by [orchestratorService](electron/services/orchestratorService.ts). */
+export interface OrchestratorTurnResult {
+  assistantResponse: string
+  classification: ClassificationResult | null
+  lastDocumentIds: string[]
+  completedDispatcherIds: string[]
+}
+
+/**
+ * Max loop iterations for the orchestrator (future: retrieve → branch → re-dispatch).
+ * Current implementation uses a single dispatch after classification.
+ */
+export const ORCHESTRATOR_MAX_STEPS = 8
 
 export interface CommandTarget {
   targetDocumentIds: string[]

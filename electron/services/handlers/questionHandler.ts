@@ -9,6 +9,7 @@ import {
 import { formatLocalDate, getLocalDateRangeForDay, getLocalDateRangeForWeek } from '../localDate'
 import { getSettings } from '../settingsService'
 import { loadSkill } from '../skillLoader'
+import { decideQuestionStrategy } from '../questionStrategistService'
 import type {
   ClassificationResult,
   AgentEvent,
@@ -29,7 +30,7 @@ export async function* handleQuestion(
   conversationContext?: Array<{ role: 'user' | 'assistant'; content: string }>,
   retrievalOverrides?: RetrievalOptions,
 ): AsyncGenerator<AgentEvent> {
-  yield { type: 'status', message: 'Searching your notes...' }
+  yield { type: 'status', message: 'Searching your notes and matching filters…' }
 
   const settings = getSettings()
 
@@ -74,7 +75,11 @@ export async function* handleQuestion(
     return lower.includes('todo') || lower.includes('todos')
   })
 
-  const shouldMergeTodoDocuments = instructions.length > 0 && instructionRequestsTodoListing
+  // Only merge todo documents when this turn is already scoped as a todo retrieval (`todo` tag
+  // from metadata). Otherwise, instructions that mention "todo" would prepend every stored todo
+  // to unrelated questions (e.g. Stripe after a prior todo turn).
+  const shouldMergeTodoDocuments =
+    isTodoQuery && instructions.length > 0 && instructionRequestsTodoListing
 
   // When an instruction explicitly requests todo listing/display (especially for the
   // greeting-triggered scenarios), produce the todo list deterministically from the
@@ -149,7 +154,28 @@ export async function* handleQuestion(
     return
   }
 
-  yield { type: 'status', message: `Found ${documents.length} relevant notes. Generating answer...` }
+  yield { type: 'status', message: 'Preparing an answer from the retrieved context…' }
+
+  yield { type: 'status', message: 'Deciding whether to answer directly or ask a clarifying question…' }
+  const strategy = await decideQuestionStrategy({
+    userInput,
+    situationSummary: classification.situationSummary,
+    documentPreviews: documents.map((document) => ({
+      id: document.id,
+      preview: document.content.slice(0, 220),
+    })),
+  })
+
+  if (strategy.mode === 'ask_clarification' && strategy.clarificationMessage) {
+    yield { type: 'chunk', content: strategy.clarificationMessage }
+    yield { type: 'done' }
+    return
+  }
+
+  yield {
+    type: 'status',
+    message: `Writing your answer from ${documents.length} retrieved note(s)…`,
+  }
 
   const contextBlock = formatRetrievedDocuments(documents)
   const instructionBlock = formatInstructions(instructions)
@@ -164,7 +190,7 @@ export async function* handleQuestion(
     shouldMentionTags,
     documents,
   })
-  const ragSystemPrompt = loadSkill('question')
+  const ragSystemPrompt = loadSkill('question-answer')
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: ragSystemPrompt },

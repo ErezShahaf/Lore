@@ -22,7 +22,7 @@ export async function* handleCommand(
   conversationHistory: readonly ConversationEntry[] = [],
   retrievalOverrides?: RetrievalOptions,
 ): AsyncGenerator<AgentEvent> {
-  yield { type: 'status', message: 'Finding relevant documents...' }
+  yield { type: 'status', message: 'Searching your library for matching documents…' }
 
   const isTodoCompletion = classification.extractedTags.some(
     (tag) => tag.toLowerCase() === 'todo',
@@ -53,7 +53,7 @@ export async function* handleCommand(
     totalRetrieved: documents.length,
   }
 
-  yield { type: 'status', message: 'Analyzing your request...' }
+  yield { type: 'status', message: 'Resolving which documents to change (command agent)…' }
 
   let resolution
   try {

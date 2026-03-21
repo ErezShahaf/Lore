@@ -7,6 +7,7 @@ import type {
   DecomposedItem,
   SaveDecompositionResult,
   ConversationEntry,
+  SaveShapePlan,
 } from '../../shared/types'
 
 const DECOMPOSED_DOCUMENT_TYPES = ['thought', 'todo', 'meeting', 'note'] as const
@@ -36,12 +37,17 @@ const MAX_RETRIES = 2
 export async function decomposeForStorage(
   userInput: string,
   conversationHistory: readonly ConversationEntry[] = [],
+  shapePlan?: SaveShapePlan | null,
 ): Promise<SaveDecompositionResult> {
   const settings = getSettings()
-  const systemPrompt = loadSkill('save-decomposition')
+  const systemPrompt = loadSkill('save-items')
 
-  // Let the LLM decide how to treat referential structured data (e.g. "save that JSON").
-  const decompositionInput = userInput
+  const shapeBlock =
+    shapePlan !== undefined && shapePlan !== null
+      ? `Shape plan (from upstream agent):\n${JSON.stringify(shapePlan)}\n\n`
+      : ''
+
+  const decompositionInput = `${shapeBlock}User message to decompose:\n${userInput}`
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: systemPrompt },

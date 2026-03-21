@@ -7,12 +7,14 @@ export async function* handleInstruction(
   userInput: string,
   classification: ClassificationResult,
 ): AsyncGenerator<AgentEvent> {
-  yield { type: 'status', message: 'Saving instruction...' }
+  yield { type: 'status', message: 'Checking for similar saved instructions…' }
 
   const existing = await retrieveRelevantDocuments(userInput, {
     type: 'instruction',
     similarityThreshold: 0.8,
   })
+
+  yield { type: 'status', message: 'Saving your instruction…' }
 
   const today = formatLocalDate(new Date())
 
