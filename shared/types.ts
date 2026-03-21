@@ -208,6 +208,10 @@ export interface OrchestratorTurnResult {
   classification: ClassificationResult | null
   lastDocumentIds: string[]
   completedDispatcherIds: string[]
+  /** All saved instruction documents loaded once per turn for system-prompt injection. */
+  userInstructionDocuments: readonly LoreDocument[]
+  /** Formatted block derived from [userInstructionDocuments](OrchestratorTurnResult.userInstructionDocuments). */
+  userInstructionsBlock: string
 }
 
 /**

@@ -20,6 +20,29 @@ export const structuredDataScenarios = [
     ],
   },
   {
+    id: 'raw-json-then-store-it-saves-json-not-other-content',
+    topic: 'structured-data',
+    title: 'Brief "store it" after JSON clarification saves the JSON not other content',
+    suites: ['full'],
+    steps: [
+      {
+        userInput: '{"event":"order.delivered","order_id":"ord_123","status":"delivered"}',
+        expect: {
+          responseJudge: 'The assistant should ask what the user wants to do with the structured data (save, retrieve, etc.) and should not store it yet.',
+          dataJudge: 'The database should remain empty after this step.',
+        },
+      },
+      {
+        userInput: 'store it',
+        expect: {
+          storedCount: 1,
+          responseJudge: 'The assistant should confirm it saved the previously provided JSON. It must not mention saving something unrelated such as a shape plan, strategy note, or internal agent output.',
+          dataJudge: 'The database must contain exactly one document whose content is the JSON the user pasted in the previous turn (with event order.delivered, order_id ord_123, status delivered). The stored content must not be text from a shape plan, notes for decomposer, or assistant messages.',
+        },
+      },
+    ],
+  },
+  {
     id: 'raw-json-clarification-then-save-and-retrieve-exactly',
     topic: 'structured-data',
     title: 'Clarified raw JSON can be saved and retrieved verbatim',

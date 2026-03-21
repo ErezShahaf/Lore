@@ -4,21 +4,20 @@ import { extractMetadata } from './metadataExtractionService'
 import { routeIntent } from './intentRouteService'
 import { synthesizeSituation } from './situationService'
 
-const ROUTE_ONLY_CONFIDENCE_THRESHOLD = 0.75
-
 export async function* classifyInputWithStatusEvents(
   userInput: string,
   conversationHistory: readonly ConversationEntry[] = [],
+  userInstructionsBlock: string = '',
 ): AsyncGenerator<AgentEvent, ClassificationResult> {
   const now = new Date()
 
   yield { type: 'status', message: 'Summarizing conversation and situation…' }
-  const situation = await synthesizeSituation(userInput, conversationHistory)
+  const situation = await synthesizeSituation(userInput, conversationHistory, userInstructionsBlock)
 
   yield { type: 'status', message: 'Routing intent…' }
   let route
   try {
-    route = await routeIntent(situation, userInput, conversationHistory)
+    route = await routeIntent(situation, userInput, conversationHistory, userInstructionsBlock)
   } catch (err) {
     logger.error({ err }, '[Classifier] Intent routing failed')
     throw new Error(
@@ -26,20 +25,15 @@ export async function* classifyInputWithStatusEvents(
     )
   }
 
-  if (route.confidence < ROUTE_ONLY_CONFIDENCE_THRESHOLD) {
-    return {
-      intent: route.intent,
-      subtype: 'general',
-      extractedDate: null,
-      extractedTags: [],
-      confidence: route.confidence,
-      reasoning: route.reasoning,
-      situationSummary: situation.situationSummary,
-    }
-  }
-
   yield { type: 'status', message: 'Extracting tags and dates…' }
-  const metadata = await extractMetadata(route.intent, situation, userInput, conversationHistory, now)
+  const metadata = await extractMetadata(
+    route.intent,
+    situation,
+    userInput,
+    conversationHistory,
+    now,
+    userInstructionsBlock,
+  )
 
   return {
     intent: route.intent,
@@ -55,8 +49,9 @@ export async function* classifyInputWithStatusEvents(
 export async function classifyInput(
   userInput: string,
   conversationHistory: readonly ConversationEntry[] = [],
+  userInstructionsBlock: string = '',
 ): Promise<ClassificationResult> {
-  const iterator = classifyInputWithStatusEvents(userInput, conversationHistory)
+  const iterator = classifyInputWithStatusEvents(userInput, conversationHistory, userInstructionsBlock)
   let step = await iterator.next()
   while (!step.done) {
     step = await iterator.next()

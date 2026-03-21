@@ -2,6 +2,7 @@ import { generateStructuredResponse } from './ollamaService'
 import { getSettings } from './settingsService'
 import { loadSkill } from './skillLoader'
 import { logger } from '../logger'
+import { appendUserInstructionsToSystemPrompt } from './userInstructionsContext'
 import type { QuestionStrategyResult } from '../../shared/types'
 
 const STRATEGY_SCHEMA = {
@@ -38,9 +39,13 @@ export async function decideQuestionStrategy(input: {
   readonly userInput: string
   readonly situationSummary: string
   readonly documentPreviews: readonly { readonly id: string; readonly preview: string }[]
+  readonly userInstructionsBlock?: string
 }): Promise<QuestionStrategyResult> {
   const settings = getSettings()
-  const systemPrompt = loadSkill('question-strategist')
+  const systemPrompt = appendUserInstructionsToSystemPrompt(
+    loadSkill('question-strategist'),
+    input.userInstructionsBlock ?? '',
+  )
 
   const userContent = [
     'Situation summary:',

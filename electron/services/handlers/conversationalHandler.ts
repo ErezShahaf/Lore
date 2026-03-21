@@ -2,6 +2,7 @@ import { chat } from '../ollamaService'
 import { getSettings } from '../settingsService'
 import { loadSkill } from '../skillLoader'
 import { logger } from '../../logger'
+import { appendUserInstructionsToSystemPrompt } from '../userInstructionsContext'
 import type { ClassificationResult, ConversationEntry, AgentEvent } from '../../../shared/types'
 
 let cachedConversationalSystemPrompt: string | null = null
@@ -24,11 +25,15 @@ export async function* handleConversational(
   userInput: string,
   _classification: ClassificationResult,
   conversationHistory: readonly ConversationEntry[] = [],
+  userInstructionsBlock: string = '',
 ): AsyncGenerator<AgentEvent> {
   yield { type: 'status', message: 'Drafting a conversational reply…' }
 
   const settings = getSettings()
-  const systemPrompt = buildConversationalSystemPrompt()
+  const systemPrompt = appendUserInstructionsToSystemPrompt(
+    buildConversationalSystemPrompt(),
+    userInstructionsBlock,
+  )
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: systemPrompt },
@@ -66,13 +71,13 @@ export async function* handleConversational(
       }
     }
 
+    // When streaming already emitted visible chunks, the assistant message is complete—do not
+    // send the full response again or the UI will append duplicate text.
     if (!streamedResponse.didEmitVisibleContent) {
       yield {
         type: 'chunk',
         content: normalizeConversationalResponse(userInput, streamedResponse.response),
       }
-    } else {
-      yield { type: 'chunk', content: normalizeConversationalResponse(userInput, streamedResponse.response) }
     }
   } catch (err) {
     yield {

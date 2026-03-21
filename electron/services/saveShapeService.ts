@@ -2,6 +2,7 @@ import { generateStructuredResponse } from './ollamaService'
 import { getSettings } from './settingsService'
 import { loadSkill } from './skillLoader'
 import { logger } from '../logger'
+import { appendUserInstructionsToSystemPrompt } from './userInstructionsContext'
 import type { ConversationEntry, SaveShapePlan } from '../../shared/types'
 
 const SAVE_SHAPE_SCHEMA = {
@@ -27,9 +28,10 @@ const FALLBACK_SHAPE: SaveShapePlan = {
 export async function planSaveShape(
   userInput: string,
   conversationHistory: readonly ConversationEntry[] = [],
+  userInstructionsBlock: string = '',
 ): Promise<SaveShapePlan> {
   const settings = getSettings()
-  const systemPrompt = loadSkill('save-shape')
+  const systemPrompt = appendUserInstructionsToSystemPrompt(loadSkill('save-shape'), userInstructionsBlock)
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: systemPrompt },

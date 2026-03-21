@@ -6,6 +6,9 @@ import { loadSkill } from '../skillLoader'
 import { generateStructuredResponse } from '../ollamaService'
 import { decomposeForStorage } from '../saveDecompositionService'
 import { planSaveShape } from '../saveShapeService'
+import { appendUserInstructionsToSystemPrompt } from '../userInstructionsContext'
+import { streamAssistantUserReplyWithFallback } from '../assistantReplyComposer'
+import { logger } from '../../logger'
 import type { ClassificationResult, AgentEvent, DecomposedItem, DocumentType, ConversationEntry } from '../../../shared/types'
 
 const RAW_JSON_CLARIFICATION_VALID_MESSAGE =
@@ -35,10 +38,11 @@ export async function* handleThought(
   userInput: string,
   classification: ClassificationResult,
   conversationHistory: readonly ConversationEntry[] = [],
+  userInstructionsBlock: string = '',
 ): AsyncGenerator<AgentEvent> {
   yield { type: 'status', message: 'Checking JSON routing and save path…' }
 
-  const routing = await routeRawJsonThought(userInput, conversationHistory)
+  const routing = await routeRawJsonThought(userInput, conversationHistory, userInstructionsBlock)
 
   if (routing.action === 'clarify_raw_json') {
     yield {
@@ -63,6 +67,7 @@ export async function* handleThought(
       date,
       tags,
       routing.confirmationMessage ?? RAW_JSON_CONFIRMATION_MESSAGE,
+      userInstructionsBlock,
     )
     yield { type: 'done' }
     return
@@ -79,14 +84,21 @@ export async function* handleThought(
   }
 
   yield { type: 'status', message: 'Planning how to split your note or todos…' }
-  const shapePlan = await planSaveShape(userInput, conversationHistory)
+  const shapePlan = await planSaveShape(userInput, conversationHistory, userInstructionsBlock)
   yield { type: 'status', message: 'Extracting items to store…' }
-  const { items } = await decomposeForStorage(userInput, conversationHistory, shapePlan)
+  const { items } = await decomposeForStorage(userInput, conversationHistory, shapePlan, userInstructionsBlock)
 
   const customSavedJsonMessage =
     routing.action === 'confirm_save_previously_provided_json_exactly'
       ? (routing.confirmationMessage ?? RAW_JSON_CONFIRMATION_MESSAGE)
       : null
+
+  if (items.length === 0) {
+    logger.warn({ userInput }, '[ThoughtHandler] Decomposition returned no items')
+    yield { type: 'chunk', content: 'Nothing to save.' }
+    yield { type: 'done' }
+    return
+  }
 
   if (items.length <= 1) {
     const item = items[0] ?? { content: userInput, type: 'thought' as const, tags: [] }
@@ -98,9 +110,10 @@ export async function* handleThought(
       date,
       tags,
       customSavedJsonMessage,
+      userInstructionsBlock,
     )
   } else {
-    yield* storeMultipleItems(items, userInput, date)
+    yield* storeMultipleItems(items, userInput, date, userInstructionsBlock)
   }
 
   yield { type: 'done' }
@@ -113,17 +126,17 @@ async function* storeSingleItem(
   date: string,
   tags: readonly string[],
   customSavedJsonMessage: string | null,
+  userInstructionsBlock: string,
 ): AsyncGenerator<AgentEvent> {
   const duplicate = await checkForDuplicate(content)
+  let duplicatePreviewForFacts: string | null = null
   if (duplicate) {
     const preview = duplicate.content.slice(0, 120)
+    duplicatePreviewForFacts =
+      `${preview}${duplicate.content.length > 120 ? '...' : ''}`
     yield {
       type: 'duplicate',
       existingContent: preview,
-    }
-    yield {
-      type: 'chunk',
-      content: `This seems similar to a note you already have: "${preview}${duplicate.content.length > 120 ? '...' : ''}"\n\nI've saved it as a new note anyway, but you may want to delete the duplicate.`,
     }
   }
 
@@ -137,14 +150,23 @@ async function* storeSingleItem(
 
   yield { type: 'stored', documentId: doc.id }
 
-  if (!duplicate) {
-    if (customSavedJsonMessage) {
-      yield { type: 'chunk', content: customSavedJsonMessage }
-      return
-    }
+  if (customSavedJsonMessage) {
+    yield { type: 'chunk', content: customSavedJsonMessage }
+    return
+  }
 
-    const topic = summarizeTopic(content)
-    yield { type: 'chunk', content: `Got it! I've saved your ${docType} about ${topic}.` }
+  const topic = summarizeTopic(content)
+  for await (const chunk of streamAssistantUserReplyWithFallback({
+    userInstructionsBlock,
+    facts: {
+      kind: 'thought_saved_single',
+      documentType: docType,
+      topicSummary: topic,
+      hadDuplicate: duplicate !== null,
+      duplicatePreview: duplicatePreviewForFacts,
+    },
+  })) {
+    yield { type: 'chunk', content: chunk }
   }
 }
 
@@ -152,32 +174,47 @@ async function* storeMultipleItems(
   items: readonly DecomposedItem[],
   originalInput: string,
   date: string,
+  userInstructionsBlock: string,
 ): AsyncGenerator<AgentEvent> {
   const groupId = uuidv4()
   let duplicateCount = 0
   let hasTodos = false
+  let todoItemCount = 0
+  const storedThisBatchIds = new Set<string>()
 
   for (const item of items) {
     const duplicate = await checkForDuplicate(item.content)
-    if (duplicate) duplicateCount++
+    if (duplicate && !storedThisBatchIds.has(duplicate.id)) {
+      duplicateCount += 1
+    }
 
     const itemDocType = item.type
-    if (itemDocType === 'todo') hasTodos = true
+    if (itemDocType === 'todo') {
+      hasTodos = true
+      todoItemCount += 1
+    }
 
     const doc = await storeThoughtWithMetadata(
       { content: item.content, originalInput, type: itemDocType, date, tags: [...item.tags] },
       { groupId },
     )
+    storedThisBatchIds.add(doc.id)
 
     yield { type: 'stored', documentId: doc.id }
   }
 
-  const typeLabel = hasTodos ? 'todos' : 'notes'
-  let message = `Got it! I've saved ${items.length} ${typeLabel}.`
-  if (duplicateCount > 0) {
-    message += ` (${duplicateCount} seemed similar to notes you already have.)`
+  for await (const chunk of streamAssistantUserReplyWithFallback({
+    userInstructionsBlock,
+    facts: {
+      kind: 'thought_saved_many',
+      itemCount: items.length,
+      todoItemCount,
+      hasTodos,
+      duplicateCount,
+    },
+  })) {
+    yield { type: 'chunk', content: chunk }
   }
-  yield { type: 'chunk', content: message }
 }
 
 function summarizeTopic(input: string): string {
@@ -188,6 +225,7 @@ function summarizeTopic(input: string): string {
 async function routeRawJsonThought(
   userInput: string,
   conversationHistory: readonly ConversationEntry[],
+  userInstructionsBlock: string,
 ): Promise<{
   readonly action: 'clarify_raw_json' | 'confirm_save_previously_provided_json_exactly' | 'store_normal'
   readonly clarificationMessage: string | null
@@ -221,7 +259,10 @@ async function routeRawJsonThought(
   }
 
   const settings = getSettings()
-  const systemPrompt = loadSkill('raw-json-thought-routing')
+  const systemPrompt = appendUserInstructionsToSystemPrompt(
+    loadSkill('raw-json-thought-routing'),
+    userInstructionsBlock,
+  )
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: systemPrompt },

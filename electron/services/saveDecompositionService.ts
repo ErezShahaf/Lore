@@ -2,6 +2,7 @@ import { generateStructuredResponse } from './ollamaService'
 import { getSettings } from './settingsService'
 import { loadSkill } from './skillLoader'
 import { logger } from '../logger'
+import { appendUserInstructionsToSystemPrompt } from './userInstructionsContext'
 import type {
   DecomposedDocumentType,
   DecomposedItem,
@@ -38,9 +39,10 @@ export async function decomposeForStorage(
   userInput: string,
   conversationHistory: readonly ConversationEntry[] = [],
   shapePlan?: SaveShapePlan | null,
+  userInstructionsBlock: string = '',
 ): Promise<SaveDecompositionResult> {
   const settings = getSettings()
-  const systemPrompt = loadSkill('save-items')
+  const systemPrompt = appendUserInstructionsToSystemPrompt(loadSkill('save-items'), userInstructionsBlock)
 
   const shapeBlock =
     shapePlan !== undefined && shapePlan !== null

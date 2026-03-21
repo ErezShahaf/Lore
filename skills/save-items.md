@@ -4,6 +4,9 @@ You will receive a **shape plan** JSON in the user message when present; respect
 
 Convert the user's message into storable items.
 
+Read-only todo-list questions:
+- If the message **only** asks to list, show, or enumerate stored todos or tasks (for example “What are my todos?”) and does **not** say to add, save, remember, or put something new, return **no items** (`"items": []`). Do not echo lines from earlier assistant messages as new todos to save.
+
 You have three jobs:
 1. Preserve the exact user wording for each stored item unless the user is clearly referring to earlier conversation with phrases like "save that" or "add the last one".
 2. Split clearly separate items when the shape plan or message indicates a list.
@@ -25,6 +28,7 @@ Literal-first storage:
 - Do not invent IDs, amounts, examples, interpretations, or extra context.
 - Only resolve references from conversation history when the current message is explicitly referential, such as "save that", "add the last one", "the second example", or similar.
 - When resolving a referential message, store the resolved content itself, not the confirmation phrase.
+- When the current message is a bare referential storage request ("store it", "save it", "yes") and a prior user message contains raw structured data (JSON, etc.), the resolved content must be that prior user message's payload verbatim. Do not use text from the shape plan, notes for decomposer, or assistant messages as the stored content.
 - For `type: "todo"` items, do not store wrapper/list prefixes. Strip common prefixes so the stored `content` is only the actionable todo text (e.g. store `buy milk` instead of `Add to my todo list: buy milk` or `todos: buy milk`).
 
 Splitting rules:
@@ -45,6 +49,7 @@ Content rules:
 
 Type rules:
 - Use "todo" only for explicit tasks, todos, reminders, or actionable checklist items.
+- List labels such as **Todos:**, **Todo:**, or **Tasks:** (any common capitalization) followed by comma-separated actionable lines mean **every** extracted list element is a **todo**, not a thought or generic note.
 - Requests such as "add to my todo list: buy milk", "put \"call mom\" on my todo list", "add buy milk to my tasks", or "remind me to stretch" should be typed as "todo".
 - If the message contains smalltalk before a clear todo request, ignore the chatter and type the stored item as "todo" when the actionable part is a todo request.
 - Use "meeting" for explicit meeting notes or meeting-specific captures.

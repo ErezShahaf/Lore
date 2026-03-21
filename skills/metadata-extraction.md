@@ -12,10 +12,11 @@ Subtype (must match intent):
 - command: "delete" | "update" | "reorder"
 
 Tag rules:
-- Tags describe the **last user message only**. Do not let a previous turn (e.g. listing todos) cause you to add `todo` or todo-focused tags when the **current** message is clearly about something else (Stripe, webhooks, payments, unrelated facts, etc.).
-- Include `todo` for **questions** only when the user is asking about their tasks, todo list, reminders, or completing/changing stored todos—not when they ask an unrelated question after a todo discussion.
+- Tags describe the **last user message only**. Do not let a previous turn (e.g. listing todos) cause you to add `todo` or todo-focused tags when the **current** message is clearly about something else (an integration, a product, unrelated facts, etc.).
+- Include `todo` for **questions** when the user is asking about their tasks, todo list, reminders, or completing/changing stored todos—including phrases like “what are my todos”, “show my todos”, or “what’s on my todo list”—not when they ask an unrelated question after a todo discussion.
 - Include "todo" when the user clearly means tasks/reminders (especially command completions).
 - For questions, tag the **subject** being looked up, not words like “show me”.
+- When the user names a **specific** variant, source, or sub-type—different integrations, lifecycle stages (e.g. draft vs final), event types, or product sub-areas—add **lowercase tags** that capture those distinctions using the user’s wording (normalize spelling only). Those tags help retrieval prefer the note that matches the asked-for variant over sibling notes from the same domain.
 
 Date rules:
 - Resolve explicit relative dates to ISO using the calendar values below.

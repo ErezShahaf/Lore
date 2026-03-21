@@ -2,6 +2,7 @@ import { generateStructuredResponse } from './ollamaService'
 import { getSettings } from './settingsService'
 import { loadSkill } from './skillLoader'
 import { logger } from '../logger'
+import { appendUserInstructionsToSystemPrompt } from './userInstructionsContext'
 import type {
   CommandResolution,
   CommandOperation,
@@ -73,6 +74,7 @@ export async function resolveCommandTargets(
   userInput: string,
   documents: readonly LoreDocument[],
   conversationHistory: readonly ConversationEntry[] = [],
+  userInstructionsBlock: string = '',
 ): Promise<CommandResolution> {
   const settings = getSettings()
 
@@ -80,7 +82,7 @@ export async function resolveCommandTargets(
     .map((document) => `ID: ${document.id}\nType: ${document.type}\nDate: ${document.date}\nContent: ${document.content}`)
     .join('\n---\n')
 
-  const systemPrompt = loadSkill('command-decomposition')
+  const systemPrompt = appendUserInstructionsToSystemPrompt(loadSkill('command-decomposition'), userInstructionsBlock)
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: systemPrompt },
@@ -185,15 +187,6 @@ function validateResolution(
     }
   }
 
-  const safetyClarification = buildSafetyClarification(userInput, operations, documents)
-  if (safetyClarification) {
-    return {
-      status: 'clarify',
-      operations: [],
-      clarificationMessage: safetyClarification,
-    }
-  }
-
   return {
     status: 'execute',
     operations,
@@ -206,74 +199,6 @@ function validateAction(value: unknown): CommandOperation['action'] {
   return validActions.includes(value as CommandOperation['action'])
     ? (value as CommandOperation['action'])
     : 'delete'
-}
-
-function buildSafetyClarification(
-  userInput: string,
-  operations: readonly CommandOperation[],
-  documents: readonly LoreDocument[],
-): string | null {
-  const allowsMultiTargetAction = /\b(all of them|all of|every one|every|both|either|any of them|any of|all)\b/i.test(userInput)
-
-  // This should be true only when the user provides a strong disambiguator like:
-  // "the first one", "the one about X", "that one", "the other", etc.
-  const hasOrdinalReference = /\b(first|second|third|fourth|last|next)\b/i.test(userInput)
-    || /\b\d+(st|nd|rd|th)\b/i.test(userInput)
-    || /\bthe one about\b/i.test(userInput)
-    || /\bthe one on\b/i.test(userInput)
-    || /\bthat one\b/i.test(userInput)
-    || /\bthe other\b/i.test(userInput)
-
-  for (const operation of operations) {
-    const referenceText = extractReferenceTextForSafety(userInput, operation)
-    const candidateMatches = rankCandidateMatches(referenceText, documents)
-
-    if (!allowsMultiTargetAction && operation.targetDocumentIds.length !== 1) {
-      return buildCandidateClarification(
-        candidateMatches,
-        documents,
-        "I found a few possible matches, but I'm not sure which one you mean.",
-      )
-    }
-
-    if (allowsMultiTargetAction || hasOrdinalReference) {
-      continue
-    }
-
-    const chosenDocumentId = operation.targetDocumentIds[0]
-    if (!chosenDocumentId) {
-      return buildCandidateClarification(
-        candidateMatches,
-        documents,
-        "I couldn't determine which document you mean.",
-      )
-    }
-
-    const chosenCandidate = candidateMatches.find((candidate) => candidate.document.id === chosenDocumentId)
-    const plausibleCandidates = candidateMatches.filter((candidate) => candidate.score >= MIN_CLEAR_MATCH_SCORE)
-    const runnerUp = candidateMatches[1]
-    const chosenIsClearlyBest = chosenCandidate !== undefined
-      && chosenCandidate.score >= MIN_CLEAR_MATCH_SCORE
-      && (!runnerUp || chosenCandidate.score - runnerUp.score >= MIN_CLEAR_MATCH_GAP)
-      && candidateMatches[0]?.document.id === chosenDocumentId
-
-    if (chosenIsClearlyBest && plausibleCandidates.length <= 1) {
-      continue
-    }
-
-    const needsClarification = candidateMatches.length > 1
-      || plausibleCandidates.length > 1
-
-    if (needsClarification) {
-      return buildCandidateClarification(
-        plausibleCandidates.length > 0 ? plausibleCandidates : candidateMatches,
-        documents,
-        "I found a few possible matches, but I can't tell for sure which one you mean.",
-      )
-    }
-  }
-
-  return null
 }
 
 interface CandidateMatch {
@@ -485,9 +410,12 @@ function buildCandidateClarification(
   documents: readonly LoreDocument[],
   prefix: string,
 ): string {
-  const previewCandidates = candidateMatches.length > 0
+  const rawCandidates = candidateMatches.length > 0
     ? candidateMatches
     : documents.map((document) => ({ document, score: 0 }))
+  const previewCandidates = [...rawCandidates].sort((a, b) =>
+    a.document.content.localeCompare(b.document.content) || a.document.id.localeCompare(b.document.id),
+  )
 
   const previewList = previewCandidates
     .slice(0, MAX_CLARIFICATION_LIST_ITEMS)
@@ -499,11 +427,11 @@ function buildCandidateClarification(
   }
 
   const listedCount = Math.min(previewCandidates.length, MAX_CLARIFICATION_LIST_ITEMS)
-  const bulkHint = listedCount >= 2
-    ? '\n\nIf you finished every matching item in this list, say **all of them** (or **all**) so I can complete each one.'
-    : ''
+  const replyHint = listedCount >= 2
+    ? '\n\nYou can reply with the number as it appears (1, 2, …), say **all** or **all of them** for every item, or describe which one.'
+    : '\n\nYou can reply with the number (1) or describe which one.'
 
-  return `${prefix}\n${previewList}\n\nWhich one did you mean?${bulkHint}`
+  return `${prefix}\n${previewList}\n\nWhich one did you mean?${replyHint}`
 }
 
 function extractSalientTerms(text: string): string[] {

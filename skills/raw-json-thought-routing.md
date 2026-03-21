@@ -33,6 +33,7 @@ The application may substitute default wording when you leave `clarificationMess
 Decisions:
 - Choose "clarify_raw_json" when the user's message is primarily a standalone JSON payload and they have not yet said what to do with it (e.g. it's just JSON, or it's malformed JSON they want to handle).
 - Choose "confirm_save_previously_provided_json_exactly" when the user explicitly requests saving/capturing/storing/logging that previously provided JSON exactly as given.
+- When the previous assistant message asked what to do with structured data the user shared, and the user's reply is a brief affirmative storage request (e.g. "store it", "save it", "keep it", "yes"), choose "confirm_save_previously_provided_json_exactly".
 - Choose "store_normal" for everything else.
 
 Exactness:

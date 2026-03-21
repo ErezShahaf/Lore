@@ -3,6 +3,7 @@ import { formatLocalDate } from './localDate'
 import { getSettings } from './settingsService'
 import { loadSkill } from './skillLoader'
 import { logger } from '../logger'
+import { appendUserInstructionsToSystemPrompt } from './userInstructionsContext'
 import type {
   ConversationEntry,
   InputClassification,
@@ -40,9 +41,10 @@ export async function extractMetadata(
   userInput: string,
   conversationHistory: readonly ConversationEntry[] = [],
   now: Date = new Date(),
+  userInstructionsBlock: string = '',
 ): Promise<MetadataExtractionResult> {
   const settings = getSettings()
-  const systemPrompt = buildMetadataSystemPrompt(now)
+  const systemPrompt = appendUserInstructionsToSystemPrompt(buildMetadataSystemPrompt(now), userInstructionsBlock)
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: systemPrompt },

@@ -84,6 +84,38 @@ export const todoUpdateScenarios = [
     ],
   },
   {
+    id: 'change-word-text-substitution-not-unit-conversion',
+    topic: 'todo-update',
+    title: 'Change word in todos uses text substitution not unit conversion',
+    suites: ['full'],
+    steps: [
+      {
+        userInput: 'Todos: run 5 miles, run 10 miles',
+        expect: {
+          storedCount: 2,
+          todoCount: 2,
+        },
+      },
+      {
+        userInput: 'change miles to km',
+        expect: {
+          requiresClarification: true,
+          todoCount: 2,
+        },
+      },
+      {
+        userInput: 'both',
+        expect: {
+          todoCount: 2,
+          todoContentsIncludeSubstrings: ['run 5 km', 'run 10 km'],
+          todoContentsExcludeSubstrings: ['8.05', '16.09'],
+          responseExcludes: ['saved'],
+          responseJudge: 'The response must describe an update (not a save). The updated content must be "run 5 km" and "run 10 km" (text substitution of "miles" to "km"), not unit-converted values like 8.05 km or 16.09 km.',
+        },
+      },
+    ],
+  },
+  {
     id: 'explicit-edit-similar-todos',
     topic: 'todo-update',
     title: 'Explicit edit of one similar todo',

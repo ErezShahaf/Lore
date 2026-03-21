@@ -69,6 +69,24 @@ export const todoCreationScenarios = [
     ],
   },
   {
+    id: 'similar-todos-in-batch-no-false-duplicate-message',
+    topic: 'todo-creation',
+    title: 'Similar-structure todos in one batch do not report false duplicate',
+    suites: ['full'],
+    steps: [
+      {
+        userInput: 'add to my todo: run 5 miles, run 10 miles',
+        expect: {
+          storedCount: 2,
+          todoCount: 2,
+          todoContentsIncludeSubstrings: ['run 5 miles', 'run 10 miles'],
+          responseExcludes: ['duplicate'],
+          responseJudge: 'The response must not claim that one of the saved items was a duplicate when both items were stored successfully.',
+        },
+      },
+    ],
+  },
+  {
     id: 'duplicate-todo-still-persists-separately',
     topic: 'todo-creation',
     title: 'Near-duplicate todo requests still store separately',

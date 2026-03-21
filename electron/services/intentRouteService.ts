@@ -1,6 +1,7 @@
 import { generateStructuredResponse } from './ollamaService'
 import { getSettings } from './settingsService'
 import { loadSkill } from './skillLoader'
+import { appendUserInstructionsToSystemPrompt } from './userInstructionsContext'
 import type { ConversationEntry, IntentRouteResult, InputClassification, SituationSummary } from '../../shared/types'
 
 const INTENT_ROUTE_SCHEMA = {
@@ -23,9 +24,10 @@ export async function routeIntent(
   situation: SituationSummary,
   userInput: string,
   conversationHistory: readonly ConversationEntry[] = [],
+  userInstructionsBlock: string = '',
 ): Promise<IntentRouteResult> {
   const settings = getSettings()
-  const systemPrompt = loadSkill('intent-route')
+  const systemPrompt = appendUserInstructionsToSystemPrompt(loadSkill('intent-route'), userInstructionsBlock)
 
   const situationBlock = [
     'Situation summary:',

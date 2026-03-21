@@ -2,6 +2,7 @@ import { generateStructuredResponse } from './ollamaService'
 import { getSettings } from './settingsService'
 import { loadSkill } from './skillLoader'
 import { logger } from '../logger'
+import { appendUserInstructionsToSystemPrompt } from './userInstructionsContext'
 import type { ConversationEntry, SituationSummary } from '../../shared/types'
 
 const SITUATION_SCHEMA = {
@@ -24,9 +25,10 @@ const FALLBACK_SITUATION: SituationSummary = {
 export async function synthesizeSituation(
   userInput: string,
   conversationHistory: readonly ConversationEntry[] = [],
+  userInstructionsBlock: string = '',
 ): Promise<SituationSummary> {
   const settings = getSettings()
-  const systemPrompt = loadSkill('situation')
+  const systemPrompt = appendUserInstructionsToSystemPrompt(loadSkill('situation'), userInstructionsBlock)
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: systemPrompt },

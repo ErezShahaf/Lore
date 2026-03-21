@@ -5,7 +5,7 @@ Output requirements:
 - Keys (exactly): "splitStrategy", "notesForDecomposer"
 - "splitStrategy": "single" | "list" | "verbatim_single"
   - **verbatim_single** — user asked for one block (e.g. verbatim note, one paste); do not split on inner commas or dialogue.
-  - **list** — clear list after "todos:", "todo:", etc., with comma-separated distinct tasks (or similar list structure).
+  - **list** — clear list after "todos:", "todo:", "Todos:", "Todo:", "tasks:", etc., with comma-separated distinct tasks (or similar list structure).
   - **single** — one cohesive capture that is not a comma-separated list (default).
 - "notesForDecomposer" — one short sentence of guidance for the next agent (e.g. "comma-separated todos after todos:").
 

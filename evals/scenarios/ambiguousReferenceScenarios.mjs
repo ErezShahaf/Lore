@@ -1,5 +1,29 @@
 export const ambiguousReferenceScenarios = [
   {
+    id: 'ambiguous-run-completion-needs-clarification',
+    topic: 'ambiguous-reference',
+    title: 'Ambiguous "just finished the run" asks which run todo to remove',
+    suites: ['full'],
+    steps: [
+      {
+        userInput: 'Todos: run 5 mile, run 10 mile',
+        expect: {
+          storedCount: 2,
+          todoCount: 2,
+        },
+      },
+      {
+        userInput: 'just finished the run',
+        expect: {
+          requiresClarification: true,
+          deletedCount: 0,
+          todoCount: 2,
+          responseJudge: 'The assistant should explain that multiple run-related todos match and ask which one the user completed. It must not delete any todo without clarification.',
+        },
+      },
+    ],
+  },
+  {
     id: 'ambiguous-ride-completion-needs-clarification',
     topic: 'ambiguous-reference',
     title: 'Ambiguous completion request asks which ride todo to remove',
@@ -147,6 +171,39 @@ export const ambiguousReferenceScenarios = [
           todoCount: 2,
           todoContentsIncludeExact: ['jump on the water', 'water the plants'],
           todoContentsExcludeExact: ['drink the water'],
+        },
+      },
+    ],
+  },
+  {
+    id: 'ambiguous-run-delete-exact-content-follow-up-executes',
+    topic: 'ambiguous-reference',
+    title: 'Exact content follow-up after clarification executes delete',
+    suites: ['full'],
+    steps: [
+      {
+        userInput: 'Todos: run 5 mile, run 10 mile',
+        expect: {
+          storedCount: 2,
+          todoCount: 2,
+        },
+      },
+      {
+        userInput: 'delete the run',
+        expect: {
+          requiresClarification: true,
+          deletedCount: 0,
+          todoCount: 2,
+        },
+      },
+      {
+        userInput: 'run 5 mile',
+        expect: {
+          deletedCount: 1,
+          todoCount: 1,
+          todoContentsIncludeExact: ['run 10 mile'],
+          todoContentsExcludeExact: ['run 5 mile'],
+          responseJudge: 'The assistant should treat "run 5 mile" as selecting that specific option from the clarification list. It should complete the deletion and confirm instead of asking again.',
         },
       },
     ],

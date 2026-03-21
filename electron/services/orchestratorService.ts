@@ -6,6 +6,9 @@ import { handleCommand } from './handlers/commandHandler'
 import { handleInstruction } from './handlers/instructionHandler'
 import { handleConversational } from './handlers/conversationalHandler'
 import { retrieveRelevantDocuments } from './documentPipeline'
+import { formatUserInstructionsBlock, loadAllUserInstructionDocuments } from './userInstructionsContext'
+import { getSettings } from './settingsService'
+import { streamLowConfidenceOrchestratorReply } from './orchestratorClarificationReply'
 import {
   ORCHESTRATOR_MAX_STEPS,
   type AgentEvent,
@@ -15,6 +18,23 @@ import {
 } from '../../shared/types'
 
 export const ORCHESTRATOR_CLASSIFICATION_CONFIDENCE_THRESHOLD = 0.75
+
+/**
+ * When the message opens with structured-data delimiters but is not valid JSON, the capture path
+ * should clarify instead of retrieval (e.g. question) misinterpreting a truncated paste as a search.
+ */
+function shouldRerouteInvalidStructuredOpenToThoughtCapture(userInput: string): boolean {
+  const trimmed = userInput.trim()
+  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+    return false
+  }
+  try {
+    JSON.parse(trimmed)
+    return false
+  } catch {
+    return true
+  }
+}
 
 function toErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'An unexpected error occurred'
@@ -37,9 +57,13 @@ export async function* runOrchestratedTurn(
     if (stepIndex === 0) {
       yield { type: 'status', message: 'Starting your turn…' }
 
+      const userInstructionDocuments = await loadAllUserInstructionDocuments()
+      turn.userInstructionDocuments = userInstructionDocuments
+      turn.userInstructionsBlock = formatUserInstructionsBlock(userInstructionDocuments)
+
       let classification: ClassificationResult
       try {
-        const iterator = classifyInputWithStatusEvents(userInput, priorHistory)
+        const iterator = classifyInputWithStatusEvents(userInput, priorHistory, turn.userInstructionsBlock)
         let step = await iterator.next()
         while (!step.done) {
           yield step.value as AgentEvent
@@ -65,27 +89,54 @@ export async function* runOrchestratedTurn(
         '[Orchestrator] Classified',
       )
 
-      yield {
-        type: 'status',
-        message: `Orchestrator: routing to ${classification.intent}…`,
-      }
-
       if (classification.confidence < ORCHESTRATOR_CLASSIFICATION_CONFIDENCE_THRESHOLD) {
         logger.warn(
           { confidence: classification.confidence },
-          '[Orchestrator] Confidence too low, refusing to act',
+          '[Orchestrator] Confidence too low, drafting clarification via model',
         )
-        const lowConfidenceResponse =
-          "I'm not sure what you mean or what you'd like me to do. Could you provide more detail or rephrase? " +
-          'You can also ask me "what can you do?" to learn about my capabilities.'
-        turn.assistantResponse = lowConfidenceResponse
         recordDispatcher(turn, 'LowConfidenceGate')
-        yield { type: 'chunk', content: lowConfidenceResponse }
+        yield { type: 'status', message: 'Confidence was low—drafting a helpful reply…' }
+        const settings = getSettings()
+        try {
+          for await (const chunk of streamLowConfidenceOrchestratorReply({
+            userInput,
+            userInstructionsBlock: turn.userInstructionsBlock,
+            model: settings.selectedModel,
+          })) {
+            turn.assistantResponse += chunk
+            yield { type: 'chunk', content: chunk }
+          }
+        } catch (err) {
+          logger.error({ err }, '[Orchestrator] Low-confidence reply failed')
+          yield { type: 'error', message: toErrorMessage(err) }
+        }
         yield { type: 'done' }
         return
       }
 
-      yield* dispatchIntentHandlers(userInput, priorHistory, classification, turn)
+      let routedClassification = classification
+      if (
+        classification.intent !== 'thought'
+        && shouldRerouteInvalidStructuredOpenToThoughtCapture(userInput)
+      ) {
+        routedClassification = {
+          ...classification,
+          intent: 'thought',
+          reasoning: `${classification.reasoning} (Rerouted: leading structured payload is not valid JSON; using capture/clarify path.)`,
+        }
+        turn.classification = routedClassification
+        logger.debug(
+          { fromIntent: classification.intent },
+          '[Orchestrator] Rerouting invalid structured open to thought handler',
+        )
+      }
+
+      yield {
+        type: 'status',
+        message: `Orchestrator: routing to ${routedClassification.intent}…`,
+      }
+
+      yield* dispatchIntentHandlers(userInput, priorHistory, routedClassification, turn)
       return
     }
 
@@ -108,7 +159,7 @@ async function* dispatchIntentHandlers(
         yield { type: 'status', message: 'Thought path: saving or updating your note…' }
         turn.lastDocumentIds = []
         recordDispatcher(turn, 'ThoughtHandler')
-        for await (const event of handleThought(userInput, classification, priorHistory)) {
+        for await (const event of handleThought(userInput, classification, priorHistory, turn.userInstructionsBlock)) {
           if (event.type === 'chunk') turn.assistantResponse += event.content
           if (event.type === 'stored') turn.lastDocumentIds.push(event.documentId)
           yield event
@@ -121,7 +172,14 @@ async function* dispatchIntentHandlers(
         const isTodoQuery = classification.extractedTags.some((tag) => tag === 'todo')
         const todoOverrides = isTodoQuery ? ({ type: 'todo' } as const) : undefined
         recordDispatcher(turn, 'QuestionHandler')
-        for await (const event of handleQuestion(userInput, classification, [...priorHistory], todoOverrides)) {
+        for await (const event of handleQuestion(
+          userInput,
+          classification,
+          [...priorHistory],
+          todoOverrides,
+          turn.userInstructionDocuments,
+          turn.userInstructionsBlock,
+        )) {
           if (event.type === 'chunk') turn.assistantResponse += event.content
           if (event.type === 'retrieved') turn.lastDocumentIds = [...event.documentIds]
           yield event
@@ -131,7 +189,7 @@ async function* dispatchIntentHandlers(
       case 'command': {
         yield { type: 'status', message: 'Command path: applying changes to stored documents…' }
         recordDispatcher(turn, 'CommandHandler')
-        for await (const event of handleCommand(userInput, classification, priorHistory)) {
+        for await (const event of handleCommand(userInput, classification, priorHistory, undefined, turn.userInstructionsBlock)) {
           if (event.type === 'chunk') turn.assistantResponse += event.content
           if (event.type === 'retrieved') turn.lastDocumentIds = [...event.documentIds]
           yield event
@@ -141,7 +199,7 @@ async function* dispatchIntentHandlers(
       case 'instruction': {
         yield { type: 'status', message: 'Instruction path: storing a standing preference…' }
         recordDispatcher(turn, 'InstructionHandler')
-        for await (const event of handleInstruction(userInput, classification)) {
+        for await (const event of handleInstruction(userInput, classification, turn.userInstructionsBlock)) {
           if (event.type === 'chunk') turn.assistantResponse += event.content
           if (event.type === 'stored') turn.lastDocumentIds = [event.documentId]
           yield event
@@ -162,7 +220,14 @@ async function* dispatchIntentHandlers(
           }
           turn.lastDocumentIds = []
           recordDispatcher(turn, 'QuestionHandlerViaInstructions')
-          for await (const event of handleQuestion(userInput, classification, [...priorHistory])) {
+          for await (const event of handleQuestion(
+            userInput,
+            classification,
+            [...priorHistory],
+            undefined,
+            turn.userInstructionDocuments,
+            turn.userInstructionsBlock,
+          )) {
             if (event.type === 'chunk') turn.assistantResponse += event.content
             if (event.type === 'retrieved') turn.lastDocumentIds = [...event.documentIds]
             yield event
@@ -170,7 +235,7 @@ async function* dispatchIntentHandlers(
         } else {
           yield { type: 'status', message: 'No instruction override: drafting a short reply…' }
           recordDispatcher(turn, 'ConversationalHandler')
-          for await (const event of handleConversational(userInput, classification, priorHistory)) {
+          for await (const event of handleConversational(userInput, classification, priorHistory, turn.userInstructionsBlock)) {
             if (event.type === 'chunk') turn.assistantResponse += event.content
             yield event
           }
@@ -190,5 +255,7 @@ export function createEmptyOrchestratorTurn(): OrchestratorTurnResult {
     classification: null,
     lastDocumentIds: [],
     completedDispatcherIds: [],
+    userInstructionDocuments: [],
+    userInstructionsBlock: '',
   }
 }
