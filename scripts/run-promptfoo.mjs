@@ -231,7 +231,7 @@ function buildPromptfooConfig({
 async function main() {
   const selectedModels = parseModels()
   if (selectedModels.length === 0) {
-    throw new Error('Provide at least one model with --models llama3.2,qwen2.5 or repeated --model flags.')
+    throw new Error('Provide at least one model with --models qwen3.5:4b,qwen3.5:9b or repeated --model flags.')
   }
 
   const suiteName = getSingleArgumentValue('--suite', 'full')

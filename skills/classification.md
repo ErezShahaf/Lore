@@ -54,7 +54,7 @@ Critical routing rules:
 - If the user's message confirms completion of *previously listed* stored todos (for example, after the user asked "what's on my todo(s)" and then says those items are done/in place/already seen), classify as command subtype "delete" (not "thought" and not "conversational"), and include the tag `todo` in `extractedTags` even if the word "todo" is not explicitly present.
 - If "finished/done/completed" sounds like sharing a real-life experience instead of removing a stored item, classify as "thought".
 - If task completion vs. life update is ambiguous, lower confidence so the app can ask for clarification.
-- Vague imperative requests like "do the thing", "handle it", "fix this", or "take care of that" without a clear object must get LOW confidence so Lore asks the user to clarify instead of confidently treating them as normal conversation.
+- Vague imperative requests like "do the thing", "handle it", "fix this", or "take care of that" without a clear object must get LOW confidence (below 0.75) so Lore refuses to act and asks the user to clarify. Do not classify these as high-confidence "thought", "command", or "question" when the object of the request is unknown.
 
 Confidence rules:
 - High: clear single intent with enough detail to act.

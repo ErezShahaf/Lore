@@ -36,3 +36,6 @@ Decisions:
 - Choose "confirm_save_previously_provided_json_exactly" when the user explicitly requests saving/capturing/storing/logging that previously provided JSON exactly as given.
 - Choose "store_normal" for everything else.
 
+Exactness:
+- When the user asks to save the prior turn's JSON exactly, the stored note must preserve that JSON string as-is (same characters as the user's earlier message). Do not reduce it to a single field, do not substitute a different payload shape, and do not treat a minimal fixture as "wrong" if that is what the user sent.
+

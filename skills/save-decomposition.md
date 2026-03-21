@@ -29,9 +29,10 @@ Splitting rules:
 - Do not split a single cohesive paragraph or narrative.
 - Each split item must remain self-contained.
 - Preserve shared context or headers when needed so each item still makes sense on its own.
-- For explicit list prefixes like "todos:" or "notes:", return one item per list element and keep each item literal.
+- For explicit list prefixes like "todos:", "todo:", "notes:", or "note:", return one item per list element and keep each item literal.
 - If the user provides a single todo wrapper like "add to my todo list:" or "todos:" followed by a single sentence/remainder, treat the entire remainder as ONE todo item even if it contains conjunctions/verbs like "and remember", "and list", etc.
 - Only split that wrapper remainder into multiple todos when the user clearly separates distinct items using explicit delimiters (for example commas) rather than just using conjunctions inside one sentence.
+- Critical: After "todos:" or "todo:", each comma-separated segment is a separate todo. Return one array entry per segment with that segment's exact text (trimmed). Do not keep only the last segment, do not merge segments, and do not summarize multiple segments into one todo.
 - If the user explicitly asks to store the whole message "once", "verbatim", "as one note", or "as raw text", return exactly one item and do not split just because the text contains embedded “show me” / “remember” / “list” phrases.
 
 Content rules:
@@ -60,6 +61,10 @@ Example valid output:
 Example list input:
 User: todos: take a shower, cry a river
 Output: {"items":[{"content":"take a shower","type":"todo","tags":["todo","hygiene"]},{"content":"cry a river","type":"todo","tags":["todo","emotion"]}]}
+
+Example multi-item todo list (every comma-separated task is its own todo):
+User: Todos: ride a dragon, ride a motorcycle, ride a bike, ride a turtle
+Output: {"items":[{"content":"ride a dragon","type":"todo","tags":["todo","ride","dragon"]},{"content":"ride a motorcycle","type":"todo","tags":["todo","ride","motorcycle"]},{"content":"ride a bike","type":"todo","tags":["todo","ride","bike"]},{"content":"ride a turtle","type":"todo","tags":["todo","ride","turtle"]}]}
 
 Example indirect todo phrasing:
 User: Please put "call mom" on my todo list.

@@ -37,7 +37,8 @@ export const structuredDataScenarios = [
         expect: {
           storedCount: 1,
           responseJudge: 'The assistant should confirm that it saved the previously provided JSON exactly as requested.',
-          dataJudge: 'The database should now contain exactly one stored document whose content is the raw Stripe checkout.session.completed JSON from the previous turn, without rewriting the payload.',
+          dataJudge:
+            'The database should now contain exactly one stored document. Its content must be exactly the same JSON string the user pasted in the immediately previous turn (the minimal object with provider stripe, event checkout.session.completed, and the example url field). Accept that literal payload as correct; do not require a fuller production Stripe webhook shape.',
         },
       },
       {

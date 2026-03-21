@@ -13,9 +13,13 @@ const defaultRepositoryRoot = resolve(providerDirectory, '../..')
 const activeServersByKey = new Map()
 const judgeSystemPrompt = [
   'You are an evaluation judge for Lore conversation tests.',
-  'Evaluate whether the actual behavior satisfies the rubric.',
-  'Return only valid JSON with exactly two keys: "pass" and "reason".',
-  'Do not use markdown fences, bullet lists, or any text outside the JSON object.',
+  'The "actual state" payload includes the assistant response you must grade (for example a "response" field).',
+  'That assistant is a conversational product: it answers in natural language.',
+  'Do not require the assistant to output JSON, code fences, or any particular format unless the rubric explicitly says so.',
+  'Numbered lists, bullets, and markdown in the assistant response are allowed and are not a reason to fail by themselves.',
+  'Evaluate only whether the assistant behavior satisfies the rubric.',
+  'Your own reply to this task must be only valid JSON with exactly two keys: "pass" (boolean) and "reason" (string).',
+  'Do not wrap your verdict in markdown fences and do not add any text outside that single JSON object.',
   'Use "pass": true only when the behavior clearly satisfies the rubric.',
   'Be strict about contradictions, wrong entities, premature actions, and missing clarifications.',
 ].join(' ')
@@ -31,7 +35,8 @@ const judgeVerdictJsonSchema = {
 
 const judgeRepairUserMessage =
   'Your last reply was not a single JSON object with exactly two keys: "pass" (boolean) and "reason" (string). '
-  + 'Reply again with only that JSON object. No markdown fences, no bullet lists, no text before or after the JSON.'
+  + 'Reply again with only that JSON verdict. No markdown fences and no text before or after the JSON. '
+  + 'This applies only to you as the judge, not to the assistant response you are evaluating.'
 
 function normalizeText(value) {
   return String(value || '').toLowerCase().replace(/\s+/g, ' ').trim()

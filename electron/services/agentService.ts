@@ -73,7 +73,7 @@ export async function* processUserInput(userInput: string): AsyncGenerator<Agent
   if (classification.confidence < CLASSIFICATION_CONFIDENCE_THRESHOLD) {
     logger.warn({ confidence: classification.confidence }, '[Agent] Classification confidence too low, refusing to act')
     const lowConfidenceResponse =
-      "I'm not sure what you'd like me to do. Could you provide more detail or rephrase? " +
+      "I'm not sure what you mean or what you'd like me to do. Could you provide more detail or rephrase? " +
       'You can also ask me "what can you do?" to learn about my capabilities.'
     yield { type: 'chunk', content: lowConfidenceResponse }
     yield { type: 'done' }
