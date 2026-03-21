@@ -5,6 +5,23 @@ const adyenAuthorisationJson = '{"provider":"adyen","eventCode":"AUTHORISATION",
 
 export const structuredDataScenarios = [
   {
+    id: 'instruction-plus-json-saves-on-first-turn',
+    topic: 'structured-data',
+    title: 'Explicit save instruction with JSON saves immediately without clarification',
+    suites: ['full'],
+    steps: [
+      {
+        userInput:
+          'save this webhook payload of order delivered event in food delivery api\n\n{"event":"order.delivered","order_id":"ord_9f3a7c21","status":"delivered"}',
+        expect: {
+          storedCount: 1,
+          responseJudge: 'The assistant should confirm it saved the content. It must not ask what to do with the JSON or clarify—the user already said to save it.',
+          dataJudge: 'The database must contain exactly one document. The stored content should be the JSON payload (or the payload with minimal surrounding context from the instruction). It must not be a clarification message or meta-instructions.',
+        },
+      },
+    ],
+  },
+  {
     id: 'raw-json-without-instruction-needs-clarification',
     topic: 'structured-data',
     title: 'Raw JSON alone asks what to do before mutating state',
@@ -35,9 +52,16 @@ export const structuredDataScenarios = [
       {
         userInput: 'store it',
         expect: {
+          responseJudge: 'The assistant should suggest adding a short description for easier retrieval, or ask if the user wants to add one. It should not have saved yet.',
+          dataJudge: 'The database should still be empty. The user said "store it" but the assistant may first suggest adding a description.',
+        },
+      },
+      {
+        userInput: 'just save',
+        expect: {
           storedCount: 1,
           responseJudge: 'The assistant should confirm it saved the previously provided JSON. It must not mention saving something unrelated such as a shape plan, strategy note, or internal agent output.',
-          dataJudge: 'The database must contain exactly one document whose content is the JSON the user pasted in the previous turn (with event order.delivered, order_id ord_123, status delivered). The stored content must not be text from a shape plan, notes for decomposer, or assistant messages.',
+          dataJudge: 'The database must contain exactly one document whose content is the JSON the user pasted in the first turn (with event order.delivered, order_id ord_123, status delivered). The stored content must not be text from a shape plan, notes for decomposer, or assistant messages.',
         },
       },
     ],

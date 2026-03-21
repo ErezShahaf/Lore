@@ -19,23 +19,6 @@ import {
 
 export const ORCHESTRATOR_CLASSIFICATION_CONFIDENCE_THRESHOLD = 0.75
 
-/**
- * When the message opens with structured-data delimiters but is not valid JSON, the capture path
- * should clarify instead of retrieval (e.g. question) misinterpreting a truncated paste as a search.
- */
-function shouldRerouteInvalidStructuredOpenToThoughtCapture(userInput: string): boolean {
-  const trimmed = userInput.trim()
-  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
-    return false
-  }
-  try {
-    JSON.parse(trimmed)
-    return false
-  } catch {
-    return true
-  }
-}
-
 function toErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'An unexpected error occurred'
 }
@@ -114,29 +97,12 @@ export async function* runOrchestratedTurn(
         return
       }
 
-      let routedClassification = classification
-      if (
-        classification.intent !== 'thought'
-        && shouldRerouteInvalidStructuredOpenToThoughtCapture(userInput)
-      ) {
-        routedClassification = {
-          ...classification,
-          intent: 'thought',
-          reasoning: `${classification.reasoning} (Rerouted: leading structured payload is not valid JSON; using capture/clarify path.)`,
-        }
-        turn.classification = routedClassification
-        logger.debug(
-          { fromIntent: classification.intent },
-          '[Orchestrator] Rerouting invalid structured open to thought handler',
-        )
-      }
-
       yield {
         type: 'status',
-        message: `Orchestrator: routing to ${routedClassification.intent}…`,
+        message: `Orchestrator: routing to ${classification.intent}…`,
       }
 
-      yield* dispatchIntentHandlers(userInput, priorHistory, routedClassification, turn)
+      yield* dispatchIntentHandlers(userInput, priorHistory, classification, turn)
       return
     }
 

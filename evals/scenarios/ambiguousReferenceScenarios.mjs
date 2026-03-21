@@ -24,6 +24,37 @@ export const ambiguousReferenceScenarios = [
     ],
   },
   {
+    id: 'ambiguous-run-completion-numeric-follow-up-executes',
+    topic: 'ambiguous-reference',
+    title: 'Numeric "1" after run clarification executes delete',
+    suites: ['full'],
+    steps: [
+      {
+        userInput: 'Todos: run 5 km, run 6 km',
+        expect: {
+          storedCount: 2,
+          todoCount: 2,
+        },
+      },
+      {
+        userInput: 'i finished the run',
+        expect: {
+          requiresClarification: true,
+          deletedCount: 0,
+          todoCount: 2,
+        },
+      },
+      {
+        userInput: '1',
+        expect: {
+          deletedCount: 1,
+          todoCount: 1,
+          responseJudge: 'The assistant should treat "1" as a clarification follow-up selecting one of the previously numbered candidates. It should complete one deletion and confirm the change instead of restarting the whole clarification flow or acting confused.',
+        },
+      },
+    ],
+  },
+  {
     id: 'ambiguous-ride-completion-needs-clarification',
     topic: 'ambiguous-reference',
     title: 'Ambiguous completion request asks which ride todo to remove',

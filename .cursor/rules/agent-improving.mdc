@@ -10,3 +10,4 @@ When you suggest a fix, those are your options
 - Outside the box thinking, you are definitely allowed to toss new solutions into the air, as long as they are scaleable you will never be judged.
 - You can argue with me about my assumptions, and prove me wrong. We are building together, sometimes I may be wrong.
 - When you think of a solution, always ask yourself the question - "did I solve a test case by cheating the test case and ruining something else that is not in the test?" if yes, it is not a real solution. For example if the test failed to get a json because it inserted something and you tell the classifier "when the user gives you a json, always get it, do not save it" it is not a real solution because you ruined saving.
+- Never use a super specific case just because that's what happened in reality or in the test, try to explain it generically.

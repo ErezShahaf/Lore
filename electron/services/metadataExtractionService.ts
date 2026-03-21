@@ -22,8 +22,22 @@ const METADATA_SCHEMA = {
       type: 'array',
       items: { type: 'string' },
     },
+    thoughtClarification: {
+      anyOf: [
+        {
+          type: 'object',
+          properties: {
+            type: { type: 'string', enum: ['clarify', 'suggest_description'] },
+            message: { type: 'string' },
+          },
+          required: ['type', 'message'],
+          additionalProperties: false,
+        },
+        { type: 'null' },
+      ],
+    },
   },
-  required: ['subtype', 'extractedDate', 'extractedTags'],
+  required: ['subtype', 'extractedDate', 'extractedTags', 'thoughtClarification'],
   additionalProperties: false,
 }
 
@@ -33,6 +47,7 @@ const FALLBACK_METADATA: MetadataExtractionResult = {
   subtype: 'general',
   extractedDate: null,
   extractedTags: [],
+  thoughtClarification: null,
 }
 
 export async function extractMetadata(
@@ -72,7 +87,7 @@ export async function extractMetadata(
       messages,
       schema: METADATA_SCHEMA,
       maxAttempts: MAX_RETRIES,
-      validate: validateMetadata,
+      validate: (parsed) => validateMetadata(parsed, intent),
     })
   } catch (error) {
     logger.warn({ error }, '[Metadata] Extraction failed, using fallback')
@@ -80,7 +95,25 @@ export async function extractMetadata(
   }
 }
 
-function validateMetadata(parsed: Record<string, unknown>): MetadataExtractionResult {
+function validateThoughtClarification(
+  parsed: Record<string, unknown>,
+  intent: InputClassification,
+): MetadataExtractionResult['thoughtClarification'] {
+  if (intent !== 'thought') return null
+  const tc = parsed.thoughtClarification
+  if (tc === null || tc === undefined) return null
+  if (typeof tc !== 'object') return null
+  const obj = tc as Record<string, unknown>
+  const type = obj.type === 'clarify' ? 'clarify' : obj.type === 'suggest_description' ? 'suggest_description' : null
+  const message = typeof obj.message === 'string' ? obj.message : null
+  if (!type || !message) return null
+  return { type, message }
+}
+
+function validateMetadata(
+  parsed: Record<string, unknown>,
+  intent: InputClassification,
+): MetadataExtractionResult {
   return {
     subtype: typeof parsed.subtype === 'string' ? parsed.subtype : 'general',
     extractedDate: typeof parsed.extractedDate === 'string' && parsed.extractedDate !== ''
@@ -89,6 +122,7 @@ function validateMetadata(parsed: Record<string, unknown>): MetadataExtractionRe
     extractedTags: Array.isArray(parsed.extractedTags)
       ? parsed.extractedTags.filter((tag): tag is string => typeof tag === 'string')
       : [],
+    thoughtClarification: validateThoughtClarification(parsed, intent),
   }
 }
 

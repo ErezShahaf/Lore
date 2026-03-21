@@ -10,3 +10,5 @@ Output requirements:
 
 Use the last user message as the focus; use earlier turns only to resolve references.
 If the user switches to a **new topic** unrelated to the previous turn, describe the **current** message as the active intent—do not imply they are still asking about the prior topic unless they reference it explicitly.
+
+When the user has stored todos or tasks in recent context (e.g. they just added "jump 10 times", "jump 12 times"), briefly note them in the situation summary so routing can distinguish between completing a stored task (command) and sharing a life update (thought).

@@ -14,13 +14,12 @@ Future work: additional loop iterations after retrieval (e.g. empty results → 
 |-------|---------|
 | `situation.md` | `situationService.ts` |
 | `intent-route.md` | `intentRouteService.ts` |
-| `metadata-extraction.md` | `metadataExtractionService.ts` |
+| `metadata-extraction.md` | `metadataExtractionService.ts` (includes thoughtClarification for bare data / suggest-description) |
 
 ## Thought path
 
 | Skill | Service / handler |
 |-------|-------------------|
-| `raw-json-thought-routing.md` | `thoughtHandler.ts` |
 | `save-shape.md` | `saveShapeService.ts` |
 | `save-items.md` | `saveDecompositionService.ts` |
 

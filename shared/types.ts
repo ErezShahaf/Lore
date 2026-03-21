@@ -176,10 +176,17 @@ export interface IntentRouteResult {
   readonly reasoning: string
 }
 
+export interface ThoughtClarification {
+  readonly type: 'clarify' | 'suggest_description'
+  readonly message: string
+}
+
 export interface MetadataExtractionResult {
   readonly subtype: string
   readonly extractedDate: string | null
   readonly extractedTags: string[]
+  /** When intent is thought: clarify bare data, suggest description, or null to proceed. */
+  readonly thoughtClarification: ThoughtClarification | null
 }
 
 export interface SaveShapePlan {
@@ -200,6 +207,8 @@ export interface ClassificationResult {
   confidence: number
   reasoning: string
   situationSummary: string
+  /** When intent is thought: clarify bare data, suggest description, or null to proceed. */
+  thoughtClarification: ThoughtClarification | null
 }
 
 /** Mutable accumulator for one user turn; updated by [orchestratorService](electron/services/orchestratorService.ts). */

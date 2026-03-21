@@ -43,6 +43,7 @@ export async function* classifyInputWithStatusEvents(
     confidence: route.confidence,
     reasoning: `${route.reasoning} | Metadata: subtype=${metadata.subtype}`,
     situationSummary: situation.situationSummary,
+    thoughtClarification: metadata.thoughtClarification,
   }
 }
 
